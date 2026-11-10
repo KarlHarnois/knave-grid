@@ -30,5 +30,5 @@
                (contains? overlay-javascript
                           "\"[data-grid-guides-toggle]\""))))
 
-(deftest draws-the-guides-only-when-the-root-asks-for-them
-  (assert (contains? overlay-css ":root.grid-guides {")))
+(deftest draws-the-guides-on-their-own-layer
+  (assert (contains? overlay-css ":root.grid-guides body::before {")))
