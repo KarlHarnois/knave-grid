@@ -50,6 +50,8 @@ The library reads font metrics from the font files at build time to place each s
 
 A baseline sits half the leading left over by the ascent and descent, plus the ascent, below the top of its line. The library rounds the ascent and descent to whole pixels and the half leading down, as Chromium does, and `grid-css` writes the body text's offset as `--baseline-offset`.
 
+Browsers on macOS read the `hhea` metrics even when a font asks for its typo metrics. So `font-face-css` writes each face's `@font-face` rule with `ascent-override`, `descent-override` and `line-gap-override: 0%` set from the same metrics the library uses for the baseline, and every browser places the baseline the same way. A site passes its faces to `font-face-css` instead of writing its own `@font-face` rules.
+
 The generated CSS uses `text-box-trim` behind `@supports`, with margins computed from font metrics as the fallback.
 
 ## Placements and breakpoints
@@ -76,4 +78,4 @@ The overlay and the browser check share one measurement script.
 
 ## Open questions
 
-- Browsers on macOS use the `hhea` metrics even when a font asks for its typo metrics. Does the library write `ascent-override` and `descent-override` into the site's `@font-face` rules so every browser places the baseline the same way?
+None yet.

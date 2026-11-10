@@ -1,0 +1,50 @@
+(use declaration declaration)
+(use font-metrics font-metrics)
+
+(export ->font-face font-face font-face-css)
+
+(defstruct font-face
+  :family string
+  :url string
+  :weight i64
+  :metrics font-metrics
+  :display string
+  (defaults :display (str "swap")))
+
+(def joined-rules
+  (rust "{0}.join(\"\\n\")"
+    (fn ((vec string)) string)))
+
+(def float-of
+  (rust "{0} as f64" (fn (i64) f64)))
+
+(type font-face-css
+  (fn ((ref (vec font-face))) string))
+
+(defn font-face-css (faces)
+  (joined-rules (collect (map (iter faces) font-face-rule))))
+
+(type font-face-rule
+  (fn ((ref font-face)) string))
+
+(defn font-face-rule (face)
+  (let (metrics (:metrics face))
+    (str "@font-face {\n"
+         (declaration "font-family" (str "\"" (:family face) "\""))
+         (declaration "src" (str "url(\"" (:url face) "\")"))
+         (declaration "font-weight" (str (:weight face)))
+         (declaration "font-display" (:display face))
+         (declaration "ascent-override"
+                      (em-percent metrics (:ascent metrics)))
+         (declaration "descent-override"
+                      (em-percent metrics (:descent metrics)))
+         (declaration "line-gap-override" "0%")
+         "}\n")))
+
+(type em-percent
+  (fn ((ref font-metrics) i64) string))
+
+(defn em-percent (metrics font-units)
+  (str (/ (float-of (* 100 font-units))
+          (float-of (:units-per-em metrics)))
+       "%"))

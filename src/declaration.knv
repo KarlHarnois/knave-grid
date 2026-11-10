@@ -1,0 +1,4 @@
+(export declaration)
+
+(defn declaration (property value)
+  (str "  " property ": " value ";\n"))

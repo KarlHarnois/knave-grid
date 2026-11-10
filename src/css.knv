@@ -1,3 +1,4 @@
+(use declaration declaration)
 (use body-type baseline-offset-px)
 (use check checked-grid)
 (use length length length-css)
@@ -39,9 +40,6 @@
                                   spec))
          (declaration "--measure" (str (:measure-ch spec) "ch"))
          "}\n")))
-
-(defn declaration (property value)
-  (str "  " property ": " value ";\n"))
 
 (defn baseline-offset-rem (type)
   (str "calc("
