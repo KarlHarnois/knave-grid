@@ -28,7 +28,7 @@ Vertical spacing in type styles and placements takes only `lines`, so a spec can
 
 ## Defaults
 
-Root type is set in `rem` so the grid scales with the reader's font size. The defaults are 18px (112.5%) at a line-height of 1.5, which gives a 27px leading equal to `1rlh`.
+Root type is set in `rem` so the grid scales with the reader's font size. The defaults are 18px (112.5%) at a line-height of 1.5, which gives a 27px leading equal to `1rlh`. `grid-css` sets the root font size, so `1rem` is the body size and `1rlh` is the leading. A site that adopts the library rewrites its own `rem` values once.
 
 The sub-unit is one third of the leading, 9px, because half the leading is not a whole pixel.
 
@@ -36,7 +36,7 @@ The horizontal unit is `1ch`. The default gutter is `3ch`.
 
 A type area N units wide with a gutter of g units fits k equal columns when k divides N + g. The defaults use N + g = 120 on wide screens and N + g = 60 on medium screens.
 
-The text measure targets `66ch`. The library warns outside `45ch` to `75ch`.
+The measure defaults to `66ch`. The library warns when the measure is outside `45ch` to `75ch`, and a measure wider than the type area is an error. The library checks no column width, because a column can hold more than one line of text, such as a code pane or an image.
 
 ## Type styles
 
@@ -74,6 +74,4 @@ The overlay and the browser check share one measurement script.
 
 ## Open questions
 
-- Does the 45ch to 75ch warning check the column width, as the first slice does, or the measure?
-- Does `grid-css` set the root font size, which changes what `rem` means in a site's own CSS?
 - Does the overlay scroll with the page, so its baselines stay on the text?

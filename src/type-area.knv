@@ -1,5 +1,5 @@
-(export ->type-area column-width-ch fits?
-        fitting-column-counts span-width-ch type-area)
+(export ->type-area fits? fitting-column-counts
+        span-width-ch type-area)
 
 (defstruct type-area
   :width-ch i64

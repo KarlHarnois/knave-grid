@@ -2,7 +2,8 @@
          length-css)
 
 (defn twelve-column-spec ()
-  (->grid-spec (->body-type 18.0 1.5) (->type-area 117 3 12)))
+  (->grid-spec :body-type (->body-type 18.0 1.5)
+               :type-area (->type-area 117 3 12)))
 
 (defn css-of (length)
   (length-css length (twelve-column-spec)))

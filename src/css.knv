@@ -23,21 +23,23 @@
 (defn root-rule (spec)
   (let (type (:body-type spec)
         type-area (:type-area spec))
-    (str ":root {\n" "  font-size: "
-         (root-font-size-percent type)
-         "%;\n" "  line-height: "
-         (:line-height type)
-         ";\n" "  --leading: "
-         (length-css (length/lines 1) spec)
-         ";\n" "  --gutter: "
-         (:gutter-ch type-area)
-         "ch;\n" "  --columns: "
-         (:column-count type-area)
-         ";\n" "  --column: "
-         (length-css (length/columns 1) spec)
-         ";\n" "  --grid-width: "
-         (length-css (length/columns (:column-count type-area)) spec)
-         ";\n" "}\n")))
+    (str ":root {\n"
+         (declaration "font-size"
+                      (str (root-font-size-percent type) "%"))
+         (declaration "line-height" (str (:line-height type)))
+         (declaration "--leading" (length-css (length/lines 1) spec))
+         (declaration "--gutter" (str (:gutter-ch type-area) "ch"))
+         (declaration "--columns" (str (:column-count type-area)))
+         (declaration "--column"
+                      (length-css (length/columns 1) spec))
+         (declaration "--grid-width"
+                      (length-css (length/columns (:column-count type-area))
+                                  spec))
+         (declaration "--measure" (str (:measure-ch spec) "ch"))
+         "}\n")))
+
+(defn declaration (property value)
+  (str "  " property ": " value ";\n"))
 
 (defn root-font-size-percent (type)
   (* 100.0

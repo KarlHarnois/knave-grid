@@ -5,4 +5,6 @@
 
 (defstruct grid-spec
   :body-type body-type
-  :type-area type-area)
+  :type-area type-area
+  :measure-ch i64
+  (defaults :measure-ch 66))

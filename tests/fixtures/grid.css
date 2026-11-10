@@ -6,6 +6,7 @@
   --columns: 4;
   --column: 22ch;
   --grid-width: 100ch;
+  --measure: 60ch;
 }
 
 .grid {

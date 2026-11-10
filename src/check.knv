@@ -1,18 +1,17 @@
-(use type-area column-width-ch fits? fitting-column-counts
-               type-area)
-
+(use type-area fits? fitting-column-counts type-area)
 (use spec grid-spec)
 
 (export ->checked-grid check-grid checked-grid grid-error
         grid-warning)
 
-(def narrowest-column-ch 45)
+(def narrowest-measure-ch 45)
 
-(def widest-column-ch 75)
+(def widest-measure-ch 75)
 
 (defenum grid-error
   (type-area-does-not-fit :type-area type-area
-                          :fitting-counts (vec i64)))
+                          :fitting-counts (vec i64))
+  (measure-wider-than-type-area :measure-ch i64 :width-ch i64))
 
 (display grid-error (error)
   (match error
@@ -24,21 +23,25 @@
           "ch does not fit "
           (:column-count type-area)
           " columns; the column counts that fit are "
-          (joined-counts fitting-counts)))))
+          (joined-counts fitting-counts)))
+    ((measure-wider-than-type-area measure-ch width-ch)
+     (str "the measure of " measure-ch
+          "ch is wider than the type area of " width-ch
+          "ch"))))
 
 (def joined-counts
   (rust "{0}.iter().map(|count| count.to_string()).collect::<Vec<_>>().join(\", \")"
     (fn ((ref (vec i64))) string)))
 
 (defenum grid-warning
-  (column-width-out-of-range :column-width-ch i64))
+  (measure-out-of-range :measure-ch i64))
 
 (display grid-warning (warning)
   (match warning
-    ((column-width-out-of-range column-width-ch)
-     (str "the column width of " column-width-ch
-          "ch is outside " narrowest-column-ch "ch to "
-          widest-column-ch "ch"))))
+    ((measure-out-of-range measure-ch)
+     (str "the measure of " measure-ch "ch is outside "
+          narrowest-measure-ch "ch to " widest-measure-ch
+          "ch"))))
 
 (defstruct checked-grid
   :spec grid-spec
@@ -48,19 +51,24 @@
   (fn (grid-spec) (result checked-grid grid-error)))
 
 (defn check-grid (spec)
-  (let (type-area (:type-area spec))
-    (if (fits? type-area)
-      (ok (->checked-grid spec (column-width-warnings type-area)))
-      (err (grid-error/type-area-does-not-fit (deref type-area)
-                                              (fitting-column-counts
-                                                type-area))))))
+  (let (type-area (:type-area spec)
+        measure-ch (:measure-ch spec)
+        width-ch (:width-ch type-area))
+    (cond
+      ((not (fits? type-area))
+       (err (grid-error/type-area-does-not-fit (deref type-area)
+                                               (fitting-column-counts
+                                                 type-area))))
+      ((> measure-ch width-ch)
+       (err (grid-error/measure-wider-than-type-area measure-ch
+                                                     width-ch)))
+      (else (ok (->checked-grid spec (measure-warnings measure-ch)))))))
 
-(defn column-width-warnings (type-area)
-  (let (column-width (column-width-ch type-area))
-    (if (readable-column-width? column-width)
-      (vec)
-      (vec (grid-warning/column-width-out-of-range column-width)))))
+(defn measure-warnings (measure-ch)
+  (if (readable-measure? measure-ch)
+    (vec)
+    (vec (grid-warning/measure-out-of-range measure-ch))))
 
-(defn readable-column-width? (column-width)
-  (and (>= column-width narrowest-column-ch)
-       (<= column-width widest-column-ch)))
+(defn readable-measure? (measure-ch)
+  (and (>= measure-ch narrowest-measure-ch)
+       (<= measure-ch widest-measure-ch)))
