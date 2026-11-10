@@ -6,6 +6,8 @@
   --cap-top: calc(var(--baseline-offset) - 0.7 * 1rem);
   --descender-bottom: calc(var(--baseline-offset) + 0.2 * 1rem);
   --measure: 60ch;
+  --head-lines: 2;
+  --foot-lines: 2;
   --gutter: 4ch;
   --columns: 4;
   --column: 22ch;
@@ -26,6 +28,7 @@
 .type-area {
   width: min(100% - 2 * var(--margin), var(--grid-width));
   margin-inline: auto;
+  padding-block: calc(var(--head-lines) * var(--leading) - var(--baseline-offset)) calc((var(--foot-lines) - 1) * var(--leading) + var(--baseline-offset));
 }
 
 .grid {

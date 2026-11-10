@@ -36,6 +36,8 @@ The horizontal unit is `1ch`. The default gutter is `3ch`, and the default margi
 
 Each type area sets its margin in ch, and `grid-css` writes it as `--margin`. The generated `.type-area` rule makes an element as wide as the type area and centers it, with at least the margin on each side when the screen is narrower. A page puts its content in that element, and the overlay draws its layer with the same width, so the overlay's columns sit on the page's.
 
+The page's top and bottom edges are baselines too. The spec's head margin is the number of lines from the top edge to the first baseline, and its foot margin the number of lines from the last baseline to the bottom edge, both at least one and two by default. The generated `.type-area` rule pads its content by those amounts less the space a line box keeps above and below its baseline, so a page built in it is a whole number of lines tall and ends flush on a baseline. The overlay counts its baselines from the top edge and marks the bottom edge.
+
 A type area N units wide with a gutter of g units fits k equal columns when k divides N + g. The defaults use N + g = 120 on wide screens and N + g = 60 on medium screens.
 
 The measure defaults to `66ch`. The library warns when the measure is outside `45ch` to `75ch`, and a measure wider than the widest type area is an error. The library checks no column width, because a column can hold more than one line of text, such as a code pane or an image.

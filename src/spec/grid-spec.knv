@@ -14,6 +14,10 @@
   :measure-ch i64
   :breakpoints (vec breakpoint)
   :type-styles (vec type-style)
+  :head-lines i64
+  :foot-lines i64
   (defaults :measure-ch 66
             :breakpoints (vec)
-            :type-styles (vec)))
+            :type-styles (vec)
+            :head-lines 2
+            :foot-lines 2))

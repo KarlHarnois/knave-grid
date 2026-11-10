@@ -20,6 +20,7 @@
   (breakpoint-out-of-order :min-width-em f64 :previous-em f64)
   (measure-wider-than-type-area :measure-ch i64 :width-ch i64)
   (type-style-without-lines :name string)
+  (page-margin-too-small :edge string :lines i64)
   (baseline-line-outside-style :name string
                                :baseline-line i64
                                :lines i64)
@@ -52,6 +53,9 @@
           width-ch "ch"))
     ((type-style-without-lines name)
      (str "the type style " name " needs at least one line"))
+    ((page-margin-too-small edge lines)
+     (str "the " edge " margin is " lines
+          " lines, but a page edge needs at least one line to its nearest baseline"))
     ((baseline-line-outside-style name baseline-line lines)
      (str "the type style " name
           " puts its baseline on line " baseline-line

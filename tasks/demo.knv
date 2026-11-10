@@ -33,6 +33,10 @@
 
 (def measure-ch 66)
 
+(def head-lines 1)
+
+(def foot-lines 2)
+
 (def create-directories
   (rust "std::fs::create_dir_all({0}).map_err(|error| error.to_string())"
     (fn ((ref str)) (result unit string))))
@@ -91,6 +95,8 @@
     :body-type (->body-type body-font-size-px body-line-height metrics)
     :type-area (->type-area narrow-width-ch gutter-ch 1 margin-ch)
     :measure-ch measure-ch
+    :head-lines head-lines
+    :foot-lines foot-lines
     :breakpoints (vec (->breakpoint medium-min-width-em
                                     (->type-area narrow-width-ch
                                                  gutter-ch

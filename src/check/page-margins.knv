@@ -1,0 +1,18 @@
+(use check/problems grid-error)
+(use spec/grid-spec grid-spec)
+
+(export check-page-margins)
+
+(type check-page-margins
+  (fn ((ref grid-spec))
+    (result unit grid-error)))
+
+(defn check-page-margins (spec)
+  (cond
+    ((< (:head-lines spec) 1)
+     (err (grid-error/page-margin-too-small (str "head")
+                                            (:head-lines spec))))
+    ((< (:foot-lines spec) 1)
+     (err (grid-error/page-margin-too-small (str "foot")
+                                            (:foot-lines spec))))
+    (else (ok (do)))))

@@ -72,3 +72,10 @@
   (assert (= (breakpoint-error (vec (->breakpoint 70.0
                                                   (->type-area 117 3 4 6))))
              "the type area of 117ch with 6ch margins needs 72.5625em, but its breakpoint starts at 70em")))
+
+(deftest rejects-a-page-margin-of-no-lines
+  (let (spec (->grid-spec :body-type (body-type-at 18.0 1.5)
+                          :type-area (->type-area 117 3 2 3)
+                          :foot-lines 0))
+    (assert (= (str (unwrap-err (check-grid spec)))
+               "the foot margin is 0 lines, but a page edge needs at least one line to its nearest baseline"))))
