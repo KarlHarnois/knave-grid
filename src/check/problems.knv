@@ -15,6 +15,7 @@
                            :fitting-counts (vec i64))
   (breakpoint-too-narrow :min-width-em f64
                          :width-ch i64
+                         :margin-ch i64
                          :needed-em f64)
   (breakpoint-out-of-order :min-width-em f64 :previous-em f64)
   (measure-wider-than-type-area :measure-ch i64 :width-ch i64))
@@ -27,10 +28,12 @@
                               fitting-counts)
      (str "at " min-width-em "em, "
           (fit-message type-area fitting-counts)))
-    ((breakpoint-too-narrow min-width-em width-ch needed-em)
-     (str "the type area of " width-ch "ch needs " needed-em
-          "em with a gutter on each side, but its breakpoint starts at "
-          min-width-em "em"))
+    ((breakpoint-too-narrow min-width-em width-ch margin-ch
+                            needed-em)
+     (str "the type area of " width-ch "ch with " margin-ch
+          "ch margins needs " needed-em
+          "em, but its breakpoint starts at " min-width-em
+          "em"))
     ((breakpoint-out-of-order min-width-em previous-em)
      (str "the breakpoint at " min-width-em
           "em must start after the one before it, at "

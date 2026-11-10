@@ -11,7 +11,7 @@
 <script src="grid-overlay.js" defer></script>
 </head>
 <body>
-<main>
+<main class="type-area">
 <header>
   <h1>knave-grid</h1>
   <p class="lede">A Swiss grid for static sites, generated from one Knave spec. Every rule, color and box on this page sits on the grid that the spec below describes.</p>
@@ -27,7 +27,7 @@
 
 <section>
   <h2>The type area</h2>
-  <p>The type area follows the width of the screen. The spec gives one for narrow screens and one per breakpoint, and the check makes sure each one fits its columns and its breakpoint, with a gutter of margin on each side. The gutter is 3ch everywhere.</p>
+  <p>The type area follows the width of the screen. The spec gives one for narrow screens and one per breakpoint, and the check makes sure each one fits its columns and its breakpoint, with its margins on each side. The gutter and the margins are 3ch everywhere, and the page's <code>main</code> takes its width from the generated <code>.type-area</code> rule.</p>
   <table>
     <thead><tr><th>Screen</th><th>Type area</th><th>Columns</th></tr></thead>
     <tbody>

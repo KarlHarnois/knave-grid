@@ -8,6 +8,13 @@
 
 (export grid-css)
 
+(def type-area-rule
+  ".type-area {
+  width: min(100% - 2 * var(--margin), var(--grid-width));
+  margin-inline: auto;
+}
+")
+
 (def grid-rule
   ".grid {
   display: grid;
@@ -27,7 +34,7 @@
   (let (spec (:spec checked))
     (str (root-rule spec)
          (breakpoint-rules spec)
-         "\n" grid-rule)))
+         "\n" type-area-rule "\n" grid-rule)))
 
 (type root-rule
   (fn ((ref grid-spec)) string))
@@ -74,7 +81,8 @@
        (declaration "--column"
                     (str (span-width-ch type-area 1) "ch"))
        (declaration "--grid-width"
-                    (str (:width-ch type-area) "ch"))))
+                    (str (:width-ch type-area) "ch"))
+       (declaration "--margin" (str (:margin-ch type-area) "ch"))))
 
 (defn baseline-offset-rem (type)
   (str "calc("

@@ -7,7 +7,7 @@
   position: absolute;
   inset: 0;
   z-index: 2147483647;
-  width: min(100% - 2 * var(--gutter), var(--grid-width));
+  width: min(100% - 2 * var(--margin), var(--grid-width));
   margin-inline: auto;
   background:
     repeating-linear-gradient(to bottom, transparent 0 var(--baseline-offset), rgb(255 64 160 / 0.6) var(--baseline-offset) calc(var(--baseline-offset) + 1px), transparent calc(var(--baseline-offset) + 1px) var(--leading)),

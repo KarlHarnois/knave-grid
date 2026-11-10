@@ -31,8 +31,6 @@ body {
 }
 
 main {
-  width: min(100% - 2 * var(--gutter), var(--grid-width));
-  margin-inline: auto;
   padding-block: calc(2 * var(--leading));
 }
 

@@ -6,11 +6,11 @@
 (defn four-column-grid ()
   (unwrap-ok (check-grid (->grid-spec
                            :body-type (body-type-at 20.0 1.4)
-                           :type-area (->type-area 100 4 4)
+                           :type-area (->type-area 100 4 4 6)
                            :measure-ch 60
                            :breakpoints (vec (->breakpoint
                                                100.0
-                                               (->type-area 136 4 4)))))))
+                                               (->type-area 136 4 4 8)))))))
 
 (deftest writes-the-root-breakpoint-and-grid-rules-of-a-spec
   (assert (= (grid-css (ref (four-column-grid)))
