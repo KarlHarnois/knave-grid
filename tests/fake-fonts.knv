@@ -1,0 +1,138 @@
+(export ->fake-font truetype-bytes woff2-bytes)
+
+(defstruct fake-font
+  :units-per-em i64
+  :hhea-ascender i64
+  :hhea-descender i64
+  :typo-ascender i64
+  :typo-descender i64
+  :uses-typo-metrics? bool)
+
+(def use-typo-metrics-flag 128)
+
+(def truetype-version 65536)
+
+(def truetype-header-size 12)
+
+(def table-record-size 16)
+
+(def head-tag-index 1)
+
+(def hhea-tag-index 2)
+
+(def os2-tag-index 6)
+
+(def joined-bytes
+  (rust "{0}.concat()"
+    (fn ((ref (vec (vec u8)))) (vec u8))))
+
+(def zeros
+  (rust "vec![0_u8; {0} as usize]"
+    (fn (i64) (vec u8))))
+
+(def byte
+  (rust "vec![{0} as u8]"
+    (fn (i64) (vec u8))))
+
+(def u16-bytes
+  (rust "({0} as u16).to_be_bytes().to_vec()"
+    (fn (i64) (vec u8))))
+
+(def i16-bytes
+  (rust "({0} as i16).to_be_bytes().to_vec()"
+    (fn (i64) (vec u8))))
+
+(def u32-bytes
+  (rust "({0} as u32).to_be_bytes().to_vec()"
+    (fn (i64) (vec u8))))
+
+(def tag-bytes
+  (rust "{0}.as_bytes().to_vec()"
+    (fn ((ref str)) (vec u8))))
+
+(def byte-count
+  (rust "{0}.len() as i64"
+    (fn ((ref (vec u8))) i64)))
+
+(def base-128-bytes
+  (rust "{{ let mut {!value} = {0} as u32; let mut {!groups} = vec![({!value} & 0x7f) as u8]; {!value} >>= 7; while {!value} > 0 {{ {!groups}.insert(0, ({!value} & 0x7f) as u8 | 0x80); {!value} >>= 7; }} {!groups} }}"
+    (fn (i64) (vec u8))))
+
+(def brotli-compressed
+  (rust "{{ let mut {!output} = Vec::new(); brotli::BrotliCompress(&mut &{0}[..], &mut {!output}, &Default::default()).expect(\"compressing a fake font\"); {!output} }}"
+    (fn ((ref (vec u8))) (vec u8))))
+
+(defn truetype-bytes (font)
+  (let (head (head-table font)
+        hhea (hhea-table font)
+        os2 (os2-table font)
+        head-offset (+ truetype-header-size (* 3 table-record-size))
+        hhea-offset (+ head-offset (byte-count (ref head)))
+        os2-offset (+ hhea-offset (byte-count (ref hhea))))
+    (joined-bytes (ref (vec (u32-bytes truetype-version)
+                            (u16-bytes 3)
+                            (zeros 6)
+                            (table-record "head" head-offset (ref head))
+                            (table-record "hhea" hhea-offset (ref hhea))
+                            (table-record "OS/2" os2-offset (ref os2))
+                            head hhea os2)))))
+
+(defn table-record (tag offset table)
+  (joined-bytes (ref (vec (tag-bytes tag)
+                          (zeros 4)
+                          (u32-bytes offset)
+                          (u32-bytes (byte-count table))))))
+
+(defn woff2-bytes (font)
+  (let (head (head-table font)
+        hhea (hhea-table font)
+        os2 (os2-table font)
+        directory (joined-bytes (ref (vec
+                                       (woff2-entry head-tag-index (ref head))
+                                       (woff2-entry hhea-tag-index (ref hhea))
+                                       (woff2-entry os2-tag-index (ref os2)))))
+        compressed (brotli-compressed (ref (joined-bytes
+                                             (ref (vec head hhea os2))))))
+    (joined-bytes (ref (vec (tag-bytes "wOF2")
+                            (u32-bytes truetype-version)
+                            (zeros 4)
+                            (u16-bytes 3)
+                            (zeros 6)
+                            (u32-bytes (byte-count (ref compressed)))
+                            (zeros 24)
+                            directory compressed)))))
+
+(defn woff2-entry (tag-index table)
+  (joined-bytes (ref (vec (byte tag-index)
+                          (base-128-bytes (byte-count table))))))
+
+(type head-table
+  (fn (fake-font) (vec u8)))
+
+(defn head-table (font)
+  (joined-bytes (ref (vec (zeros 18)
+                          (u16-bytes (:units-per-em font))
+                          (zeros 34)))))
+
+(type hhea-table
+  (fn (fake-font) (vec u8)))
+
+(defn hhea-table (font)
+  (joined-bytes (ref (vec (zeros 4)
+                          (i16-bytes (:hhea-ascender font))
+                          (i16-bytes (:hhea-descender font))
+                          (zeros 28)))))
+
+(type os2-table
+  (fn (fake-font) (vec u8)))
+
+(defn os2-table (font)
+  (joined-bytes (ref (vec (zeros 62)
+                          (u16-bytes (selection-flags font))
+                          (zeros 4)
+                          (i16-bytes (:typo-ascender font))
+                          (i16-bytes (:typo-descender font))
+                          (zeros 24)))))
+
+(defn selection-flags (font)
+  (if (:uses-typo-metrics? font) use-typo-metrics-flag 0))

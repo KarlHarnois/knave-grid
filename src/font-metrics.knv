@@ -1,0 +1,199 @@
+(use font-bytes brotli-decompressed byte-at bytes-from
+                i16-at read-bytes tag-at u16-at u32-at)
+
+(export ->font-metrics font-error font-metrics
+        parse-font-metrics read-font-metrics)
+
+(defstruct font-metrics
+  :units-per-em i64
+  :ascent i64
+  :descent i64)
+
+(defenum font-error
+  (unreadable :path string :reason string)
+  (malformed :reason string))
+
+(display font-error (error)
+  (match error
+    ((unreadable path reason)
+     (str "cannot read " path ": " reason))
+    ((malformed reason) (str "not a usable font: " reason))))
+
+(defstruct table-entry
+  :tag string
+  :offset i64
+  :length i64)
+
+(defstruct font-tables
+  :data (vec u8)
+  :entries (vec table-entry))
+
+(def use-typo-metrics-flag 128)
+
+(type read-font-metrics
+  (fn ((ref str))
+    (result font-metrics font-error)))
+
+(defn read-font-metrics (path)
+  (match (read-bytes path)
+    ((err reason)
+     (err (font-error/unreadable (str path) reason)))
+    ((ok bytes) (parse-font-metrics (ref bytes)))))
+
+(type parse-font-metrics
+  (fn ((ref (vec u8)))
+    (result font-metrics font-error)))
+
+(defn parse-font-metrics (bytes)
+  (let (tables (try (font-tables-of bytes)))
+    (metrics-from (ref tables))))
+
+(defn font-tables-of (bytes)
+  (let (signature (try (present (tag-at bytes 0))))
+    (cond
+      ((= signature "wOF2") (woff2-tables bytes))
+      ((sfnt-signature? (as-str signature)) (sfnt-tables bytes))
+      (else (malformed "not a TrueType, OpenType or WOFF2 font")))))
+
+(defn sfnt-signature? (signature)
+  (or (= signature "\u{0}\u{1}\u{0}\u{0}")
+      (= signature "OTTO")
+      (= signature "true")))
+
+(defn sfnt-tables (bytes)
+  (let (table-count (try (present (u16-at bytes 4))))
+    (ok (->font-tables (clone bytes)
+                       (try (sfnt-entries bytes table-count 0 (vec)))))))
+
+(defn sfnt-entries (bytes table-count index entries)
+  (if (= index table-count)
+    (ok entries)
+    (let (record (+ 12 (* 16 index)))
+      (push! entries
+             (->table-entry (try (present (tag-at bytes record)))
+                            (try (present (u32-at bytes (+ record 8))))
+                            (try (present (u32-at bytes (+ record 12))))))
+      (recur bytes table-count (+ index 1) entries))))
+
+(def woff2-header-size 48)
+
+(defn woff2-tables (bytes)
+  (if (= (try (present (tag-at bytes 4)))
+         "ttcf")
+    (malformed "WOFF2 font collections are not supported")
+    (let-match (table-count (try (present (u16-at bytes 12)))
+                compressed-size (try (present (u32-at bytes 20)))
+                (woff2-directory entries directory-end) (try (woff2-entries
+                                                               bytes
+                                                               table-count
+                                                               woff2-header-size
+                                                               0
+                                                               (vec)))
+                compressed (try (present (bytes-from bytes
+                                                     directory-end
+                                                     compressed-size)))
+                data (try (ok-or (brotli-decompressed (ref compressed))
+                                 (font-error/malformed (str "the WOFF2 data does not decompress")))))
+      (ok (->font-tables data entries)))))
+
+(defstruct woff2-directory
+  :entries (vec table-entry)
+  :end i64)
+
+(defn woff2-entries (bytes remaining position offset entries)
+  (if (= remaining 0)
+    (ok (->woff2-directory entries position))
+    (let (flags (try (present (byte-at bytes position)))
+          tag-index (rem flags 64)
+          explicit-tag? (= tag-index 63)
+          tag (if explicit-tag?
+                (try (present (tag-at bytes (+ position 1))))
+                (known-table-tag tag-index))
+          length-position (if explicit-tag? (+ position 5) (+ position 1))
+          original-length (try (base-128-at bytes length-position 0 0))
+          stored-length (if (transformed? (as-str tag) (/ flags 64))
+                          (try (base-128-at bytes (:end original-length) 0 0))
+                          original-length))
+      (push! entries
+             (->table-entry tag offset (:value stored-length)))
+      (recur bytes
+             (- remaining 1)
+             (:end stored-length)
+             (+ offset (:value stored-length))
+             entries))))
+
+(defn transformed? (tag transform-version)
+  (if (or (= tag "glyf") (= tag "loca"))
+    (= transform-version 0)
+    (not= transform-version 0)))
+
+(defstruct base-128
+  :value i64
+  :end i64)
+
+(def base-128-max-bytes 5)
+
+(defn base-128-at (bytes position value byte-count)
+  (let (byte (try (present (byte-at bytes position)))
+        next-value (+ (* value 128) (rem byte 128))
+        next-position (+ position 1))
+    (cond
+      ((< byte 128) (ok (->base-128 next-value next-position)))
+      ((= (+ byte-count 1) base-128-max-bytes)
+       (malformed "a WOFF2 length is longer than five bytes"))
+      (else (recur bytes next-position next-value (+ byte-count 1))))))
+
+(defn metrics-from (tables)
+  (let (data (:data tables)
+        head (try (table-offset tables "head"))
+        hhea (try (table-offset tables "hhea"))
+        os2 (try (table-offset tables "OS/2"))
+        selection (try (present (u16-at data (+ os2 62)))))
+    (if (uses-typo-metrics? selection)
+      (metrics-at data head os2 68)
+      (metrics-at data head hhea 4))))
+
+(defn uses-typo-metrics? (selection)
+  (= (rem (/ selection use-typo-metrics-flag) 2) 1))
+
+(defn metrics-at (data head table ascender-offset)
+  (let (ascender-position (+ table ascender-offset))
+    (ok (->font-metrics (try (present (u16-at data (+ head 18))))
+                        (try (present (i16-at data ascender-position)))
+                        (- 0
+                           (try (present (i16-at data
+                                                 (+ ascender-position 2)))))))))
+
+(type table-offset
+  (fn ((ref font-tables) (ref str))
+    (result i64 font-error)))
+
+(defn table-offset (tables tag)
+  (match (find (iter (:entries tables))
+           (fn (entry) (= (:tag entry) tag)))
+    ((some entry) (ok (:offset entry)))
+    (none (malformed (str "the font has no " tag " table")))))
+
+(defn present (value)
+  (ok-or value
+         (font-error/malformed (str "the font is truncated"))))
+
+(defn malformed (reason)
+  (err (font-error/malformed (str reason))))
+
+(def table-index
+  (rust "{0} as usize" (fn (i64) usize)))
+
+(defn known-table-tag (index)
+  (str (at (known-table-tags) (table-index index))))
+
+(defn known-table-tags ()
+  (vec "cmap" "head" "hhea" "hmtx" "maxp" "name" "OS/2"
+       "post" "cvt " "fpgm" "glyf" "loca" "prep" "CFF "
+       "VORG" "EBDT" "EBLC" "gasp" "hdmx" "kern" "LTSH"
+       "PCLT" "VDMX" "vhea" "vmtx" "BASE" "GDEF" "GPOS"
+       "GSUB" "EBSC" "JSTF" "MATH" "CBDT" "CBLC" "COLR"
+       "CPAL" "SVG " "sbix" "acnt" "avar" "bdat" "bloc"
+       "bsln" "cvar" "fdsc" "feat" "fmtx" "fvar" "gvar"
+       "hsty" "just" "lcar" "mort" "morx" "opbd" "prop"
+       "trak" "Zapf" "Silf" "Glat" "Gloc" "Feat" "Sill"))
