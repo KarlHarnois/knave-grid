@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>knave-grid demo</title>
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="grid.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="grid-overlay.css">
+<script src="grid-overlay.js" defer></script>
+</head>
+<body>
+<main>
+<header>
+  <h1>knave-grid</h1>
+  <p class="lede">A Swiss grid for static sites, generated from one Knave spec. Every rule, color and box on this page sits on the grid that the spec below describes.</p>
+  <p class="toggle">Press <kbd>g</kbd> to show the grid overlay, or open <a href="?grid">this page with <code>?grid</code></a>. The pink lines are baselines, and the blue bands are columns.</p>
+</header>
+
+<section>
+  <h2>The spec</h2>
+  <p>The page's grid is plain Knave data. The demo task reads the font metrics from the font file, checks the spec, and writes the CSS. This is the spec it built, as Knave prints it:</p>
+  <pre><code>{{spec}}</code></pre>
+</section>
+
+<section>
+  <h2>The type area</h2>
+  <p>The type area is 117ch wide, with a 3ch gutter. Four columns fit because 4 divides 117 + 3 = 120, so each column is {{column-width}} wide.</p>
+  <div class="grid">
+    <div class="cell"><p>A column is a vertical division of the type area. This one is the first of four.</p></div>
+    <div class="cell"><p>A gutter is the space between two columns. The overlay leaves it clear.</p></div>
+    <div class="cell"><p>The <code>.grid</code> rule lays these cells out with <code>repeat(var(--columns), var(--column))</code>.</p></div>
+    <div class="cell"><p>Each cell's text sits on the same baselines as the text around it.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>The measure</h2>
+  <p class="measure">The measure is the length of a line of text. This paragraph is limited to <code>var(--measure)</code>, which the spec sets to 66ch, the usual target for comfortable reading. The library warns when a measure falls outside 45ch to 75ch, and refuses a measure wider than the type area, because no text could be set at it. Lines that run much longer than this make the eye lose its place on the way back to the start of the next line.</p>
+</section>
+
+<section>
+  <h2>Baselines</h2>
+  <p class="measure">The leading is 27px, the distance from one baseline to the next. The demo task read Iosevka's metrics from its WOFF2 file and placed the baseline {{baseline-offset}} below the top of each line. Turn on the overlay: every line of text on this page rests on a pink line.</p>
+  <ul class="measure">
+    <li>Headings, lists, code and tables all use the body leading, so they stay on the grid.</li>
+    <li>Spacing between blocks is a whole number of leadings, written as <code>calc(n * var(--leading))</code>.</li>
+    <li>Boxes draw their edges with shadows, which take no space, so a border never pushes the next line off.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Lengths</h2>
+  <p>A length in the spec is one of five units. <code>lines</code> and <code>columns</code> resolve against the grid:</p>
+  <table>
+    <thead><tr><th>Knave</th><th>CSS</th></tr></thead>
+    <tbody>
+{{lengths}}
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <h2>What the check says</h2>
+  <p>This spec passes. {{warnings}}</p>
+  <p>A spec whose type area does not fit its columns is an error. The same type area split into seven columns gives:</p>
+  <pre><code>{{broken-error}}</code></pre>
+</section>
+
+<section>
+  <h2>Generated CSS</h2>
+  <p><code>grid-css</code> wrote this from the spec:</p>
+  <pre><code>{{grid-css}}</code></pre>
+  <p><code>font-face-css</code> wrote these rules. The overrides make Chromium and Firefox use the same metrics that Safari reads:</p>
+  <pre><code>{{fonts-css}}</code></pre>
+</section>
+</main>
+</body>
+</html>
