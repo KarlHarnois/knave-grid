@@ -1,5 +1,5 @@
-(use body-type body-type)
-(use type-area type-area)
+(use spec/body-type body-type)
+(use spec/type-area type-area)
 
 (export ->breakpoint ->grid-spec breakpoint grid-spec)
 

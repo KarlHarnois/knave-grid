@@ -1,4 +1,4 @@
-(use font-metrics font-metrics)
+(use font/metrics font-metrics)
 
 (export ->body-type baseline-offset-px body-type ch-px
         leading-px)

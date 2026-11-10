@@ -1,0 +1,48 @@
+(export ->font-tables ->table-entry font-error font-tables
+        malformed present table-entry table-entry-for
+        table-offset)
+
+(defenum font-error
+  (unreadable :path string :reason string)
+  (malformed :reason string))
+
+(display font-error (error)
+  (match error
+    ((unreadable path reason)
+     (str "cannot read " path ": " reason))
+    ((malformed reason) (str "not a usable font: " reason))))
+
+(defstruct table-entry
+  :tag string
+  :offset i64
+  :length i64
+  :transformed? bool)
+
+(defstruct font-tables
+  :data (vec u8)
+  :entries (vec table-entry))
+
+(type table-offset
+  (fn ((ref font-tables) (ref str))
+    (result i64 font-error)))
+
+(defn table-offset (tables tag)
+  (let (entry (try (table-entry-for tables tag)))
+    (ok (:offset entry))))
+
+(type table-entry-for
+  (fn ((ref font-tables) (ref str))
+    (result table-entry font-error)))
+
+(defn table-entry-for (tables tag)
+  (match (find (iter (:entries tables))
+           (fn (entry) (= (:tag entry) tag)))
+    ((some entry) (ok (clone entry)))
+    (none (malformed (str "the font has no " tag " table")))))
+
+(defn present (value)
+  (ok-or value
+         (font-error/malformed (str "the font is truncated"))))
+
+(defn malformed (reason)
+  (err (font-error/malformed (str reason))))

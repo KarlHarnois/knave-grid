@@ -1,15 +1,19 @@
-(use body-type ->body-type baseline-offset-px leading-px)
-(use check check-grid checked-grid grid-error grid-warning)
-(use css grid-css)
-(use font-face ->font-face font-face font-face-css)
+(use spec/body-type ->body-type baseline-offset-px
+                    leading-px)
 
-(use font-metrics ->font-metrics font-error font-metrics
+(use check/grid check-grid checked-grid grid-error
+                grid-warning)
+
+(use css/grid grid-css)
+(use css/font-face ->font-face font-face font-face-css)
+
+(use font/metrics ->font-metrics font-error font-metrics
                   parse-font-metrics read-font-metrics)
 
-(use length length length-css)
+(use spec/length length length-css)
 (use overlay overlay-css overlay-javascript)
-(use spec ->breakpoint ->grid-spec breakpoint)
-(use type-area ->type-area)
+(use spec/grid-spec ->breakpoint ->grid-spec breakpoint)
+(use spec/type-area ->type-area)
 
 (export ->body-type ->breakpoint ->font-face ->font-metrics
         ->grid-spec ->type-area baseline-offset-px

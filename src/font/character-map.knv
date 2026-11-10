@@ -1,63 +1,13 @@
-(use font-bytes i16-at read-bytes u16-at u32-at)
+(use font/bytes u16-at u32-at)
 
-(use font-tables font-error font-tables font-tables-of
-                 malformed present table-entry-for
+(use font/tables font-error font-tables malformed present
                  table-offset)
 
-(export ->font-metrics font-error font-metrics
-        parse-font-metrics read-font-metrics)
-
-(defstruct font-metrics
-  :units-per-em i64
-  :ascent i64
-  :descent i64
-  :zero-width i64)
-
-(def zero-code-point 48)
-
-(def units-per-em-offset 18)
-
-(def hhea-ascender-offset 4)
-
-(def hhea-descender-offset 6)
-
-(def hhea-metric-count-offset 34)
+(export glyph-for)
 
 (def glyph-id-modulus 65536)
 
-(type read-font-metrics
-  (fn ((ref str))
-    (result font-metrics font-error)))
-
-(defn read-font-metrics (path)
-  (match (read-bytes path)
-    ((err reason)
-     (err (font-error/unreadable (str path) reason)))
-    ((ok bytes) (parse-font-metrics (ref bytes)))))
-
-(type parse-font-metrics
-  (fn ((ref (vec u8)))
-    (result font-metrics font-error)))
-
-(defn parse-font-metrics (bytes)
-  (let (tables (try (font-tables-of bytes)))
-    (metrics-from (ref tables))))
-
-(type metrics-from
-  (fn ((ref font-tables))
-    (result font-metrics font-error)))
-
-(defn metrics-from (tables)
-  (let (data (:data tables)
-        head (try (table-offset tables "head"))
-        hhea (try (table-offset tables "hhea"))
-        zero-glyph (try (glyph-for tables zero-code-point)))
-    (ok (->font-metrics
-          (try (present (u16-at data (+ head units-per-em-offset))))
-          (try (present (i16-at data (+ hhea hhea-ascender-offset))))
-          (- 0
-             (try (present (i16-at data (+ hhea hhea-descender-offset)))))
-          (try (advance-width tables zero-glyph))))))
+(def format-12-group-size 12)
 
 (type glyph-for
   (fn ((ref font-tables) i64)
@@ -131,8 +81,6 @@
      (ok segment))
     (else (recur data ends segment-count code-point (+ segment 1)))))
 
-(def format-12-group-size 12)
-
 (defn format-12-glyph (data subtable code-point)
   (format-12-group-glyph data
                          (+ subtable 16)
@@ -151,21 +99,3 @@
                (+ group format-12-group-size)
                (- remaining 1)
                code-point)))))
-
-(type advance-width
-  (fn ((ref font-tables) i64)
-    (result i64 font-error)))
-
-(defn advance-width (tables glyph)
-  (let (data (:data tables)
-        hhea (try (table-offset tables "hhea"))
-        metric-count (try (present (u16-at data
-                                           (+ hhea hhea-metric-count-offset))))
-        metric (if (< glyph metric-count) glyph (- metric-count 1))
-        hmtx (try (table-entry-for tables "hmtx")))
-    (present (u16-at data (advance-position (ref hmtx) metric)))))
-
-(defn advance-position (hmtx metric)
-  (if (:transformed? hmtx)
-    (+ (:offset hmtx) 1 (* 2 metric))
-    (+ (:offset hmtx) (* 4 metric))))

@@ -1,0 +1,29 @@
+(use font/bytes tag-at u16-at u32-at)
+(use font/tables ->font-tables ->table-entry present)
+
+(export sfnt-signature? sfnt-tables)
+
+(def table-directory-offset 12)
+
+(def table-record-size 16)
+
+(defn sfnt-signature? (signature)
+  (or (= signature "\u{0}\u{1}\u{0}\u{0}")
+      (= signature "OTTO")
+      (= signature "true")))
+
+(defn sfnt-tables (bytes)
+  (let (table-count (try (present (u16-at bytes 4))))
+    (ok (->font-tables (clone bytes)
+                       (try (sfnt-entries bytes table-count 0 (vec)))))))
+
+(defn sfnt-entries (bytes table-count index entries)
+  (if (= index table-count)
+    (ok entries)
+    (let (record (+ table-directory-offset (* table-record-size index)))
+      (push! entries
+             (->table-entry (try (present (tag-at bytes record)))
+                            (try (present (u32-at bytes (+ record 8))))
+                            (try (present (u32-at bytes (+ record 12))))
+                            false))
+      (recur bytes table-count (+ index 1) entries))))
