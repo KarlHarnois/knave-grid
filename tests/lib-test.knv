@@ -1,0 +1,10 @@
+(use lib ->body-type baseline-px)
+
+(defn baseline-at (font-size-px leading)
+  (baseline-px (->body-type font-size-px leading)))
+
+(deftest gives-a-27px-baseline-for-18px-type-at-1-5
+  (assert (= (baseline-at 18.0 1.5) 27.0)))
+
+(deftest gives-a-24px-baseline-for-16px-type-at-1-5
+  (assert (= (baseline-at 16.0 1.5) 24.0)))
