@@ -70,7 +70,7 @@ The generated placement rules sit in a cascade layer, so a site's own unlayered 
 
 `grid-css` generates the CSS from a spec.
 
-The debug overlay draws columns, gutters, modules, and baselines with `repeating-linear-gradient`. It draws each baseline at `--baseline-offset` below the top of its line. It is a layer over the whole body, so its lines scroll with the elements they measure. While the overlay is on, the body is `position: relative`. A key press or a `?grid` query parameter toggles the overlay. The overlay outlines every element that breaks the grid.
+The debug overlay draws columns, gutters, modules, and baselines with `repeating-linear-gradient`. It draws each baseline at `--baseline-offset` below the top of its line. It is a layer over the whole body, so its lines scroll with the elements they measure. While the overlay is on, the body is `position: relative`. A key press, a `?grid` query parameter, or a click on an element with the `data-grid-toggle` attribute toggles the overlay, and each such element shows the overlay's state in `aria-pressed`. The overlay outlines every element that breaks the grid.
 
 The fit checker has two parts. The first checks that every length the library generates is a whole number of grid units. The second loads built pages in a headless browser in CI and measures them.
 

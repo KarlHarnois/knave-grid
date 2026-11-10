@@ -1,0 +1,154 @@
+(use lib ->body-type ->font-face ->grid-spec ->type-area
+         baseline-offset-px check-grid font-face-css
+         grid-css length length-css overlay-css
+         overlay-javascript read-font-metrics)
+
+(def source-directory "demo")
+
+(def output-directory "target/demo")
+
+(def body-font-size-px 18.0)
+
+(def body-line-height 1.5)
+
+(def type-area-width-ch 117)
+
+(def gutter-ch 3)
+
+(def column-count 4)
+
+(def column-count-that-does-not-fit 7)
+
+(def measure-ch 66)
+
+(def create-directories
+  (rust "std::fs::create_dir_all({0}).map_err(|error| error.to_string())"
+    (fn ((ref str)) (result unit string))))
+
+(def copy-file
+  (rust "std::fs::copy({0}, {1}).map(drop).map_err(|error| error.to_string())"
+    (fn ((ref str) (ref str))
+      (result unit string))))
+
+(def write-file
+  (rust "std::fs::write({0}, {1}).map_err(|error| error.to_string())"
+    (fn ((ref str) (ref str))
+      (result unit string))))
+
+(def replaced
+  (rust "{0}.replace({1}, {2})"
+    (fn ((ref str) (ref str) (ref str))
+      string)))
+
+(deftask demo ()
+  "Builds a page that shows the grid into target/demo/."
+  (try (create-directories output-directory))
+  (let (regular (try (demo-face 400 "regular"))
+        bold (try (demo-face 700 "bold"))
+        spec (demo-spec column-count (deref (:metrics regular)))
+        checked (try (map-err (check-grid spec) error-text))
+        faces (vec regular bold))
+    (try (write-output "fonts.css"
+                       (as-str (font-face-css (ref faces)))))
+    (try (write-output "grid.css"
+                       (as-str (grid-css (ref checked)))))
+    (try (write-output "grid-overlay.css" overlay-css))
+    (try (write-output "grid-overlay.js" overlay-javascript))
+    (try (copy-file (as-str (source-path "style.css"))
+                    (as-str (output-path "style.css"))))
+    (try (copy-file (as-str (source-path "fonts/iosevka-license.txt"))
+                    (as-str (output-path "iosevka-license.txt"))))
+    (write-output "index.html"
+                  (as-str (try (demo-page (ref checked) (ref faces)))))))
+
+(defn demo-face (weight style-name)
+  (let (file-name (str "iosevka-" style-name ".woff2")
+        source (source-path (as-str (str "fonts/" file-name))))
+    (try (copy-file (as-str source)
+                    (as-str (output-path (as-str file-name)))))
+    (ok (->font-face :family (str "Iosevka")
+                     :url (str file-name)
+                     :weight weight
+                     :metrics (try (map-err (read-font-metrics (as-str source))
+                                            error-text))))))
+
+(defn demo-spec (columns metrics)
+  (->grid-spec
+    :body-type (->body-type body-font-size-px body-line-height metrics)
+    :type-area (->type-area type-area-width-ch gutter-ch columns)
+    :measure-ch measure-ch))
+
+(defn demo-page (checked faces)
+  (let (spec (deref (:spec checked))
+        template (try (map-err (slurp (as-str (source-path "index.html")))
+                               error-text)))
+    (ok (-> (replaced (as-str template)
+                      "{{spec}}"
+                      (as-str (escaped (as-str (pr-str spec)))))
+            (as-str)
+            (replaced "{{column-width}}"
+                      (as-str (length-css (length/columns 1) spec)))
+            (as-str)
+            (replaced "{{baseline-offset}}"
+                      (as-str (str (baseline-offset-px (ref (:body-type spec)))
+                                   "px")))
+            (as-str)
+            (replaced "{{lengths}}" (as-str (length-rows spec)))
+            (as-str)
+            (replaced "{{warnings}}"
+                      (as-str (warnings-sentence checked)))
+            (as-str)
+            (replaced "{{broken-error}}"
+                      (as-str (escaped (as-str (broken-spec-error (deref (:metrics
+                                                                           (:body-type
+                                                                             spec))))))))
+            (as-str)
+            (replaced "{{grid-css}}"
+                      (as-str (escaped (as-str (grid-css checked)))))
+            (as-str)
+            (replaced "{{fonts-css}}"
+                      (as-str (escaped (as-str (font-face-css faces)))))))))
+
+(defn length-rows (spec)
+  (str (length-row "(length/px 27.0)" (length/px 27.0) spec)
+       (length-row "(length/ch 3.0)" (length/ch 3.0) spec)
+       (length-row "(length/rem 1.5)" (length/rem 1.5) spec)
+       (length-row "(length/lines 2)" (length/lines 2) spec)
+       (length-row "(length/columns 2)" (length/columns 2) spec)))
+
+(defn length-row (knave length spec)
+  (str "      <tr><td><code>" knave "</code></td><td><code>"
+       (length-css length spec)
+       "</code></td></tr>\n"))
+
+(defn warnings-sentence (checked)
+  (if (empty? (:warnings checked))
+    (str "The check found no warnings.")
+    (str "The check warns: "
+         (joined (collect (map (iter (:warnings checked)) error-text))
+                 "; ")
+         ".")))
+
+(defn broken-spec-error (metrics)
+  (match (check-grid (demo-spec column-count-that-does-not-fit metrics))
+    ((ok _) (str "no error"))
+    ((err error) (str error))))
+
+(defn write-output (file-name text)
+  (write-file (as-str (output-path file-name)) text))
+
+(defn source-path (file-name)
+  (str source-directory "/" file-name))
+
+(defn output-path (file-name)
+  (str output-directory "/" file-name))
+
+(def escaped
+  (rust "{0}.replace('&', \"&amp;\").replace('<', \"&lt;\").replace('>', \"&gt;\")"
+    (fn ((ref str)) string)))
+
+(def joined
+  (rust "{0}.join({1})"
+    (fn ((vec string) (ref str)) string)))
+
+(defn error-text (error) (str error))

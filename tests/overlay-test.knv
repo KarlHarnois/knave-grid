@@ -18,5 +18,8 @@
 (deftest toggles-on-the-g-key
   (assert (contains? overlay-javascript "\"g\"")))
 
+(deftest toggles-on-a-click-of-a-toggle-button
+  (assert (contains? overlay-javascript "\"[data-grid-toggle]\"")))
+
 (deftest toggles-the-grid-overlay-class
   (assert (contains? overlay-javascript "\"grid-overlay\"")))
