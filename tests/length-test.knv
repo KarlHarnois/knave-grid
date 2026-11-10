@@ -1,8 +1,8 @@
-(use lib ->body-type ->grid-spec ->lattice length
+(use lib ->body-type ->grid-spec ->type-area length
          length-css)
 
 (defn twelve-column-spec ()
-  (->grid-spec (->body-type 18.0 1.5) (->lattice 117 3 12)))
+  (->grid-spec (->body-type 18.0 1.5) (->type-area 117 3 12)))
 
 (defn css-of (length)
   (length-css length (twelve-column-spec)))

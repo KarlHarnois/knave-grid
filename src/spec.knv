@@ -1,8 +1,8 @@
-(use baseline body-type)
-(use lattice lattice)
+(use body-type body-type)
+(use type-area type-area)
 
 (export ->grid-spec grid-spec)
 
 (defstruct grid-spec
-  :baseline body-type
-  :lattice lattice)
+  :body-type body-type
+  :type-area type-area)

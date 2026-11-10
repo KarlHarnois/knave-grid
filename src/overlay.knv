@@ -9,7 +9,7 @@
   width: min(100%, var(--grid-width));
   margin-inline: auto;
   background:
-    repeating-linear-gradient(to bottom, transparent 0 calc(var(--baseline) - 1px), rgb(255 64 160 / 0.6) calc(var(--baseline) - 1px) var(--baseline)),
+    repeating-linear-gradient(to bottom, transparent 0 calc(var(--leading) - 1px), rgb(255 64 160 / 0.6) calc(var(--leading) - 1px) var(--leading)),
     repeating-linear-gradient(to right, rgb(64 160 255 / 0.15) 0 var(--column), transparent var(--column) calc(var(--column) + var(--gutter)));
   pointer-events: none;
 }

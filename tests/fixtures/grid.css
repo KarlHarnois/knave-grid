@@ -1,7 +1,7 @@
 :root {
   font-size: 125%;
   line-height: 1.4;
-  --baseline: 1rlh;
+  --leading: 1rlh;
   --gutter: 4ch;
   --columns: 4;
   --column: 22ch;

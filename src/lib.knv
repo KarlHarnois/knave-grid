@@ -1,12 +1,12 @@
-(use baseline ->body-type baseline-px)
+(use body-type ->body-type leading-px)
 (use check check-grid checked-grid grid-error grid-warning)
 (use css grid-css)
-(use lattice ->lattice)
+(use type-area ->type-area)
 (use length length length-css)
 (use overlay overlay-css overlay-javascript)
 (use spec ->grid-spec)
 
-(export ->body-type ->grid-spec ->lattice baseline-px
-        check-grid checked-grid grid-css grid-error
-        grid-warning length length-css overlay-css
+(export ->body-type ->grid-spec ->type-area check-grid
+        checked-grid grid-css grid-error grid-warning
+        leading-px length length-css overlay-css
         overlay-javascript)

@@ -1,5 +1,5 @@
-(use lattice column-width-ch fits? fitting-column-counts
-             lattice)
+(use type-area column-width-ch fits? fitting-column-counts
+               type-area)
 
 (use spec grid-spec)
 
@@ -11,18 +11,18 @@
 (def widest-column-ch 75)
 
 (defenum grid-error
-  (lattice-does-not-fit :lattice lattice
-                        :fitting-counts (vec i64)))
+  (type-area-does-not-fit :type-area type-area
+                          :fitting-counts (vec i64)))
 
 (display grid-error (error)
   (match error
-    ((lattice-does-not-fit lattice fitting-counts)
-     (str "a lattice of "
-          (:width-ch lattice)
+    ((type-area-does-not-fit type-area fitting-counts)
+     (str "a type area of "
+          (:width-ch type-area)
           "ch with a gutter of "
-          (:gutter-ch lattice)
+          (:gutter-ch type-area)
           "ch does not fit "
-          (:column-count lattice)
+          (:column-count type-area)
           " columns; the column counts that fit are "
           (joined-counts fitting-counts)))))
 
@@ -48,14 +48,15 @@
   (fn (grid-spec) (result checked-grid grid-error)))
 
 (defn check-grid (spec)
-  (let (lattice (:lattice spec))
-    (if (fits? lattice)
-      (ok (->checked-grid spec (column-width-warnings lattice)))
-      (err (grid-error/lattice-does-not-fit (deref lattice)
-                                            (fitting-column-counts lattice))))))
+  (let (type-area (:type-area spec))
+    (if (fits? type-area)
+      (ok (->checked-grid spec (column-width-warnings type-area)))
+      (err (grid-error/type-area-does-not-fit (deref type-area)
+                                              (fitting-column-counts
+                                                type-area))))))
 
-(defn column-width-warnings (lattice)
-  (let (column-width (column-width-ch lattice))
+(defn column-width-warnings (type-area)
+  (let (column-width (column-width-ch type-area))
     (if (readable-column-width? column-width)
       (vec)
       (vec (grid-warning/column-width-out-of-range column-width)))))

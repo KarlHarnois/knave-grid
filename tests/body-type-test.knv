@@ -1,0 +1,10 @@
+(use lib ->body-type leading-px)
+
+(defn leading-at (font-size-px line-height)
+  (leading-px (->body-type font-size-px line-height)))
+
+(deftest gives-a-27px-leading-for-18px-type-at-1-5
+  (assert (= (leading-at 18.0 1.5) 27.0)))
+
+(deftest gives-a-24px-leading-for-16px-type-at-1-5
+  (assert (= (leading-at 16.0 1.5) 24.0)))

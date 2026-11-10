@@ -1,4 +1,4 @@
-(use lattice span-width-ch)
+(use type-area span-width-ch)
 (use spec grid-spec)
 
 (export length length-css)
@@ -19,4 +19,4 @@
     ((rem size) (str size "rem"))
     ((lines count) (str count "rlh"))
     ((columns count)
-     (str (span-width-ch (:lattice spec) count) "ch"))))
+     (str (span-width-ch (:type-area spec) count) "ch"))))

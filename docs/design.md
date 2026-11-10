@@ -1,10 +1,22 @@
 # knave-grid design
 
-knave-grid is a Knave library that defines a Swiss grid for static sites. A grid spec holds columns, gutters, margins, modules, a baseline, and type styles. From one spec, the library generates CSS, a debug overlay, and a fit checker. The knave-lang.org site is its first user.
-
-A baseline is the distance between the baselines of two consecutive lines of body text. A module is a block of a whole number of baselines, spanning one or more columns.
+knave-grid is a Knave library that defines a Swiss grid for static sites. A grid spec holds a type area of columns and gutters, margins, rows of modules, a baseline grid, and type styles. From one spec, the library generates CSS, a debug overlay, and a fit checker. The knave-lang.org site is its first user.
 
 knave-grid depends on no markdown library, and no markdown library depends on knave-grid. A site that uses both composes them.
+
+## Terms
+
+The library names its parts with the terms of the Swiss grid tradition, as Josef Müller-Brockmann and Emil Ruder use them.
+
+- The **type area** (*Satzspiegel*) is the part of the page that holds text. It has a width, a column count, and a gutter.
+- A **column** is a vertical division of the type area. A **row** is a horizontal division.
+- A **gutter** is the space between two columns or two rows. A **margin** is the space between the type area and the edge of the page.
+- A **baseline** is the line that the letters of a line of text sit on.
+- The **leading** is the distance between the baselines of two consecutive lines of body text. The **line-height** is the CSS property that sets the leading of a type style, as a ratio of its font size or as a length.
+- The **baseline grid** is the set of lines one leading apart that body text sits on.
+- A **module** (Müller-Brockmann's *field*) is one cell where a column crosses a row. A row's height is a whole number of leadings.
+- A **spatial zone** is a group of adjacent modules that one element fills.
+- The **measure** is the length of a line of text.
 
 ## Spec
 
@@ -12,27 +24,27 @@ The spec is Knave data. Plain structs come first. A `defgrid` macro that reads l
 
 Lengths are a closed set of units: `px`, `ch`, `rem`, `lines`, and `columns`. The library resolves `lines` and `columns` to real lengths.
 
-Vertical spacing in type styles and placements takes only `lines`, so a spec cannot break the baseline by construction.
+Vertical spacing in type styles and placements takes only `lines`, so a spec cannot break the baseline grid by construction.
 
 ## Defaults
 
-Root type is set in `rem` so the grid scales with the reader's font size. The defaults are 18px (112.5%) at a leading of 1.5, which gives a 27px baseline equal to `1rlh`.
+Root type is set in `rem` so the grid scales with the reader's font size. The defaults are 18px (112.5%) at a line-height of 1.5, which gives a 27px leading equal to `1rlh`.
 
-The sub-unit is one third of the baseline, 9px, because half the baseline is not a whole pixel.
+The sub-unit is one third of the leading, 9px, because half the leading is not a whole pixel.
 
 The horizontal unit is `1ch`. The default gutter is `3ch`.
 
-A column lattice of N units with a gutter of g units fits k equal columns when k divides N + g. The defaults use N + g = 120 on wide screens and N + g = 60 on medium screens.
+A type area N units wide with a gutter of g units fits k equal columns when k divides N + g. The defaults use N + g = 120 on wide screens and N + g = 60 on medium screens.
 
 The text measure targets `66ch`. The library warns outside `45ch` to `75ch`.
 
 ## Type styles
 
-Phase 1 targets monospace type: body 18/27, display 36/54 and 54/81. Every line-height is a whole number of baselines.
+Phase 1 targets monospace type: body 18/27, display 36/54 and 54/81. Every line-height is a whole number of leadings.
 
 Phase 2 adds proportional type: sizes on a 1.25 ratio scale, and line-height = ceil(size × 1.2 / sub-unit) × sub-unit.
 
-A heading block adds up to a whole number of baselines: its lines plus the space above and below it.
+A heading block adds up to a whole number of leadings: its lines plus the space above and below it.
 
 The library reads font metrics from the font files at build time to place each style's baseline on the grid.
 
@@ -40,7 +52,7 @@ The generated CSS uses `text-box-trim` behind `@supports`, with margins computed
 
 ## Placements and breakpoints
 
-A placement matches an element and gives it `:span n` columns, a column range `:columns (first last)`, or a subgrid.
+A placement matches an element and gives it a spatial zone: `:span n` columns, a column range `:columns (first last)`, or a subgrid.
 
 Breakpoints are written in `em` and override the column count.
 

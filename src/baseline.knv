@@ -1,8 +1,0 @@
-(export ->body-type baseline-px body-type)
-
-(defstruct body-type
-  :font-size-px f64
-  :leading f64)
-
-(defn baseline-px (type)
-  (* (:font-size-px type) (:leading type)))

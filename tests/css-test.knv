@@ -1,9 +1,9 @@
-(use lib ->body-type ->grid-spec ->lattice check-grid
+(use lib ->body-type ->grid-spec ->type-area check-grid
          grid-css)
 
 (defn four-column-grid ()
   (unwrap-ok (check-grid (->grid-spec (->body-type 20.0 1.4)
-                                      (->lattice 100 4 4)))))
+                                      (->type-area 100 4 4)))))
 
 (deftest writes-the-root-and-grid-rules-of-a-spec
   (assert (= (grid-css (ref (four-column-grid)))

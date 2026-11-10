@@ -21,22 +21,22 @@
        "\n" grid-rule))
 
 (defn root-rule (spec)
-  (let (type (:baseline spec)
-        lattice (:lattice spec))
+  (let (type (:body-type spec)
+        type-area (:type-area spec))
     (str ":root {\n" "  font-size: "
          (root-font-size-percent type)
          "%;\n" "  line-height: "
-         (:leading type)
-         ";\n" "  --baseline: "
+         (:line-height type)
+         ";\n" "  --leading: "
          (length-css (length/lines 1) spec)
          ";\n" "  --gutter: "
-         (:gutter-ch lattice)
+         (:gutter-ch type-area)
          "ch;\n" "  --columns: "
-         (:column-count lattice)
+         (:column-count type-area)
          ";\n" "  --column: "
          (length-css (length/columns 1) spec)
          ";\n" "  --grid-width: "
-         (length-css (length/columns (:column-count lattice)) spec)
+         (length-css (length/columns (:column-count type-area)) spec)
          ";\n" "}\n")))
 
 (defn root-font-size-percent (type)

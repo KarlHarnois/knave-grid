@@ -1,0 +1,8 @@
+(export ->body-type body-type leading-px)
+
+(defstruct body-type
+  :font-size-px f64
+  :line-height f64)
+
+(defn leading-px (type)
+  (* (:font-size-px type) (:line-height type)))
