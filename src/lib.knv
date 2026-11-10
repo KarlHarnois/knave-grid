@@ -1,8 +1,7 @@
-(export ->body-type baseline-px)
+(use baseline ->body-type baseline-px)
+(use lattice ->lattice)
+(use length length length-css)
+(use spec ->grid-spec)
 
-(defstruct body-type
-  :font-size-px f64
-  :leading f64)
-
-(defn baseline-px (type)
-  (* (:font-size-px type) (:leading type)))
+(export ->body-type ->grid-spec ->lattice baseline-px length
+        length-css)

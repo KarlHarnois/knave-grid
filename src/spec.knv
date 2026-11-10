@@ -1,0 +1,8 @@
+(use baseline body-type)
+(use lattice lattice)
+
+(export ->grid-spec grid-spec)
+
+(defstruct grid-spec
+  :baseline body-type
+  :lattice lattice)
