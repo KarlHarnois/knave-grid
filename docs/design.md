@@ -46,6 +46,10 @@ Phase 1 targets monospace type: body 18/27, display 36/54 and 54/81. Every line-
 
 A type style names how many grid lines tall it is. Its font size is that many times the body size unless the spec sets one, and its line-height is that many leadings. `grid-css` writes it as a `.type-<name>` class. The class shifts the text with `position: relative`, so its baseline lands on the nearest body baseline in its block and the block keeps its height. The check fails on a style with no lines and on a style whose glyphs are taller than its lines.
 
+A type style MAY name one of the font faces, and then its class sets that face's family and weight and every baseline calculation for it uses that face's metrics. Without a face, it uses the body font.
+
+Browsers round font metrics at the size they render, which depends on the reader's default font size. So the generated CSS computes the body baseline and each style's shift in the browser with `round()`, behind `@supports (top: round(1px, 1px))`, and keeps the values computed at the spec's size as the fallback.
+
 Phase 2 adds proportional type: sizes on a 1.25 ratio scale, and line-height = ceil(size × 1.2 / sub-unit) × sub-unit.
 
 A heading block adds up to a whole number of leadings: its lines plus the space above and below it.
@@ -78,7 +82,7 @@ The generated placement rules sit in a cascade layer, so a site's own unlayered 
 
 `grid-css` generates the CSS from a spec.
 
-The debug overlay draws columns, gutters, modules, and baselines with `repeating-linear-gradient`. It draws each baseline at `--baseline-offset` below the top of its line. It is a layer over the whole body, so its lines scroll with the elements they measure. While the overlay is on, the body is `position: relative`. A key press, a `?grid` query parameter, or a click on an element with the `data-grid-toggle` attribute toggles the overlay, and each such element shows the overlay's state in `aria-pressed`. The overlay outlines every element that breaks the grid.
+The debug overlay draws columns, gutters, modules, and baselines with one `linear-gradient` tile per leading and per column, repeated. A single `repeating-linear-gradient` over the whole page drops lines at fractional device pixel ratios. It draws each baseline at `--baseline-offset` below the top of its line. It is a layer over the whole body, so its lines scroll with the elements they measure. While the overlay is on, the body is `position: relative`. A key press, a `?grid` query parameter, or a click on an element with the `data-grid-toggle` attribute toggles the overlay, and each such element shows the overlay's state in `aria-pressed`. The overlay outlines every element that breaks the grid.
 
 The fit checker has two parts. The first checks that every length the library generates is a whole number of grid units. The second loads built pages in a headless browser in CI and measures them.
 
