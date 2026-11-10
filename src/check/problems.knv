@@ -1,0 +1,69 @@
+(use spec/type-area type-area)
+
+(export grid-error grid-warning narrowest-measure-ch
+        widest-measure-ch)
+
+(def narrowest-measure-ch 45)
+
+(def widest-measure-ch 75)
+
+(defenum grid-error
+  (type-area-does-not-fit :type-area type-area
+                          :fitting-counts (vec i64))
+  (breakpoint-does-not-fit :min-width-em f64
+                           :type-area type-area
+                           :fitting-counts (vec i64))
+  (breakpoint-too-narrow :min-width-em f64
+                         :width-ch i64
+                         :needed-em f64)
+  (breakpoint-out-of-order :min-width-em f64 :previous-em f64)
+  (measure-wider-than-type-area :measure-ch i64 :width-ch i64))
+
+(display grid-error (error)
+  (match error
+    ((type-area-does-not-fit type-area fitting-counts)
+     (fit-message type-area fitting-counts))
+    ((breakpoint-does-not-fit min-width-em type-area
+                              fitting-counts)
+     (str "at " min-width-em "em, "
+          (fit-message type-area fitting-counts)))
+    ((breakpoint-too-narrow min-width-em width-ch needed-em)
+     (str "the type area of " width-ch "ch needs " needed-em
+          "em with a gutter on each side, but its breakpoint starts at "
+          min-width-em "em"))
+    ((breakpoint-out-of-order min-width-em previous-em)
+     (str "the breakpoint at " min-width-em
+          "em must start after the one before it, at "
+          previous-em "em"))
+    ((measure-wider-than-type-area measure-ch width-ch)
+     (str "the measure of " measure-ch
+          "ch is wider than the widest type area, of "
+          width-ch "ch"))))
+
+(type fit-message
+  (fn ((ref type-area) (ref (vec i64)))
+    string))
+
+(defn fit-message (type-area fitting-counts)
+  (str "a type area of "
+       (:width-ch type-area)
+       "ch with a gutter of "
+       (:gutter-ch type-area)
+       "ch does not fit "
+       (:column-count type-area)
+       " columns; the column counts that fit are "
+       (joined-counts fitting-counts)))
+
+(def joined-counts
+  (rust "{0}.iter().map(|count| count.to_string()).collect::<Vec<_>>().join(\", \")"
+    (fn ((ref (vec i64))) string)))
+
+(defenum grid-warning
+  (measure-out-of-range :measure-ch i64))
+
+(display grid-warning (warning)
+  (match warning
+    ((measure-out-of-range measure-ch)
+     (str "the measure of " measure-ch "ch is outside "
+          narrowest-measure-ch "ch to " widest-measure-ch
+          "ch"))))

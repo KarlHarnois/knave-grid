@@ -1,0 +1,43 @@
+(export base-128-bytes brotli-compressed byte byte-count
+        i16-bytes joined-bytes tag-bytes u16-bytes u32-bytes
+        zeros)
+
+(def joined-bytes
+  (rust "{0}.concat()"
+    (fn ((ref (vec (vec u8)))) (vec u8))))
+
+(def zeros
+  (rust "vec![0_u8; {0} as usize]"
+    (fn (i64) (vec u8))))
+
+(def byte
+  (rust "vec![{0} as u8]"
+    (fn (i64) (vec u8))))
+
+(def u16-bytes
+  (rust "({0} as u16).to_be_bytes().to_vec()"
+    (fn (i64) (vec u8))))
+
+(def i16-bytes
+  (rust "({0} as i16).to_be_bytes().to_vec()"
+    (fn (i64) (vec u8))))
+
+(def u32-bytes
+  (rust "({0} as u32).to_be_bytes().to_vec()"
+    (fn (i64) (vec u8))))
+
+(def tag-bytes
+  (rust "{0}.as_bytes().to_vec()"
+    (fn ((ref str)) (vec u8))))
+
+(def byte-count
+  (rust "{0}.len() as i64"
+    (fn ((ref (vec u8))) i64)))
+
+(def base-128-bytes
+  (rust "{{ let mut {!value} = {0} as u32; let mut {!groups} = vec![({!value} & 0x7f) as u8]; {!value} >>= 7; while {!value} > 0 {{ {!groups}.insert(0, ({!value} & 0x7f) as u8 | 0x80); {!value} >>= 7; }} {!groups} }}"
+    (fn (i64) (vec u8))))
+
+(def brotli-compressed
+  (rust "{{ let mut {!output} = Vec::new(); brotli::BrotliCompress(&mut &{0}[..], &mut {!output}, &Default::default()).expect(\"compressing a fake font\"); {!output} }}"
+    (fn ((ref (vec u8))) (vec u8))))

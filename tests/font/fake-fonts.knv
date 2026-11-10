@@ -1,0 +1,98 @@
+(use font/fake-bytes base-128-bytes brotli-compressed byte
+                     byte-count joined-bytes tag-bytes
+                     u16-bytes u32-bytes zeros)
+
+(use font/fake-tables ->fake-font fake-font fake-table
+                      hmtx-table truetype-tables
+                      woff2-tables)
+
+(export ->fake-font truetype-bytes woff2-bytes)
+
+(def truetype-version 65536)
+
+(def truetype-header-size 12)
+
+(def table-record-size 16)
+
+(def woff2-transformed-flag 64)
+
+(type truetype-bytes
+  (fn (fake-font) (vec u8)))
+
+(defn truetype-bytes (font)
+  (let (tables (truetype-tables font)
+        first-offset (+ truetype-header-size
+                        (* (byte-count-of tables) table-record-size)))
+    (joined-bytes
+      (ref (vec (u32-bytes truetype-version)
+                (u16-bytes (byte-count-of tables))
+                (zeros 6)
+                (joined-bytes
+                  (ref (table-records (ref tables) 0 first-offset (vec))))
+                (joined-bytes (ref (table-bytes (ref tables)))))))))
+
+(def byte-count-of
+  (rust "{0}.len() as i64"
+    (fn ((ref (vec fake-table))) i64)))
+
+(type table-bytes
+  (fn ((ref (vec fake-table)))
+    (vec (vec u8))))
+
+(defn table-bytes (tables)
+  (collect (map (iter tables)
+             (fn (table) (clone (:bytes table))))))
+
+(defn table-records (tables index offset records)
+  (if (= index (byte-count-of tables))
+    records
+    (let (table (at tables (table-position index))
+          length (byte-count (ref (:bytes table)))
+          record (joined-bytes (ref (vec (tag-bytes (as-str (:tag table)))
+                                         (zeros 4)
+                                         (u32-bytes offset)
+                                         (u32-bytes length)))))
+      (push! records record)
+      (recur tables (+ index 1) (+ offset length) records))))
+
+(def table-position
+  (rust "{0} as usize" (fn (i64) usize)))
+
+(type woff2-bytes
+  (fn (fake-font) (vec u8)))
+
+(defn woff2-bytes (font)
+  (let (tables (woff2-tables font)
+        directory (joined-bytes (ref (woff2-directory (ref tables) font)))
+        compressed (brotli-compressed (ref (joined-bytes (ref (table-bytes (ref tables)))))))
+    (joined-bytes (ref (vec (tag-bytes "wOF2")
+                            (u32-bytes truetype-version)
+                            (zeros 4)
+                            (u16-bytes (byte-count-of tables))
+                            (zeros 6)
+                            (u32-bytes (byte-count (ref compressed)))
+                            (zeros 24)
+                            directory compressed)))))
+
+(type woff2-directory
+  (fn ((ref (vec fake-table)) fake-font)
+    (vec (vec u8))))
+
+(defn woff2-directory (tables font)
+  (collect (map (iter tables)
+             (fn (table) (woff2-entry table font)))))
+
+(type woff2-entry
+  (fn ((ref fake-table) fake-font)
+    (vec u8)))
+
+(defn woff2-entry (table font)
+  (if (and (= (:tag table) "hmtx")
+           (:transformed-hmtx? font))
+    (joined-bytes (ref (vec
+                         (byte (+ (:woff2-index table) woff2-transformed-flag))
+                         (base-128-bytes (byte-count (ref (hmtx-table font))))
+                         (base-128-bytes (byte-count (ref (:bytes table)))))))
+    (joined-bytes (ref (vec (byte (:woff2-index table))
+                            (base-128-bytes (byte-count (ref (:bytes
+                                                               table)))))))))

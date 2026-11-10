@@ -1,10 +1,10 @@
-(use body-type baseline-offset-px)
+(use spec/body-type baseline-offset-px)
 (use browser default-font-size-px)
-(use check checked-grid)
-(use declaration declaration)
-(use length length length-css)
-(use spec breakpoint grid-spec)
-(use type-area span-width-ch type-area)
+(use check/grid checked-grid)
+(use css/declaration declaration)
+(use spec/length length length-css)
+(use spec/grid-spec breakpoint grid-spec)
+(use spec/type-area span-width-ch type-area)
 
 (export grid-css)
 

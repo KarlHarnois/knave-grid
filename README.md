@@ -7,6 +7,7 @@ Run `direnv allow` once to load the [Nix](https://nixos.org/download/) dev shell
 ```sh
 knave test
 knave fmt
+knave task check-file-lengths
 ```
 
 To see the grid, run `knave task demo` and serve `target/demo/` with any static file server. Press `g` on the page, or add `?grid` to its URL, to toggle the overlay.

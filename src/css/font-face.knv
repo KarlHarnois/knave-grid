@@ -1,5 +1,5 @@
-(use declaration declaration)
-(use font-metrics font-metrics)
+(use css/declaration declaration)
+(use font/metrics font-metrics)
 
 (export ->font-face font-face font-face-css)
 
