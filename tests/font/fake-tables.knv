@@ -13,7 +13,10 @@
   :uses-typo-metrics? bool
   :zero-width i64
   :transformed-hmtx? bool
-  (defaults :zero-width 500 :transformed-hmtx? false))
+  :cap-height i64
+  (defaults :zero-width 500
+            :transformed-hmtx? false
+            :cap-height 700))
 
 (defstruct fake-table
   :tag string
@@ -21,6 +24,8 @@
   :bytes (vec u8))
 
 (def use-typo-metrics-flag 128)
+
+(def os2-version 4)
 
 (def zero-code-point 48)
 
@@ -122,12 +127,15 @@
   (fn (fake-font) (vec u8)))
 
 (defn os2-table (font)
-  (joined-bytes (ref (vec (zeros 62)
+  (joined-bytes (ref (vec (u16-bytes os2-version)
+                          (zeros 60)
                           (u16-bytes (selection-flags font))
                           (zeros 4)
                           (i16-bytes (:typo-ascender font))
                           (i16-bytes (:typo-descender font))
-                          (zeros 24)))))
+                          (zeros 16)
+                          (i16-bytes (:cap-height font))
+                          (zeros 6)))))
 
 (defn selection-flags (font)
   (if (:uses-typo-metrics? font) use-typo-metrics-flag 0))
