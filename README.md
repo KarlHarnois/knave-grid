@@ -8,3 +8,5 @@ Run `direnv allow` once to load the [Nix](https://nixos.org/download/) dev shell
 knave test
 knave fmt
 ```
+
+The overlay's CSS and JavaScript live in `assets/`. After you edit them, run `knave task embed-assets` to copy them into `src/overlay.knv`.
