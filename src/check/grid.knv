@@ -2,6 +2,7 @@
                     narrowest-measure-ch widest-measure-ch)
 
 (use browser default-font-size-px)
+(use check/type-styles check-type-styles)
 (use spec/body-type body-type ch-px)
 (use spec/grid-spec breakpoint grid-spec)
 (use spec/type-area fits? fitting-column-counts type-area)
@@ -27,6 +28,7 @@
       (do
         (try (check-breakpoints (ref spec) 0 0.0))
         (try (check-measure (ref spec)))
+        (try (check-type-styles (ref spec) 0))
         (let (warnings (measure-warnings (:measure-ch spec)))
           (ok (->checked-grid spec warnings))))
       (err (grid-error/type-area-does-not-fit (deref type-area)

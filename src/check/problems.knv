@@ -18,7 +18,12 @@
                          :margin-ch i64
                          :needed-em f64)
   (breakpoint-out-of-order :min-width-em f64 :previous-em f64)
-  (measure-wider-than-type-area :measure-ch i64 :width-ch i64))
+  (measure-wider-than-type-area :measure-ch i64 :width-ch i64)
+  (type-style-without-lines :name string)
+  (type-style-too-big :name string
+                      :font-size-px f64
+                      :glyph-height-px f64
+                      :line-height-px f64))
 
 (display grid-error (error)
   (match error
@@ -41,7 +46,14 @@
     ((measure-wider-than-type-area measure-ch width-ch)
      (str "the measure of " measure-ch
           "ch is wider than the widest type area, of "
-          width-ch "ch"))))
+          width-ch "ch"))
+    ((type-style-without-lines name)
+     (str "the type style " name " needs at least one line"))
+    ((type-style-too-big name font-size-px glyph-height-px
+                         line-height-px)
+     (str "the type style " name " sets " font-size-px
+          "px type, whose glyphs are " glyph-height-px
+          "px tall, in " line-height-px "px of lines"))))
 
 (type fit-message
   (fn ((ref type-area) (ref (vec i64)))

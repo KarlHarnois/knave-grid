@@ -1,0 +1,21 @@
+(use lib ->body-type ->font-metrics ->type-style
+         style-shift-px)
+
+(defn body-with-tall-ascent ()
+  (->body-type 18.0 1.5 (->font-metrics 1000 965 215 500)))
+
+(defn shift-for (lines)
+  (style-shift-px (ref (->type-style :name (str "style") :lines lines))
+                  (ref (body-with-tall-ascent))))
+
+(deftest leaves-a-one-line-style-on-the-body-baseline
+  (assert (= (shift-for 1) 0.0)))
+
+(deftest moves-a-two-line-style-down-to-the-second-baseline
+  (assert (= (shift-for 2) 7.0)))
+
+(deftest moves-a-three-line-style-up-to-the-nearer-second-baseline
+  (assert (= (shift-for 3) -13.0)))
+
+(deftest moves-a-four-line-style-up-to-the-nearer-third-baseline
+  (assert (= (shift-for 4) -7.0)))

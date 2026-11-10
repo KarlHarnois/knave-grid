@@ -1,17 +1,20 @@
 (use spec/fake-type body-type-at)
 
-(use lib ->breakpoint ->grid-spec ->type-area check-grid
-         grid-css)
+(use lib ->breakpoint ->grid-spec ->type-area ->type-style
+         check-grid grid-css)
 
 (defn four-column-grid ()
-  (unwrap-ok (check-grid (->grid-spec
-                           :body-type (body-type-at 20.0 1.4)
-                           :type-area (->type-area 100 4 4 6)
-                           :measure-ch 60
-                           :breakpoints (vec (->breakpoint
-                                               100.0
-                                               (->type-area 136 4 4 8)))))))
+  (unwrap-ok (check-grid
+               (->grid-spec
+                 :body-type (body-type-at 20.0 1.4)
+                 :type-area (->type-area 100 4 4 6)
+                 :measure-ch 60
+                 :breakpoints (vec (->breakpoint 100.0 (->type-area 136 4 4 8)))
+                 :type-styles (vec (->type-style :name (str "title") :lines 3)
+                                   (->type-style :name (str "lead")
+                                                 :lines 2
+                                                 :font-size-px (some 30.0)))))))
 
-(deftest writes-the-root-breakpoint-and-grid-rules-of-a-spec
+(deftest writes-the-root-breakpoint-grid-and-type-style-rules-of-a-spec
   (assert (= (grid-css (ref (four-column-grid)))
              (unwrap-ok (slurp "tests/fixtures/grid.css")))))

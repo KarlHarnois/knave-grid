@@ -1,0 +1,37 @@
+(use check/problems grid-error)
+(use spec/body-type body-type)
+(use spec/grid-spec grid-spec)
+(use spec/line-box glyph-height-px)
+
+(use spec/type-style style-font-size-px style-line-height-px
+                     type-style)
+
+(export check-type-styles)
+
+(type check-type-styles
+  (fn ((ref grid-spec) usize)
+    (result unit grid-error)))
+
+(defn check-type-styles (spec index)
+  (if (>= index (len (:type-styles spec)))
+    (ok (do))
+    (do
+      (try (check-type-style (at (:type-styles spec) index)
+                             (:body-type spec)))
+      (recur spec (+ index 1)))))
+
+(type check-type-style
+  (fn ((ref type-style) (ref body-type))
+    (result unit grid-error)))
+
+(defn check-type-style (style body)
+  (if (< (:lines style) 1)
+    (err (grid-error/type-style-without-lines (clone (:name style))))
+    (let (font-size-px (style-font-size-px style body)
+          glyph-height (glyph-height-px (:metrics body) font-size-px)
+          line-height (style-line-height-px style body))
+      (if (> glyph-height line-height)
+        (err (grid-error/type-style-too-big
+               (clone (:name style))
+               font-size-px glyph-height line-height))
+        (ok (do))))))

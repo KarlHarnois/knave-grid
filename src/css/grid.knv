@@ -1,7 +1,8 @@
-(use spec/body-type baseline-offset-px)
+(use spec/body-type baseline-offset-px body-type)
 (use browser default-font-size-px)
 (use check/grid checked-grid)
 (use css/declaration declaration)
+(use css/type-styles type-style-rules)
 (use spec/length length length-css)
 (use spec/grid-spec breakpoint grid-spec)
 (use spec/type-area span-width-ch type-area)
@@ -34,7 +35,8 @@
   (let (spec (:spec checked))
     (str (root-rule spec)
          (breakpoint-rules spec)
-         "\n" type-area-rule "\n" grid-rule)))
+         "\n" type-area-rule "\n" grid-rule
+         (type-style-rules spec))))
 
 (type root-rule
   (fn ((ref grid-spec)) string))
@@ -84,12 +86,18 @@
                     (str (:width-ch type-area) "ch"))
        (declaration "--margin" (str (:margin-ch type-area) "ch"))))
 
+(type baseline-offset-rem
+  (fn ((ref body-type)) string))
+
 (defn baseline-offset-rem (type)
   (str "calc("
        (baseline-offset-px type)
        "rem / "
        (:font-size-px type)
        ")"))
+
+(type root-font-size-percent
+  (fn ((ref body-type)) f64))
 
 (defn root-font-size-percent (type)
   (* 100.0 (/ (:font-size-px type) default-font-size-px)))

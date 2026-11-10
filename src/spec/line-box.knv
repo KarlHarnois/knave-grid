@@ -1,0 +1,36 @@
+(use font/metrics font-metrics)
+
+(export baseline-in-line-px glyph-height-px)
+
+(def float-of
+  (rust "{0} as f64" (fn (i64) f64)))
+
+(def rounded
+  (rust "{0}.round()" (fn (f64) f64)))
+
+(def floored
+  (rust "{0}.floor()" (fn (f64) f64)))
+
+(type baseline-in-line-px
+  (fn ((ref font-metrics) f64 f64) f64))
+
+(defn baseline-in-line-px (metrics font-size-px line-height-px)
+  (let (ascent (whole-pixels metrics font-size-px (:ascent metrics))
+        half-leading (floored (/ (- line-height-px
+                                    (glyph-height-px metrics font-size-px))
+                                 2.0)))
+    (+ half-leading ascent)))
+
+(type glyph-height-px
+  (fn ((ref font-metrics) f64) f64))
+
+(defn glyph-height-px (metrics font-size-px)
+  (+ (whole-pixels metrics font-size-px (:ascent metrics))
+     (whole-pixels metrics font-size-px (:descent metrics))))
+
+(type whole-pixels
+  (fn ((ref font-metrics) f64 i64) f64))
+
+(defn whole-pixels (metrics font-size-px font-units)
+  (rounded (/ (* font-size-px (float-of font-units))
+              (float-of (:units-per-em metrics)))))
