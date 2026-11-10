@@ -1,0 +1,16 @@
+:root.grid-overlay body {
+  position: relative;
+}
+
+:root.grid-overlay body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2147483647;
+  width: min(100%, var(--grid-width));
+  margin-inline: auto;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 var(--baseline-offset), rgb(255 64 160 / 0.6) var(--baseline-offset) calc(var(--baseline-offset) + 1px), transparent calc(var(--baseline-offset) + 1px) var(--leading)),
+    repeating-linear-gradient(to right, rgb(64 160 255 / 0.15) 0 var(--column), transparent var(--column) calc(var(--column) + var(--gutter)));
+  pointer-events: none;
+}

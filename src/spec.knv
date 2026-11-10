@@ -1,0 +1,10 @@
+(use body-type body-type)
+(use type-area type-area)
+
+(export ->grid-spec grid-spec)
+
+(defstruct grid-spec
+  :body-type body-type
+  :type-area type-area
+  :measure-ch i64
+  (defaults :measure-ch 66))

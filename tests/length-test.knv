@@ -1,0 +1,23 @@
+(use fake-type body-type-at)
+(use lib ->grid-spec ->type-area length length-css)
+
+(defn twelve-column-spec ()
+  (->grid-spec :body-type (body-type-at 18.0 1.5)
+               :type-area (->type-area 117 3 12)))
+
+(defn css-of (length)
+  (length-css length (twelve-column-spec)))
+
+(deftest writes-an-absolute-length-with-its-unit
+  (assert (= (vec (css-of (length/px 27.0))
+                  (css-of (length/ch 3.0))
+                  (css-of (length/rem 1.125)))
+             (vec (str "27px")
+                  (str "3ch")
+                  (str "1.125rem")))))
+
+(deftest writes-lines-in-root-line-heights
+  (assert (= (css-of (length/lines 2)) "2rlh")))
+
+(deftest writes-columns-as-their-width-with-the-gutters-between
+  (assert (= (css-of (length/columns 3)) "27ch")))

@@ -1,0 +1,5 @@
+(export contains?)
+
+(def contains?
+  (rust "{0}.contains({1})"
+    (fn ((ref str) (ref str)) bool)))

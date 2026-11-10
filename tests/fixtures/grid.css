@@ -1,0 +1,17 @@
+:root {
+  font-size: 125%;
+  line-height: 1.4;
+  --leading: 1rlh;
+  --baseline-offset: calc(20rem / 20);
+  --gutter: 4ch;
+  --columns: 4;
+  --column: 22ch;
+  --grid-width: 100ch;
+  --measure: 60ch;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), var(--column));
+  column-gap: var(--gutter);
+}

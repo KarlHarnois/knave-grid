@@ -1,0 +1,22 @@
+(use lib overlay-css overlay-javascript)
+(use strings contains?)
+
+(def stale-assets-help "run `knave task embed-assets`")
+
+(deftest embeds-the-overlay-css-asset
+  (assert (= overlay-css (unwrap-ok (slurp "assets/overlay.css")))
+          stale-assets-help))
+
+(deftest embeds-the-overlay-javascript-asset
+  (assert (= overlay-javascript
+             (unwrap-ok (slurp "assets/overlay.js")))
+          stale-assets-help))
+
+(deftest reads-the-grid-query-parameter
+  (assert (contains? overlay-javascript "\"grid\"")))
+
+(deftest toggles-on-the-g-key
+  (assert (contains? overlay-javascript "\"g\"")))
+
+(deftest toggles-the-grid-overlay-class
+  (assert (contains? overlay-javascript "\"grid-overlay\"")))

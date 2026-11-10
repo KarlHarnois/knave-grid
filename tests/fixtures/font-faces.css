@@ -1,0 +1,19 @@
+@font-face {
+  font-family: "Fake Sans";
+  src: url("/fake-sans-regular.woff2");
+  font-weight: 400;
+  font-display: swap;
+  ascent-override: 80%;
+  descent-override: 20%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Fake Sans";
+  src: url("/fake-sans-bold.woff2");
+  font-weight: 700;
+  font-display: block;
+  ascent-override: 92.5%;
+  descent-override: 28.5%;
+  line-gap-override: 0%;
+}

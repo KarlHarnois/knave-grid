@@ -1,0 +1,7 @@
+(use lib ->body-type ->font-metrics)
+
+(export body-type-at)
+
+(defn body-type-at (font-size-px line-height)
+  (->body-type font-size-px line-height
+               (->font-metrics 1000 800 200)))

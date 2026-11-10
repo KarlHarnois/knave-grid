@@ -1,0 +1,20 @@
+(use fake-type body-type-at)
+
+(use lib ->body-type ->font-metrics baseline-offset-px
+         leading-px)
+
+(deftest gives-a-27px-leading-for-18px-type-at-1-5
+  (assert (= (leading-px (ref (body-type-at 18.0 1.5)))
+             27.0)))
+
+(deftest gives-a-24px-leading-for-16px-type-at-1-5
+  (assert (= (leading-px (ref (body-type-at 16.0 1.5)))
+             24.0)))
+
+(deftest puts-the-baseline-below-half-the-leading-and-the-ascent
+  (assert (= (baseline-offset-px (ref (body-type-at 20.0 1.4)))
+             20.0)))
+
+(deftest rounds-the-ascent-and-descent-then-the-half-leading-down
+  (let (type (->body-type 18.0 1.5 (->font-metrics 1000 950 300)))
+    (assert (= (baseline-offset-px (ref type)) 19.0))))

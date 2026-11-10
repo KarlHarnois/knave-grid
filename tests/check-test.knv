@@ -1,0 +1,38 @@
+(use fake-type body-type-at)
+(use lib ->grid-spec ->type-area check-grid grid-warning)
+
+(defn checked-spec (column-count measure-ch)
+  (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)
+                           :type-area (->type-area 117 3 column-count)
+                           :measure-ch measure-ch)))
+
+(defn warnings-of (measure-ch)
+  (clone (:warnings (unwrap-ok (checked-spec 2 measure-ch)))))
+
+(defn error-text (column-count measure-ch)
+  (str (unwrap-err (checked-spec column-count measure-ch))))
+
+(deftest accepts-a-fitting-type-area-without-warnings
+  (assert (empty? (warnings-of 66))))
+
+(deftest defaults-the-measure-to-66ch
+  (let (spec (->grid-spec :body-type (body-type-at 18.0 1.5)
+                          :type-area (->type-area 60 3 1)))
+    (assert (= (str (unwrap-err (check-grid spec)))
+               "the measure of 66ch is wider than the type area of 60ch"))))
+
+(deftest rejects-a-type-area-that-does-not-fit
+  (assert (= (error-text 7 66)
+             "a type area of 117ch with a gutter of 3ch does not fit 7 columns; the column counts that fit are 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 24, 30")))
+
+(deftest rejects-a-measure-wider-than-the-type-area
+  (assert (= (error-text 2 120)
+             "the measure of 120ch is wider than the type area of 117ch")))
+
+(deftest warns-about-a-measure-narrower-than-45ch
+  (assert (= (warnings-of 40)
+             (vec (grid-warning/measure-out-of-range 40)))))
+
+(deftest warns-about-a-measure-wider-than-75ch
+  (assert (= (warnings-of 80)
+             (vec (grid-warning/measure-out-of-range 80)))))

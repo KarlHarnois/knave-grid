@@ -1,0 +1,22 @@
+(use type-area span-width-ch)
+(use spec grid-spec)
+
+(export length length-css)
+
+(defenum length
+  (px f64)
+  (ch f64)
+  (rem f64)
+  (lines i64)
+  (columns i64))
+
+(type length-css (fn (length grid-spec) string))
+
+(defn length-css (length spec)
+  (match length
+    ((px size) (str size "px"))
+    ((ch size) (str size "ch"))
+    ((rem size) (str size "rem"))
+    ((lines count) (str count "rlh"))
+    ((columns count)
+     (str (span-width-ch (:type-area spec) count) "ch"))))

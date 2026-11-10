@@ -1,0 +1,53 @@
+(use declaration declaration)
+(use body-type baseline-offset-px)
+(use check checked-grid)
+(use length length length-css)
+
+(export grid-css)
+
+(def browser-default-font-size-px 16.0)
+
+(def grid-rule
+  ".grid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), var(--column));
+  column-gap: var(--gutter);
+}
+")
+
+(type grid-css
+  (fn ((ref checked-grid)) string))
+
+(defn grid-css (checked)
+  (str (root-rule (deref (:spec checked)))
+       "\n" grid-rule))
+
+(defn root-rule (spec)
+  (let (type (:body-type spec)
+        type-area (:type-area spec))
+    (str ":root {\n"
+         (declaration "font-size"
+                      (str (root-font-size-percent type) "%"))
+         (declaration "line-height" (str (:line-height type)))
+         (declaration "--leading" (length-css (length/lines 1) spec))
+         (declaration "--baseline-offset" (baseline-offset-rem type))
+         (declaration "--gutter" (str (:gutter-ch type-area) "ch"))
+         (declaration "--columns" (str (:column-count type-area)))
+         (declaration "--column"
+                      (length-css (length/columns 1) spec))
+         (declaration "--grid-width"
+                      (length-css (length/columns (:column-count type-area))
+                                  spec))
+         (declaration "--measure" (str (:measure-ch spec) "ch"))
+         "}\n")))
+
+(defn baseline-offset-rem (type)
+  (str "calc("
+       (baseline-offset-px type)
+       "rem / "
+       (:font-size-px type)
+       ")"))
+
+(defn root-font-size-percent (type)
+  (* 100.0
+     (/ (:font-size-px type) browser-default-font-size-px)))

@@ -1,0 +1,11 @@
+(use fake-type body-type-at)
+(use lib ->grid-spec ->type-area check-grid grid-css)
+
+(defn four-column-grid ()
+  (unwrap-ok (check-grid (->grid-spec :body-type (body-type-at 20.0 1.4)
+                                      :type-area (->type-area 100 4 4)
+                                      :measure-ch 60))))
+
+(deftest writes-the-root-and-grid-rules-of-a-spec
+  (assert (= (grid-css (ref (four-column-grid)))
+             (unwrap-ok (slurp "tests/fixtures/grid.css")))))

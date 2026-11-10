@@ -1,0 +1,41 @@
+(use fake-fonts ->fake-font truetype-bytes woff2-bytes)
+
+(use lib ->font-metrics parse-font-metrics
+         read-font-metrics)
+
+(defn font-asking-for-typo-metrics ()
+  (->fake-font :units-per-em 2000
+               :hhea-ascender 1700
+               :hhea-descender -500
+               :typo-ascender 1600
+               :typo-descender -400
+               :uses-typo-metrics? true))
+
+(defn font-without-the-typo-flag ()
+  (->fake-font :units-per-em 1000
+               :hhea-ascender 900
+               :hhea-descender -300
+               :typo-ascender 800
+               :typo-descender -200
+               :uses-typo-metrics? false))
+
+(deftest reads-hhea-metrics-even-when-the-font-asks-for-typo-metrics
+  (assert (= (unwrap-ok (parse-font-metrics (ref (woff2-bytes (font-asking-for-typo-metrics)))))
+             (->font-metrics 2000 1700 500))))
+
+(deftest reads-hhea-metrics-from-a-truetype-font
+  (assert (= (unwrap-ok (parse-font-metrics (ref (truetype-bytes (font-without-the-typo-flag)))))
+             (->font-metrics 1000 900 300))))
+
+(deftest reads-the-same-metrics-from-woff2-and-truetype
+  (assert (= (parse-font-metrics (ref (woff2-bytes (font-without-the-typo-flag))))
+             (parse-font-metrics (ref (truetype-bytes (font-without-the-typo-flag)))))))
+
+(deftest rejects-a-file-that-is-not-a-font
+  (assert (= (str (unwrap-err (read-font-metrics "tests/fixtures/grid.css")))
+             "not a usable font: not a TrueType, OpenType or WOFF2 font")))
+
+(deftest names-a-font-file-it-cannot-read
+  (assert (= (str (unwrap-err (read-font-metrics
+                                "tests/fixtures/missing.woff2")))
+             "cannot read tests/fixtures/missing.woff2: No such file or directory (os error 2)")))
