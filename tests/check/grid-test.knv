@@ -1,4 +1,4 @@
-(use fake-type body-type-at)
+(use spec/fake-type body-type-at)
 
 (use lib ->breakpoint ->grid-spec ->type-area check-grid
          grid-warning)

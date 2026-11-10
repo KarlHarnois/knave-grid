@@ -1,0 +1,133 @@
+(use font/fake-bytes byte i16-bytes joined-bytes u16-bytes
+                     u32-bytes zeros)
+
+(export ->fake-font ->fake-table fake-font fake-table
+        hmtx-table truetype-tables woff2-tables)
+
+(defstruct fake-font
+  :units-per-em i64
+  :hhea-ascender i64
+  :hhea-descender i64
+  :typo-ascender i64
+  :typo-descender i64
+  :uses-typo-metrics? bool
+  :zero-width i64
+  :transformed-hmtx? bool
+  (defaults :zero-width 500 :transformed-hmtx? false))
+
+(defstruct fake-table
+  :tag string
+  :woff2-index i64
+  :bytes (vec u8))
+
+(def use-typo-metrics-flag 128)
+
+(def zero-code-point 48)
+
+(def last-code-point 65535)
+
+(def notdef-width 600)
+
+(def hmtx-lsb-omitted-flags 3)
+
+(type truetype-tables
+  (fn (fake-font) (vec fake-table)))
+
+(defn truetype-tables (font)
+  (tables-with-hmtx font (hmtx-table font)))
+
+(type woff2-tables
+  (fn (fake-font) (vec fake-table)))
+
+(defn woff2-tables (font)
+  (tables-with-hmtx font
+                    (if (:transformed-hmtx? font)
+                      (transformed-hmtx-table font)
+                      (hmtx-table font))))
+
+(type tables-with-hmtx
+  (fn (fake-font (vec u8))
+    (vec fake-table)))
+
+(defn tables-with-hmtx (font hmtx)
+  (vec (->fake-table (str "cmap") 0 (cmap-table))
+       (->fake-table (str "head") 1 (head-table font))
+       (->fake-table (str "hhea") 2 (hhea-table font))
+       (->fake-table (str "hmtx") 3 hmtx)
+       (->fake-table (str "OS/2") 6 (os2-table font))))
+
+(defn cmap-table ()
+  (joined-bytes (ref (vec (u16-bytes 0)
+                          (u16-bytes 1)
+                          (u16-bytes 3)
+                          (u16-bytes 1)
+                          (u32-bytes 12)
+                          (format-4-subtable)))))
+
+(defn format-4-subtable ()
+  (let (zero-glyph-delta (- 1 zero-code-point))
+    (joined-bytes (ref (vec (u16-bytes 4)
+                            (u16-bytes 32)
+                            (u16-bytes 0)
+                            (u16-bytes 4)
+                            (u16-bytes 4)
+                            (u16-bytes 1)
+                            (u16-bytes 0)
+                            (u16-bytes zero-code-point)
+                            (u16-bytes last-code-point)
+                            (u16-bytes 0)
+                            (u16-bytes zero-code-point)
+                            (u16-bytes last-code-point)
+                            (u16-bytes zero-glyph-delta)
+                            (u16-bytes 1)
+                            (u16-bytes 0)
+                            (u16-bytes 0))))))
+
+(type head-table
+  (fn (fake-font) (vec u8)))
+
+(defn head-table (font)
+  (joined-bytes (ref (vec (zeros 18)
+                          (u16-bytes (:units-per-em font))
+                          (zeros 34)))))
+
+(type hhea-table
+  (fn (fake-font) (vec u8)))
+
+(defn hhea-table (font)
+  (joined-bytes (ref (vec (zeros 4)
+                          (i16-bytes (:hhea-ascender font))
+                          (i16-bytes (:hhea-descender font))
+                          (zeros 26)
+                          (u16-bytes 2)))))
+
+(type hmtx-table
+  (fn (fake-font) (vec u8)))
+
+(defn hmtx-table (font)
+  (joined-bytes (ref (vec (u16-bytes notdef-width)
+                          (i16-bytes 0)
+                          (u16-bytes (:zero-width font))
+                          (i16-bytes 0)))))
+
+(type transformed-hmtx-table
+  (fn (fake-font) (vec u8)))
+
+(defn transformed-hmtx-table (font)
+  (joined-bytes (ref (vec (byte hmtx-lsb-omitted-flags)
+                          (u16-bytes notdef-width)
+                          (u16-bytes (:zero-width font))))))
+
+(type os2-table
+  (fn (fake-font) (vec u8)))
+
+(defn os2-table (font)
+  (joined-bytes (ref (vec (zeros 62)
+                          (u16-bytes (selection-flags font))
+                          (zeros 4)
+                          (i16-bytes (:typo-ascender font))
+                          (i16-bytes (:typo-descender font))
+                          (zeros 24)))))
+
+(defn selection-flags (font)
+  (if (:uses-typo-metrics? font) use-typo-metrics-flag 0))

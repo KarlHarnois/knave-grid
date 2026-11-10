@@ -1,4 +1,4 @@
-(use fake-type body-type-at)
+(use spec/fake-type body-type-at)
 
 (use lib ->body-type ->font-metrics baseline-offset-px
          leading-px)

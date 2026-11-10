@@ -1,4 +1,4 @@
-(use fake-fonts ->fake-font truetype-bytes woff2-bytes)
+(use font/fake-fonts ->fake-font truetype-bytes woff2-bytes)
 
 (use lib ->font-metrics parse-font-metrics
          read-font-metrics)
