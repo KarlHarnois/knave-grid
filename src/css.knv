@@ -1,0 +1,44 @@
+(use check checked-grid)
+(use length length length-css)
+
+(export grid-css)
+
+(def browser-default-font-size-px 16.0)
+
+(def grid-rule
+  ".grid {
+  display: grid;
+  grid-template-columns: repeat(var(--columns), var(--column));
+  column-gap: var(--gutter);
+}
+")
+
+(type grid-css
+  (fn ((ref checked-grid)) string))
+
+(defn grid-css (checked)
+  (str (root-rule (deref (:spec checked)))
+       "\n" grid-rule))
+
+(defn root-rule (spec)
+  (let (type (:baseline spec)
+        lattice (:lattice spec))
+    (str ":root {\n" "  font-size: "
+         (root-font-size-percent type)
+         "%;\n" "  line-height: "
+         (:leading type)
+         ";\n" "  --baseline: "
+         (length-css (length/lines 1) spec)
+         ";\n" "  --gutter: "
+         (:gutter-ch lattice)
+         "ch;\n" "  --columns: "
+         (:column-count lattice)
+         ";\n" "  --column: "
+         (length-css (length/columns 1) spec)
+         ";\n" "  --grid-width: "
+         (length-css (length/columns (:column-count lattice)) spec)
+         ";\n" "}\n")))
+
+(defn root-font-size-percent (type)
+  (* 100.0
+     (/ (:font-size-px type) browser-default-font-size-px)))

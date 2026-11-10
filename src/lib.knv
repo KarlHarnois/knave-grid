@@ -1,9 +1,10 @@
 (use baseline ->body-type baseline-px)
-(use check check-grid grid-error grid-warning)
+(use check check-grid checked-grid grid-error grid-warning)
+(use css grid-css)
 (use lattice ->lattice)
 (use length length length-css)
 (use spec ->grid-spec)
 
 (export ->body-type ->grid-spec ->lattice baseline-px
-        check-grid grid-error grid-warning length
-        length-css)
+        check-grid checked-grid grid-css grid-error
+        grid-warning length length-css)
