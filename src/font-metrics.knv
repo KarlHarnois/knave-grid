@@ -28,8 +28,6 @@
   :data (vec u8)
   :entries (vec table-entry))
 
-(def use-typo-metrics-flag 128)
-
 (type read-font-metrics
   (fn ((ref str))
     (result font-metrics font-error)))
@@ -143,26 +141,21 @@
        (malformed "a WOFF2 length is longer than five bytes"))
       (else (recur bytes next-position next-value (+ byte-count 1))))))
 
+(def units-per-em-offset 18)
+
+(def hhea-ascender-offset 4)
+
+(def hhea-descender-offset 6)
+
 (defn metrics-from (tables)
   (let (data (:data tables)
         head (try (table-offset tables "head"))
-        hhea (try (table-offset tables "hhea"))
-        os2 (try (table-offset tables "OS/2"))
-        selection (try (present (u16-at data (+ os2 62)))))
-    (if (uses-typo-metrics? selection)
-      (metrics-at data head os2 68)
-      (metrics-at data head hhea 4))))
-
-(defn uses-typo-metrics? (selection)
-  (= (rem (/ selection use-typo-metrics-flag) 2) 1))
-
-(defn metrics-at (data head table ascender-offset)
-  (let (ascender-position (+ table ascender-offset))
-    (ok (->font-metrics (try (present (u16-at data (+ head 18))))
-                        (try (present (i16-at data ascender-position)))
-                        (- 0
-                           (try (present (i16-at data
-                                                 (+ ascender-position 2)))))))))
+        hhea (try (table-offset tables "hhea")))
+    (ok (->font-metrics
+          (try (present (u16-at data (+ head units-per-em-offset))))
+          (try (present (i16-at data (+ hhea hhea-ascender-offset))))
+          (- 0
+             (try (present (i16-at data (+ hhea hhea-descender-offset)))))))))
 
 (type table-offset
   (fn ((ref font-tables) (ref str))

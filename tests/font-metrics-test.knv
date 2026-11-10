@@ -19,11 +19,11 @@
                :typo-descender -200
                :uses-typo-metrics? false))
 
-(deftest reads-typo-metrics-from-a-woff2-font-that-asks-for-them
+(deftest reads-hhea-metrics-even-when-the-font-asks-for-typo-metrics
   (assert (= (unwrap-ok (parse-font-metrics (ref (woff2-bytes (font-asking-for-typo-metrics)))))
-             (->font-metrics 2000 1600 400))))
+             (->font-metrics 2000 1700 500))))
 
-(deftest reads-hhea-metrics-from-a-truetype-font-without-the-typo-flag
+(deftest reads-hhea-metrics-from-a-truetype-font
   (assert (= (unwrap-ok (parse-font-metrics (ref (truetype-bytes (font-without-the-typo-flag)))))
              (->font-metrics 1000 900 300))))
 
