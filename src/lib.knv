@@ -3,8 +3,10 @@
 (use css grid-css)
 (use lattice ->lattice)
 (use length length length-css)
+(use overlay overlay-css overlay-javascript)
 (use spec ->grid-spec)
 
 (export ->body-type ->grid-spec ->lattice baseline-px
         check-grid checked-grid grid-css grid-error
-        grid-warning length length-css)
+        grid-warning length length-css overlay-css
+        overlay-javascript)

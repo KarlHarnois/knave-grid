@@ -1,0 +1,15 @@
+(use lib overlay-css overlay-javascript)
+(use strings contains?)
+
+(deftest draws-the-overlay-layer
+  (assert (= overlay-css
+             (unwrap-ok (slurp "tests/fixtures/overlay.css")))))
+
+(deftest reads-the-grid-query-parameter
+  (assert (contains? overlay-javascript "\"grid\"")))
+
+(deftest toggles-on-the-g-key
+  (assert (contains? overlay-javascript "\"g\"")))
+
+(deftest toggles-the-grid-overlay-class
+  (assert (contains? overlay-javascript "\"grid-overlay\"")))
