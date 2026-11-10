@@ -1,0 +1,25 @@
+(use lib ->body-type ->grid-spec ->lattice check-grid
+         grid-warning)
+
+(defn checked-lattice (width-ch gutter-ch column-count)
+  (check-grid (->grid-spec (->body-type 18.0 1.5)
+                           (->lattice width-ch gutter-ch column-count))))
+
+(defn warnings-of (width-ch gutter-ch column-count)
+  (clone (:warnings (unwrap-ok
+                      (checked-lattice width-ch gutter-ch column-count)))))
+
+(deftest accepts-a-fitting-lattice-without-warnings
+  (assert (empty? (warnings-of 117 3 2))))
+
+(deftest rejects-a-lattice-that-does-not-fit
+  (assert (= (str (unwrap-err (checked-lattice 117 3 7)))
+             "a lattice of 117ch with a gutter of 3ch does not fit 7 columns; the column counts that fit are 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 24, 30")))
+
+(deftest warns-about-a-column-narrower-than-45ch
+  (assert (= (warnings-of 117 3 3)
+             (vec (grid-warning/column-width-out-of-range 37)))))
+
+(deftest warns-about-a-column-wider-than-75ch
+  (assert (= (warnings-of 117 3 1)
+             (vec (grid-warning/column-width-out-of-range 117)))))
