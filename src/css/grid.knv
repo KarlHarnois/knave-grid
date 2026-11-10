@@ -1,7 +1,8 @@
 (use spec/body-type baseline-offset-px body-type)
 (use browser default-font-size-px)
 (use check/grid checked-grid)
-(use css/declaration declaration)
+(use css/declaration declaration indented)
+(use css/exact-baselines exact-baseline-rules)
 (use css/type-styles type-style-rules)
 (use spec/length length length-css)
 (use spec/grid-spec breakpoint grid-spec)
@@ -24,10 +25,6 @@
 }
 ")
 
-(def indented
-  (rust "{0}.lines().map(|line| format!(\"  {{}}\\n\", line)).collect::<String>()"
-    (fn ((ref str)) string)))
-
 (type grid-css
   (fn ((ref checked-grid)) string))
 
@@ -36,7 +33,8 @@
     (str (root-rule spec)
          (breakpoint-rules spec)
          "\n" type-area-rule "\n" grid-rule
-         (type-style-rules spec))))
+         (type-style-rules spec)
+         (exact-baseline-rules spec))))
 
 (type root-rule
   (fn ((ref grid-spec)) string))

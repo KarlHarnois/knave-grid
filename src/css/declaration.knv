@@ -1,4 +1,8 @@
-(export declaration)
+(export declaration indented)
+
+(def indented
+  (rust "{0}.lines().map(|line| if line.is_empty() {{ String::from(\"\\n\") }} else {{ format!(\"  {{}}\\n\", line) }}).collect::<String>()"
+    (fn ((ref str)) string)))
 
 (defn declaration (property value)
   (str "  " property ": " value ";\n"))

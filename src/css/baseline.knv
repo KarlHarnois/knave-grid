@@ -1,0 +1,26 @@
+(use font/metrics font-metrics)
+
+(export baseline-offset-css)
+
+(def float-of
+  (rust "{0} as f64" (fn (i64) f64)))
+
+(type baseline-offset-css
+  (fn ((ref font-metrics) (ref str) (ref str))
+    string))
+
+(defn baseline-offset-css (metrics font-size line-height)
+  (let (ascent (whole-pixels-css metrics (:ascent metrics) font-size)
+        descent (whole-pixels-css metrics (:descent metrics) font-size))
+    (str "calc(round(down, (" line-height " - " ascent " - "
+         descent ") / 2, 1px) + " ascent ")")))
+
+(type whole-pixels-css
+  (fn ((ref font-metrics) i64 (ref str))
+    string))
+
+(defn whole-pixels-css (metrics font-units font-size)
+  (str "round("
+       (/ (float-of font-units)
+          (float-of (:units-per-em metrics)))
+       " * " font-size ", 1px)"))

@@ -5,7 +5,8 @@
                 grid-warning)
 
 (use css/grid grid-css)
-(use css/font-face ->font-face font-face font-face-css)
+(use css/font-face font-face-css)
+(use font/face ->font-face font-face)
 
 (use font/metrics ->font-metrics font-error font-metrics
                   parse-font-metrics read-font-metrics)

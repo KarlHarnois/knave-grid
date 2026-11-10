@@ -4,7 +4,7 @@
 (use spec/line-box glyph-height-px)
 
 (use spec/type-style style-font-size-px style-line-height-px
-                     type-style)
+                     style-metrics type-style)
 
 (export check-type-styles)
 
@@ -28,7 +28,8 @@
   (if (< (:lines style) 1)
     (err (grid-error/type-style-without-lines (clone (:name style))))
     (let (font-size-px (style-font-size-px style body)
-          glyph-height (glyph-height-px (:metrics body) font-size-px)
+          glyph-height (glyph-height-px (ref (style-metrics style body))
+                                        font-size-px)
           line-height (style-line-height-px style body))
       (if (> glyph-height line-height)
         (err (grid-error/type-style-too-big

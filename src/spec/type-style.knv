@@ -1,14 +1,17 @@
+(use font/face font-face)
+(use font/metrics font-metrics)
 (use spec/body-type baseline-offset-px body-type leading-px)
 (use spec/line-box baseline-in-line-px)
 
 (export ->type-style style-font-size-px style-line-height-px
-        style-shift-px type-style)
+        style-metrics style-shift-px type-style)
 
 (defstruct type-style
   :name string
   :lines i64
   :font-size-px (option f64)
-  (defaults :font-size-px none))
+  :face (option font-face)
+  (defaults :font-size-px none :face none))
 
 (def float-of
   (rust "{0} as f64" (fn (i64) f64)))
@@ -38,7 +41,7 @@
     f64))
 
 (defn style-shift-px (style body)
-  (let (baseline (baseline-in-line-px (:metrics body)
+  (let (baseline (baseline-in-line-px (ref (style-metrics style body))
                                       (style-font-size-px style body)
                                       (style-line-height-px style body)))
     (- (nearest-grid-baseline-px style body baseline) baseline)))
@@ -57,3 +60,12 @@
                         ((> line last-line) last-line)
                         (else line)))
     (+ (* line-in-block leading) body-baseline)))
+
+(type style-metrics
+  (fn ((ref type-style) (ref body-type))
+    font-metrics))
+
+(defn style-metrics (style body)
+  (match (:face style)
+    ((some face) (deref (:metrics face)))
+    (none (deref (:metrics body)))))

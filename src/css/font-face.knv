@@ -1,15 +1,8 @@
 (use css/declaration declaration)
+(use font/face font-face)
 (use font/metrics font-metrics)
 
-(export ->font-face font-face font-face-css)
-
-(defstruct font-face
-  :family string
-  :url string
-  :weight i64
-  :metrics font-metrics
-  :display string
-  (defaults :display (str "swap")))
+(export font-face-css)
 
 (def joined-rules
   (rust "{0}.join(\"\\n\")"
