@@ -13,7 +13,10 @@
 (use spec/length length length-css)
 (use overlay overlay-css overlay-javascript)
 (use spec/grid-spec ->breakpoint ->grid-spec breakpoint)
-(use spec/type-style ->type-style style-shift-px type-style)
+
+(use spec/type-style ->type-style style-font-size-px
+                     style-shift-px type-style)
+
 (use spec/type-area ->type-area)
 
 (export ->body-type ->breakpoint ->font-face ->font-metrics
@@ -22,5 +25,5 @@
         font-error font-face font-face-css font-metrics
         grid-css grid-error grid-warning leading-px length
         length-css overlay-css overlay-javascript
-        parse-font-metrics read-font-metrics style-shift-px
-        type-style)
+        parse-font-metrics read-font-metrics
+        style-font-size-px style-shift-px type-style)

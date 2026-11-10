@@ -1,5 +1,5 @@
 (use lib baseline-offset-px font-face-css grid-css length
-         length-css)
+         length-css style-font-size-px style-shift-px)
 
 (export demo-page)
 
@@ -14,6 +14,8 @@
                   (as-str (escaped (as-str (pr-str spec)))))
         (as-str)
         (replaced "{{layouts}}" (as-str (layout-rows spec)))
+        (as-str)
+        (replaced "{{type-styles}}" (as-str (type-style-rows spec)))
         (as-str)
         (replaced "{{baseline-offset}}"
                   (as-str (str (baseline-offset-px (ref (:body-type spec)))
@@ -32,6 +34,24 @@
         (as-str)
         (replaced "{{fonts-css}}"
                   (as-str (escaped (as-str (font-face-css faces))))))))
+
+(defn type-style-rows (spec)
+  (reduce (map (iter (:type-styles spec))
+            (fn (style)
+              (type-style-row style (:body-type spec))))
+          (str)
+          (fn (rows row) (str rows row))))
+
+(defn type-style-row (style body)
+  (str "      <tr><td><code>.type-"
+       (:name style)
+       "</code></td><td>"
+       (:lines style)
+       "</td><td>"
+       (style-font-size-px style body)
+       "px</td><td>"
+       (style-shift-px style body)
+       "px</td></tr>\n"))
 
 (defn layout-rows (spec)
   (reduce (map (iter (:breakpoints spec))
