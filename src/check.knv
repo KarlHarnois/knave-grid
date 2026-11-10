@@ -1,5 +1,7 @@
+(use body-type body-type ch-px)
+(use browser default-font-size-px)
+(use spec breakpoint grid-spec)
 (use type-area fits? fitting-column-counts type-area)
-(use spec grid-spec)
 
 (export ->checked-grid check-grid checked-grid grid-error
         grid-warning)
@@ -8,26 +10,57 @@
 
 (def widest-measure-ch 75)
 
+(def margin-count 2)
+
+(def float-of
+  (rust "{0} as f64" (fn (i64) f64)))
+
 (defenum grid-error
   (type-area-does-not-fit :type-area type-area
                           :fitting-counts (vec i64))
+  (breakpoint-does-not-fit :min-width-em f64
+                           :type-area type-area
+                           :fitting-counts (vec i64))
+  (breakpoint-too-narrow :min-width-em f64
+                         :width-ch i64
+                         :needed-em f64)
+  (breakpoint-out-of-order :min-width-em f64 :previous-em f64)
   (measure-wider-than-type-area :measure-ch i64 :width-ch i64))
 
 (display grid-error (error)
   (match error
     ((type-area-does-not-fit type-area fitting-counts)
-     (str "a type area of "
-          (:width-ch type-area)
-          "ch with a gutter of "
-          (:gutter-ch type-area)
-          "ch does not fit "
-          (:column-count type-area)
-          " columns; the column counts that fit are "
-          (joined-counts fitting-counts)))
+     (fit-message type-area fitting-counts))
+    ((breakpoint-does-not-fit min-width-em type-area
+                              fitting-counts)
+     (str "at " min-width-em "em, "
+          (fit-message type-area fitting-counts)))
+    ((breakpoint-too-narrow min-width-em width-ch needed-em)
+     (str "the type area of " width-ch "ch needs " needed-em
+          "em with a gutter on each side, but its breakpoint starts at "
+          min-width-em "em"))
+    ((breakpoint-out-of-order min-width-em previous-em)
+     (str "the breakpoint at " min-width-em
+          "em must start after the one before it, at "
+          previous-em "em"))
     ((measure-wider-than-type-area measure-ch width-ch)
      (str "the measure of " measure-ch
-          "ch is wider than the type area of " width-ch
-          "ch"))))
+          "ch is wider than the widest type area, of "
+          width-ch "ch"))))
+
+(type fit-message
+  (fn ((ref type-area) (ref (vec i64)))
+    string))
+
+(defn fit-message (type-area fitting-counts)
+  (str "a type area of "
+       (:width-ch type-area)
+       "ch with a gutter of "
+       (:gutter-ch type-area)
+       "ch does not fit "
+       (:column-count type-area)
+       " columns; the column counts that fit are "
+       (joined-counts fitting-counts)))
 
 (def joined-counts
   (rust "{0}.iter().map(|count| count.to_string()).collect::<Vec<_>>().join(\", \")"
@@ -51,18 +84,84 @@
   (fn (grid-spec) (result checked-grid grid-error)))
 
 (defn check-grid (spec)
-  (let (type-area (:type-area spec)
-        measure-ch (:measure-ch spec)
-        width-ch (:width-ch type-area))
+  (let (type-area (:type-area spec))
+    (if (fits? type-area)
+      (do
+        (try (check-breakpoints (ref spec) 0 0.0))
+        (try (check-measure (ref spec)))
+        (let (warnings (measure-warnings (:measure-ch spec)))
+          (ok (->checked-grid spec warnings))))
+      (err (grid-error/type-area-does-not-fit (deref type-area)
+                                              (fitting-column-counts
+                                                type-area))))))
+
+(type check-breakpoints
+  (fn ((ref grid-spec) usize f64)
+    (result unit grid-error)))
+
+(defn check-breakpoints (spec index previous-em)
+  (if (>= index (len (:breakpoints spec)))
+    (ok (do))
+    (let (breakpoint (at (:breakpoints spec) index))
+      (try (check-breakpoint (ref (:body-type spec))
+                             breakpoint previous-em))
+      (recur spec (+ index 1) (:min-width-em breakpoint)))))
+
+(type check-breakpoint
+  (fn ((ref body-type) (ref breakpoint) f64)
+    (result unit grid-error)))
+
+(defn check-breakpoint (type breakpoint previous-em)
+  (let (min-width-em (:min-width-em breakpoint)
+        type-area (:type-area breakpoint)
+        needed-em (needed-em type type-area))
     (cond
+      ((<= min-width-em previous-em)
+       (err (grid-error/breakpoint-out-of-order min-width-em
+                                                previous-em)))
       ((not (fits? type-area))
-       (err (grid-error/type-area-does-not-fit (deref type-area)
-                                               (fitting-column-counts
-                                                 type-area))))
-      ((> measure-ch width-ch)
-       (err (grid-error/measure-wider-than-type-area measure-ch
-                                                     width-ch)))
-      (else (ok (->checked-grid spec (measure-warnings measure-ch)))))))
+       (err (grid-error/breakpoint-does-not-fit min-width-em
+                                                (deref type-area)
+                                                (fitting-column-counts
+                                                  type-area))))
+      ((> needed-em min-width-em)
+       (err (grid-error/breakpoint-too-narrow min-width-em
+                                              (:width-ch type-area)
+                                              needed-em)))
+      (else (ok (do))))))
+
+(type needed-em
+  (fn ((ref body-type) (ref type-area))
+    f64))
+
+(defn needed-em (type type-area)
+  (let (width-with-margins-ch (+ (:width-ch type-area)
+                                 (* margin-count (:gutter-ch type-area))))
+    (/ (* (float-of width-with-margins-ch) (ch-px type))
+       default-font-size-px)))
+
+(type check-measure
+  (fn ((ref grid-spec))
+    (result unit grid-error)))
+
+(defn check-measure (spec)
+  (let (measure-ch (:measure-ch spec)
+        widest-ch (widest-type-area-ch spec))
+    (if (> measure-ch widest-ch)
+      (err (grid-error/measure-wider-than-type-area measure-ch
+                                                    widest-ch))
+      (ok (do)))))
+
+(type widest-type-area-ch
+  (fn ((ref grid-spec)) i64))
+
+(defn widest-type-area-ch (spec)
+  (reduce (map (iter (:breakpoints spec))
+            (fn (breakpoint)
+              (:width-ch (:type-area breakpoint))))
+          (:width-ch (:type-area spec))
+          (fn (widest width)
+            (if (> width widest) width widest))))
 
 (defn measure-warnings (measure-ch)
   (if (readable-measure? measure-ch)

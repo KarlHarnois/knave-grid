@@ -1,7 +1,7 @@
-(use lib ->body-type ->font-face ->grid-spec ->type-area
-         baseline-offset-px check-grid font-face-css
-         grid-css length length-css overlay-css
-         overlay-javascript read-font-metrics)
+(use lib ->body-type ->breakpoint ->font-face ->grid-spec
+         ->type-area baseline-offset-px check-grid
+         font-face-css grid-css length length-css
+         overlay-css overlay-javascript read-font-metrics)
 
 (def source-directory "demo")
 
@@ -11,11 +11,19 @@
 
 (def body-line-height 1.5)
 
-(def type-area-width-ch 117)
-
 (def gutter-ch 3)
 
-(def column-count 4)
+(def narrow-width-ch 57)
+
+(def medium-min-width-em 36.0)
+
+(def medium-column-count 2)
+
+(def wide-min-width-em 70.0)
+
+(def wide-width-ch 117)
+
+(def wide-column-count 4)
 
 (def column-count-that-does-not-fit 7)
 
@@ -45,7 +53,7 @@
   (try (create-directories output-directory))
   (let (regular (try (demo-face 400 "regular"))
         bold (try (demo-face 700 "bold"))
-        spec (demo-spec column-count (deref (:metrics regular)))
+        spec (demo-spec wide-column-count (deref (:metrics regular)))
         checked (try (map-err (check-grid spec) error-text))
         faces (vec regular bold))
     (try (write-output "fonts.css"
@@ -72,36 +80,41 @@
                      :metrics (try (map-err (read-font-metrics (as-str source))
                                             error-text))))))
 
-(defn demo-spec (columns metrics)
+(defn demo-spec (wide-columns metrics)
   (->grid-spec
     :body-type (->body-type body-font-size-px body-line-height metrics)
-    :type-area (->type-area type-area-width-ch gutter-ch columns)
-    :measure-ch measure-ch))
+    :type-area (->type-area narrow-width-ch gutter-ch 1)
+    :measure-ch measure-ch
+    :breakpoints (vec (->breakpoint medium-min-width-em
+                                    (->type-area narrow-width-ch
+                                                 gutter-ch
+                                                 medium-column-count))
+                      (->breakpoint
+                        wide-min-width-em
+                        (->type-area wide-width-ch gutter-ch wide-columns)))))
 
 (defn demo-page (checked faces)
-  (let (spec (deref (:spec checked))
+  (let (spec (:spec checked)
+        metrics (deref (:metrics (:body-type spec)))
         template (try (map-err (slurp (as-str (source-path "index.html")))
                                error-text)))
     (ok (-> (replaced (as-str template)
                       "{{spec}}"
                       (as-str (escaped (as-str (pr-str spec)))))
             (as-str)
-            (replaced "{{column-width}}"
-                      (as-str (length-css (length/columns 1) spec)))
+            (replaced "{{layouts}}" (as-str (layout-rows spec)))
             (as-str)
             (replaced "{{baseline-offset}}"
                       (as-str (str (baseline-offset-px (ref (:body-type spec)))
                                    "px")))
             (as-str)
-            (replaced "{{lengths}}" (as-str (length-rows spec)))
+            (replaced "{{lengths}}" (as-str (length-rows)))
             (as-str)
             (replaced "{{warnings}}"
                       (as-str (warnings-sentence checked)))
             (as-str)
             (replaced "{{broken-error}}"
-                      (as-str (escaped (as-str (broken-spec-error (deref (:metrics
-                                                                           (:body-type
-                                                                             spec))))))))
+                      (as-str (escaped (as-str (broken-spec-error metrics)))))
             (as-str)
             (replaced "{{grid-css}}"
                       (as-str (escaped (as-str (grid-css checked)))))
@@ -109,16 +122,31 @@
             (replaced "{{fonts-css}}"
                       (as-str (escaped (as-str (font-face-css faces)))))))))
 
-(defn length-rows (spec)
-  (str (length-row "(length/px 27.0)" (length/px 27.0) spec)
-       (length-row "(length/ch 3.0)" (length/ch 3.0) spec)
-       (length-row "(length/rem 1.5)" (length/rem 1.5) spec)
-       (length-row "(length/lines 2)" (length/lines 2) spec)
-       (length-row "(length/columns 2)" (length/columns 2) spec)))
+(defn layout-rows (spec)
+  (reduce (map (iter (:breakpoints spec))
+            (fn (breakpoint)
+              (layout-row (as-str (str "from " (:min-width-em breakpoint) "em"))
+                          (:type-area breakpoint))))
+          (layout-row "narrower screens" (:type-area spec))
+          (fn (rows row) (str rows row))))
 
-(defn length-row (knave length spec)
+(defn layout-row (screen type-area)
+  (str "      <tr><td>" screen "</td><td>"
+       (:width-ch type-area)
+       "ch</td><td>"
+       (:column-count type-area)
+       "</td></tr>\n"))
+
+(defn length-rows ()
+  (str (length-row "(length/px 27.0)" (length/px 27.0))
+       (length-row "(length/ch 3.0)" (length/ch 3.0))
+       (length-row "(length/rem 1.5)" (length/rem 1.5))
+       (length-row "(length/lines 2)" (length/lines 2))
+       (length-row "(length/columns 2)" (length/columns 2))))
+
+(defn length-row (knave length)
   (str "      <tr><td><code>" knave "</code></td><td><code>"
-       (length-css length spec)
+       (length-css (ref length))
        "</code></td></tr>\n"))
 
 (defn warnings-sentence (checked)

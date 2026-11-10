@@ -3,15 +3,24 @@
   line-height: 1.4;
   --leading: 1rlh;
   --baseline-offset: calc(20rem / 20);
+  --measure: 60ch;
   --gutter: 4ch;
   --columns: 4;
   --column: 22ch;
   --grid-width: 100ch;
-  --measure: 60ch;
+}
+
+@media (min-width: 100em) {
+  :root {
+    --gutter: 4ch;
+    --columns: 4;
+    --column: 31ch;
+    --grid-width: 136ch;
+  }
 }
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(var(--columns), var(--column));
+  grid-template-columns: repeat(var(--columns), minmax(0, var(--column)));
   column-gap: var(--gutter);
 }

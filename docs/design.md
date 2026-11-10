@@ -22,7 +22,7 @@ The library names its parts with the terms of the Swiss grid tradition, as Josef
 
 The spec is Knave data. Plain structs come first. A `defgrid` macro that reads like a spec MAY come later, built on those structs.
 
-Lengths are a closed set of units: `px`, `ch`, `rem`, `lines`, and `columns`. The library resolves `lines` and `columns` to real lengths.
+Lengths are a closed set of units: `px`, `ch`, `rem`, `lines`, and `columns`. The library resolves `lines` to `rlh`, and `columns` to the width of its columns and the gutters between them, written with `--column` and `--gutter` so it follows the breakpoints.
 
 Vertical spacing in type styles and placements takes only `lines`, so a spec cannot break the baseline grid by construction. A field for vertical spacing takes a count of lines, not a length, so an absolute unit there is a type error.
 
@@ -36,7 +36,7 @@ The horizontal unit is `1ch`. The default gutter is `3ch`.
 
 A type area N units wide with a gutter of g units fits k equal columns when k divides N + g. The defaults use N + g = 120 on wide screens and N + g = 60 on medium screens.
 
-The measure defaults to `66ch`. The library warns when the measure is outside `45ch` to `75ch`, and a measure wider than the type area is an error. The library checks no column width, because a column can hold more than one line of text, such as a code pane or an image.
+The measure defaults to `66ch`. The library warns when the measure is outside `45ch` to `75ch`, and a measure wider than the widest type area is an error. The library checks no column width, because a column can hold more than one line of text, such as a code pane or an image.
 
 ## Type styles
 
@@ -50,9 +50,9 @@ The library reads font metrics from the font files at build time to place each s
 
 A baseline sits half the leading left over by the ascent and descent, plus the ascent, below the top of its line. The library rounds the ascent and descent to whole pixels and the half leading down, as Chromium does, and `grid-css` writes the body text's offset as `--baseline-offset`.
 
-Chromium and Firefox read a font's `OS/2` typo metrics instead when the font sets the `USE_TYPO_METRICS` flag. So `font-face-css` writes each face's `@font-face` rule with `ascent-override`, `descent-override` and `line-gap-override: 0%` set from the `hhea` metrics, and every browser places the baseline the same way. Safari does not support these descriptors, which is why the library takes the metrics Safari reads.
+Chromium and Firefox read a font's `OS/2` typo metrics instead when the font sets the `USE_TYPO_METRICS` flag. So `font-face-css` writes each face's `@font-face` rule with `ascent-override`, `descent-override` and `line-gap-override: 0%` set from the `hhea` metrics, and every browser places the baseline the same way. Safari does not support these descriptors, which is why the library takes the metrics Safari reads. A site passes its faces to `font-face-css` instead of writing its own `@font-face` rules.
 
-A browser check in CI loads the built pages in WebKit on macOS and fails when the body text's baseline is not at `--baseline-offset`. A site passes its faces to `font-face-css` instead of writing its own `@font-face` rules.
+A browser check in CI loads the built pages in WebKit on macOS and fails when the body text's baseline is not at `--baseline-offset`.
 
 The generated CSS uses `text-box-trim` behind `@supports`, with margins computed from font metrics as the fallback.
 
@@ -60,7 +60,11 @@ The generated CSS uses `text-box-trim` behind `@supports`, with margins computed
 
 A placement matches elements with a CSS selector and gives them a spatial zone: `:span n` columns, a column range `:columns (first last)`, or a subgrid.
 
-Breakpoints are written in `em` and override the column count.
+Breakpoints are written in `em`, from narrowest to widest, and each one overrides the type area: its width, gutter and column count. The spec's own type area applies below the first breakpoint. `grid-css` writes a media query per breakpoint that redefines `--gutter`, `--columns`, `--column` and `--grid-width`, so the `.grid` rule and the overlay follow without media queries of their own.
+
+The check fails when a breakpoint's type area does not fit its columns, when breakpoints are out of order, and when a breakpoint is narrower than its type area plus a gutter of margin on each side. It converts ch to em with the width of the font's "0" glyph, which is what `1ch` measures, and with the 16px default font size that media queries use.
+
+The `.grid` columns are `minmax(0, var(--column))`, so on a screen narrower than the first type area the columns shrink instead of overflowing.
 
 A span wider than the column count at any breakpoint is a build error.
 

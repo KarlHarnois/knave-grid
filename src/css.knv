@@ -1,45 +1,80 @@
-(use declaration declaration)
 (use body-type baseline-offset-px)
+(use browser default-font-size-px)
 (use check checked-grid)
+(use declaration declaration)
 (use length length length-css)
+(use spec breakpoint grid-spec)
+(use type-area span-width-ch type-area)
 
 (export grid-css)
-
-(def browser-default-font-size-px 16.0)
 
 (def grid-rule
   ".grid {
   display: grid;
-  grid-template-columns: repeat(var(--columns), var(--column));
+  grid-template-columns: repeat(var(--columns), minmax(0, var(--column)));
   column-gap: var(--gutter);
 }
 ")
+
+(def indented
+  (rust "{0}.lines().map(|line| format!(\"  {{}}\\n\", line)).collect::<String>()"
+    (fn ((ref str)) string)))
 
 (type grid-css
   (fn ((ref checked-grid)) string))
 
 (defn grid-css (checked)
-  (str (root-rule (deref (:spec checked)))
-       "\n" grid-rule))
+  (let (spec (:spec checked))
+    (str (root-rule spec)
+         (breakpoint-rules spec)
+         "\n" grid-rule)))
+
+(type root-rule
+  (fn ((ref grid-spec)) string))
 
 (defn root-rule (spec)
-  (let (type (:body-type spec)
-        type-area (:type-area spec))
+  (let (type (:body-type spec))
     (str ":root {\n"
          (declaration "font-size"
                       (str (root-font-size-percent type) "%"))
          (declaration "line-height" (str (:line-height type)))
-         (declaration "--leading" (length-css (length/lines 1) spec))
+         (declaration "--leading"
+                      (length-css (ref (length/lines 1))))
          (declaration "--baseline-offset" (baseline-offset-rem type))
-         (declaration "--gutter" (str (:gutter-ch type-area) "ch"))
-         (declaration "--columns" (str (:column-count type-area)))
-         (declaration "--column"
-                      (length-css (length/columns 1) spec))
-         (declaration "--grid-width"
-                      (length-css (length/columns (:column-count type-area))
-                                  spec))
          (declaration "--measure" (str (:measure-ch spec) "ch"))
+         (type-area-declarations (:type-area spec))
          "}\n")))
+
+(type breakpoint-rules
+  (fn ((ref grid-spec)) string))
+
+(defn breakpoint-rules (spec)
+  (reduce (map (iter (:breakpoints spec)) breakpoint-rule) (str)
+    (fn (rules rule) (str rules "\n" rule))))
+
+(type breakpoint-rule
+  (fn ((ref breakpoint)) string))
+
+(defn breakpoint-rule (breakpoint)
+  (let (root (str ":root {\n"
+                  (type-area-declarations (:type-area breakpoint))
+                  "}\n"))
+    (str "@media (min-width: "
+         (:min-width-em breakpoint)
+         "em) {\n"
+         (indented (as-str root))
+         "}\n")))
+
+(type type-area-declarations
+  (fn ((ref type-area)) string))
+
+(defn type-area-declarations (type-area)
+  (str (declaration "--gutter" (str (:gutter-ch type-area) "ch"))
+       (declaration "--columns" (str (:column-count type-area)))
+       (declaration "--column"
+                    (str (span-width-ch type-area 1) "ch"))
+       (declaration "--grid-width"
+                    (str (:width-ch type-area) "ch"))))
 
 (defn baseline-offset-rem (type)
   (str "calc("
@@ -49,5 +84,4 @@
        ")"))
 
 (defn root-font-size-percent (type)
-  (* 100.0
-     (/ (:font-size-px type) browser-default-font-size-px)))
+  (* 100.0 (/ (:font-size-px type) default-font-size-px)))
