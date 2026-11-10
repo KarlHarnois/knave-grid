@@ -31,7 +31,7 @@ body {
 }
 
 main {
-  padding-block: calc(2 * var(--leading));
+  padding-block: var(--leading) calc(2 * var(--leading));
 }
 
 h1, h2, p, ul, pre, table {
