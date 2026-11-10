@@ -14,6 +14,8 @@
 
 (def gutter-ch 3)
 
+(def margin-ch 3)
+
 (def narrow-width-ch 57)
 
 (def medium-min-width-em 36.0)
@@ -86,15 +88,18 @@
 (defn demo-spec (wide-columns metrics)
   (->grid-spec
     :body-type (->body-type body-font-size-px body-line-height metrics)
-    :type-area (->type-area narrow-width-ch gutter-ch 1)
+    :type-area (->type-area narrow-width-ch gutter-ch 1 margin-ch)
     :measure-ch measure-ch
     :breakpoints (vec (->breakpoint medium-min-width-em
                                     (->type-area narrow-width-ch
                                                  gutter-ch
-                                                 medium-column-count))
-                      (->breakpoint
-                        wide-min-width-em
-                        (->type-area wide-width-ch gutter-ch wide-columns)))))
+                                                 medium-column-count
+                                                 margin-ch))
+                      (->breakpoint wide-min-width-em
+                                    (->type-area wide-width-ch
+                                                 gutter-ch
+                                                 wide-columns
+                                                 margin-ch)))))
 
 (defn broken-spec-error (metrics)
   (match (check-grid (demo-spec column-count-that-does-not-fit metrics))

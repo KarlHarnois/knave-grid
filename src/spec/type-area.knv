@@ -4,7 +4,8 @@
 (defstruct type-area
   :width-ch i64
   :gutter-ch i64
-  :column-count i64)
+  :column-count i64
+  :margin-ch i64)
 
 (type column-width-ch
   (fn ((ref type-area)) i64))

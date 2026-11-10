@@ -5,7 +5,7 @@
 
 (defn checked-spec (column-count measure-ch)
   (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)
-                           :type-area (->type-area 117 3 column-count)
+                           :type-area (->type-area 117 3 column-count 3)
                            :measure-ch measure-ch)))
 
 (defn warnings-of (measure-ch)
@@ -19,7 +19,7 @@
 
 (deftest defaults-the-measure-to-66ch
   (let (spec (->grid-spec :body-type (body-type-at 18.0 1.5)
-                          :type-area (->type-area 60 3 1)))
+                          :type-area (->type-area 60 3 1 3)))
     (assert (= (str (unwrap-err (check-grid spec)))
                "the measure of 66ch is wider than the widest type area, of 60ch"))))
 
@@ -41,7 +41,7 @@
 
 (defn spec-with-breakpoints (breakpoints)
   (->grid-spec :body-type (body-type-at 18.0 1.5)
-               :type-area (->type-area 57 3 1)
+               :type-area (->type-area 57 3 1 3)
                :breakpoints breakpoints))
 
 (defn breakpoint-error (breakpoints)
@@ -49,19 +49,26 @@
 
 (deftest accepts-breakpoints-that-fit-and-are-wide-enough
   (let (spec (spec-with-breakpoints
-               (vec (->breakpoint 36.0 (->type-area 57 3 2))
-                    (->breakpoint 70.0 (->type-area 117 3 4)))))
+               (vec (->breakpoint 36.0 (->type-area 57 3 2 3))
+                    (->breakpoint 70.0 (->type-area 117 3 4 3)))))
     (assert (empty? (:warnings (unwrap-ok (check-grid spec)))))))
 
 (deftest rejects-a-breakpoint-whose-type-area-does-not-fit
-  (assert (= (breakpoint-error (vec (->breakpoint 70.0 (->type-area 117 3 7))))
+  (assert (= (breakpoint-error (vec (->breakpoint 70.0
+                                                  (->type-area 117 3 7 3))))
              "at 70em, a type area of 117ch with a gutter of 3ch does not fit 7 columns; the column counts that fit are 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 24, 30")))
 
 (deftest rejects-a-breakpoint-narrower-than-its-type-area-and-margins
-  (assert (= (breakpoint-error (vec (->breakpoint 64.0 (->type-area 117 3 4))))
-             "the type area of 117ch needs 69.1875em with a gutter on each side, but its breakpoint starts at 64em")))
+  (assert (= (breakpoint-error (vec (->breakpoint 64.0
+                                                  (->type-area 117 3 4 3))))
+             "the type area of 117ch with 3ch margins needs 69.1875em, but its breakpoint starts at 64em")))
 
 (deftest rejects-breakpoints-out-of-order
-  (assert (= (breakpoint-error (vec (->breakpoint 70.0 (->type-area 117 3 4))
-                                    (->breakpoint 36.0 (->type-area 57 3 2))))
+  (assert (= (breakpoint-error (vec (->breakpoint 70.0 (->type-area 117 3 4 3))
+                                    (->breakpoint 36.0 (->type-area 57 3 2 3))))
              "the breakpoint at 36em must start after the one before it, at 70em")))
+
+(deftest counts-the-type-area-margins-not-its-gutters
+  (assert (= (breakpoint-error (vec (->breakpoint 70.0
+                                                  (->type-area 117 3 4 6))))
+             "the type area of 117ch with 6ch margins needs 72.5625em, but its breakpoint starts at 70em")))

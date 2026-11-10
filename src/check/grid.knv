@@ -65,6 +65,7 @@
       ((> needed-em min-width-em)
        (err (grid-error/breakpoint-too-narrow min-width-em
                                               (:width-ch type-area)
+                                              (:margin-ch type-area)
                                               needed-em)))
       (else (ok (do))))))
 
@@ -74,7 +75,7 @@
 
 (defn needed-em (type type-area)
   (let (width-with-margins-ch (+ (:width-ch type-area)
-                                 (* margin-count (:gutter-ch type-area))))
+                                 (* margin-count (:margin-ch type-area))))
     (/ (* (float-of width-with-margins-ch) (ch-px type))
        default-font-size-px)))
 

@@ -8,6 +8,7 @@
   --columns: 4;
   --column: 22ch;
   --grid-width: 100ch;
+  --margin: 6ch;
 }
 
 @media (min-width: 100em) {
@@ -16,7 +17,13 @@
     --columns: 4;
     --column: 31ch;
     --grid-width: 136ch;
+    --margin: 8ch;
   }
+}
+
+.type-area {
+  width: min(100% - 2 * var(--margin), var(--grid-width));
+  margin-inline: auto;
 }
 
 .grid {
