@@ -64,7 +64,7 @@ The generated placement rules sit in a cascade layer, so a site's own unlayered 
 
 `grid-css` generates the CSS from a spec.
 
-The debug overlay draws columns, gutters, modules, and baselines with `repeating-linear-gradient`. A key press or a `?grid` query parameter toggles the overlay. The overlay outlines every element that breaks the grid.
+The debug overlay draws columns, gutters, modules, and baselines with `repeating-linear-gradient`. It is a layer over the whole body, so its lines scroll with the elements they measure. While the overlay is on, the body is `position: relative`. A key press or a `?grid` query parameter toggles the overlay. The overlay outlines every element that breaks the grid.
 
 The fit checker has two parts. The first checks that every length the library generates is a whole number of grid units. The second loads built pages in a headless browser in CI and measures them.
 
@@ -74,4 +74,4 @@ The overlay and the browser check share one measurement script.
 
 ## Open questions
 
-- Does the overlay scroll with the page, so its baselines stay on the text?
+- Until font metrics land, does the overlay draw the edges of each line slot, or lines labeled as approximate baselines?

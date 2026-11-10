@@ -1,9 +1,13 @@
 (export overlay-css overlay-javascript)
 
 (def overlay-css
-  ":root.grid-overlay body::after {
+  ":root.grid-overlay body {
+  position: relative;
+}
+
+:root.grid-overlay body::after {
   content: \"\";
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 2147483647;
   width: min(100%, var(--grid-width));
