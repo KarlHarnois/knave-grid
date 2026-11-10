@@ -78,6 +78,13 @@ A span wider than the column count at any breakpoint is a build error.
 
 The generated placement rules sit in a cascade layer, so a site's own unlayered CSS always overrides them.
 
+
+## Picture fields
+
+Pictures follow Müller-Brockmann's rule in *Grid Systems in Graphic Design* (1981, p. 65): a picture's top edge lines up with the tops of the capitals in the first line of its field, and its bottom edge with the descenders of the last line. A field is a whole number of lines, and fields are separated by whole empty lines, never half lines (pp. 58–59).
+
+The library reads each font's cap height from its `OS/2` table and its descender from `hhea`, and `grid-css` writes `--cap-top` and `--descender-bottom`, the distances from the top of a line to its cap line and its descender line. The generated `.field` class spans `--field-lines` lines. Its padding puts its content box between the first line's cap line and the last line's descender line, and its border box stays a whole number of lines tall, so the content after it stays on the grid. The overlay draws the cap and descender lines as guides.
+
 ## Outputs
 
 `grid-css` generates the CSS from a spec.

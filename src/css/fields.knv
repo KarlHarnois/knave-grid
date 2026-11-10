@@ -1,0 +1,32 @@
+(use css/declaration declaration)
+(use spec/body-type body-type)
+
+(export field-declarations field-rule)
+
+(def float-of
+  (rust "{0} as f64" (fn (i64) f64)))
+
+(def field-rule
+  ".field {
+  box-sizing: border-box;
+  height: calc(var(--field-lines, 1) * var(--leading));
+  padding-block: var(--cap-top) calc(var(--leading) - var(--descender-bottom));
+  background-clip: content-box;
+  object-fit: cover;
+}
+")
+
+(type field-declarations
+  (fn ((ref body-type)) string))
+
+(defn field-declarations (body)
+  (let (metrics (:metrics body)
+        em (float-of (:units-per-em metrics)))
+    (str (declaration "--cap-top"
+                      (str "calc(var(--baseline-offset) - "
+                           (/ (float-of (:cap-height metrics)) em)
+                           " * 1rem)"))
+         (declaration "--descender-bottom"
+                      (str "calc(var(--baseline-offset) + "
+                           (/ (float-of (:descent metrics)) em)
+                           " * 1rem)")))))

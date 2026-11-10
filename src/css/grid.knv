@@ -3,6 +3,7 @@
 (use check/grid checked-grid)
 (use css/declaration declaration indented)
 (use css/exact-baselines exact-baseline-rules)
+(use css/fields field-declarations field-rule)
 (use css/type-styles type-style-rules)
 (use spec/length length length-css)
 (use spec/grid-spec breakpoint grid-spec)
@@ -32,7 +33,7 @@
   (let (spec (:spec checked))
     (str (root-rule spec)
          (breakpoint-rules spec)
-         "\n" type-area-rule "\n" grid-rule
+         "\n" type-area-rule "\n" grid-rule "\n" field-rule
          (type-style-rules spec)
          (exact-baseline-rules spec))))
 
@@ -48,6 +49,7 @@
          (declaration "--leading"
                       (length-css (ref (length/lines 1))))
          (declaration "--baseline-offset" (baseline-offset-rem type))
+         (field-declarations type)
          (declaration "--measure" (str (:measure-ch spec) "ch"))
          (type-area-declarations (:type-area spec))
          "}\n")))

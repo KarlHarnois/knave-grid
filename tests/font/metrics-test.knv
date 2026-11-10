@@ -61,3 +61,15 @@
   (assert (= (str (unwrap-err (read-font-metrics
                                 "tests/fixtures/missing.woff2")))
              "cannot read tests/fixtures/missing.woff2: No such file or directory (os error 2)")))
+
+(deftest refuses-a-font-without-a-cap-height
+  (let (font (->fake-font :units-per-em 1000
+                          :hhea-ascender 900
+                          :hhea-descender -300
+                          :typo-ascender 800
+                          :typo-descender -200
+                          :uses-typo-metrics? false
+                          :os2-version 1))
+    (assert (= (str (unwrap-err (parse-font-metrics (ref (truetype-bytes
+                                                           font)))))
+               "not a usable font: the font's OS/2 table is older than version 2, so it has no cap height"))))

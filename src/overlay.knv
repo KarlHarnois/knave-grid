@@ -16,6 +16,7 @@
   margin-inline: auto;
   background:
     linear-gradient(to bottom, transparent 0 var(--baseline-offset), rgb(255 64 160 / 0.6) var(--baseline-offset) calc(var(--baseline-offset) + 1px), transparent calc(var(--baseline-offset) + 1px)) 0 0 / 100% var(--leading) repeat-y,
+    linear-gradient(to bottom, transparent 0 var(--cap-top), rgb(255 190 60 / 0.35) var(--cap-top) calc(var(--cap-top) + 1px), transparent calc(var(--cap-top) + 1px) var(--descender-bottom), rgb(255 190 60 / 0.35) var(--descender-bottom) calc(var(--descender-bottom) + 1px), transparent calc(var(--descender-bottom) + 1px)) 0 0 / 100% var(--leading) repeat-y,
     linear-gradient(to right, rgb(64 160 255 / 0.15) 0 var(--column), transparent var(--column)) 0 0 / calc(var(--column) + var(--gutter)) 100% repeat-x;
   pointer-events: none;
 }

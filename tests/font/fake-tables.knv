@@ -14,9 +14,11 @@
   :zero-width i64
   :transformed-hmtx? bool
   :cap-height i64
+  :os2-version i64
   (defaults :zero-width 500
             :transformed-hmtx? false
-            :cap-height 700))
+            :cap-height 700
+            :os2-version 4))
 
 (defstruct fake-table
   :tag string
@@ -24,8 +26,6 @@
   :bytes (vec u8))
 
 (def use-typo-metrics-flag 128)
-
-(def os2-version 4)
 
 (def zero-code-point 48)
 
@@ -127,7 +127,7 @@
   (fn (fake-font) (vec u8)))
 
 (defn os2-table (font)
-  (joined-bytes (ref (vec (u16-bytes os2-version)
+  (joined-bytes (ref (vec (u16-bytes (:os2-version font))
                           (zeros 60)
                           (u16-bytes (selection-flags font))
                           (zeros 4)

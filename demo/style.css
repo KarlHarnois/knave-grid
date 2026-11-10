@@ -102,3 +102,11 @@ thead th { box-shadow: inset 0 -1px 0 var(--rule); }
   background: var(--ink);
   color: var(--paper);
 }
+
+.picture {
+  background-image: repeating-linear-gradient(45deg, var(--rule) 0 10px, var(--cell) 10px 20px);
+}
+
+.picture-row { margin-bottom: var(--leading); }
+
+.beside-picture { margin: 0; }
