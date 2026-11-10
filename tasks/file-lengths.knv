@@ -1,0 +1,72 @@
+(def line-limit 150)
+
+(def knave-extension ".knv")
+
+(def directory-entries
+  (rust "std::fs::read_dir({0}).and_then(|entries| entries.map(|entry| entry.map(|found| found.path().to_string_lossy().into_owned())).collect::<std::io::Result<Vec<String>>>()).map_err(|error| format!(\"{{}}: {{}}\", {0}, error))"
+    (fn ((ref str))
+      (result (vec string) string))))
+
+(def directory?
+  (rust "std::path::Path::new({0}).is_dir()"
+    (fn ((ref str)) bool)))
+
+(def ends-with?
+  (rust "{0}.ends_with({1})"
+    (fn ((ref str) (ref str)) bool)))
+
+(def line-count
+  (rust "std::fs::read_to_string({0}).map(|text| text.lines().count() as i64).map_err(|error| format!(\"{{}}: {{}}\", {0}, error))"
+    (fn ((ref str)) (result i64 string))))
+
+(def appended
+  (rust "{{ let mut {!all} = {0}; {!all}.extend({1}); {!all} }}"
+    (fn ((vec string) (vec string))
+      (vec string))))
+
+(def joined
+  (rust "{0}.join({1})"
+    (fn ((ref (vec string)) (ref str))
+      string)))
+
+(deftask check-file-lengths ()
+  "Fails when a .knv file in src/, tests/ or tasks/ is longer than 150 lines."
+  (let (files (appended (appended (try (knave-files-under "src"))
+                                  (try (knave-files-under "tests")))
+                        (try (knave-files-under "tasks")))
+        too-long (try (files-over-limit (ref files) 0 (vec))))
+    (if (empty? too-long)
+      (ok (println "All "
+                   (len files)
+                   " .knv files are " line-limit
+                   " lines or shorter."))
+      (err (str "these .knv files are longer than "
+                line-limit
+                " lines; split each one along a seam:\n"
+                (joined (ref too-long) "\n"))))))
+
+(defn knave-files-under (directory)
+  (let (entries (try (directory-entries directory)))
+    (knave-files-among (ref entries) 0 (vec))))
+
+(defn knave-files-among (entries index files)
+  (if (>= index (len entries))
+    (ok files)
+    (let (path (as-str (at entries index))
+          found (cond
+                  ((directory? path) (try (knave-files-under path)))
+                  ((ends-with? path knave-extension) (vec (str path)))
+                  (else (vec))))
+      (recur entries (+ index 1) (appended files found)))))
+
+(defn files-over-limit (files index too-long)
+  (if (>= index (len files))
+    (ok too-long)
+    (let (path (as-str (at files index))
+          lines (try (line-count path)))
+      (recur files
+             (+ index 1)
+             (if (> lines line-limit)
+               (appended too-long
+                         (vec (str "  " path ": " lines " lines")))
+               too-long)))))

@@ -14,5 +14,7 @@ jobs:
       - uses: ./.github/actions/dev-shell
       - name: Check formatting
         run: nix develop -c knave fmt --check
+      - name: Check that no .knv file is longer than 150 lines
+        run: nix develop -c knave task check-file-lengths
       - name: Run tests
         run: nix develop -c knave test
