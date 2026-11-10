@@ -1,6 +1,7 @@
+(use demo/page demo-page)
+
 (use lib ->body-type ->breakpoint ->font-face ->grid-spec
-         ->type-area baseline-offset-px check-grid
-         font-face-css grid-css length length-css
+         ->type-area check-grid font-face-css grid-css
          overlay-css overlay-javascript read-font-metrics)
 
 (def source-directory "demo")
@@ -43,19 +44,18 @@
     (fn ((ref str) (ref str))
       (result unit string))))
 
-(def replaced
-  (rust "{0}.replace({1}, {2})"
-    (fn ((ref str) (ref str) (ref str))
-      string)))
-
 (deftask demo ()
   "Builds a page that shows the grid into target/demo/."
   (try (create-directories output-directory))
   (let (regular (try (demo-face 400 "regular"))
         bold (try (demo-face 700 "bold"))
-        spec (demo-spec wide-column-count (deref (:metrics regular)))
-        checked (try (map-err (check-grid spec) error-text))
-        faces (vec regular bold))
+        metrics (deref (:metrics regular))
+        checked (try (map-err (check-grid (demo-spec wide-column-count metrics))
+                              error-text))
+        broken-error (broken-spec-error metrics)
+        faces (vec regular bold)
+        template (try (map-err (slurp (as-str (source-path "index.html")))
+                               error-text)))
     (try (write-output "fonts.css"
                        (as-str (font-face-css (ref faces)))))
     (try (write-output "grid.css"
@@ -67,7 +67,10 @@
     (try (copy-file (as-str (source-path "fonts/iosevka-license.txt"))
                     (as-str (output-path "iosevka-license.txt"))))
     (write-output "index.html"
-                  (as-str (try (demo-page (ref checked) (ref faces)))))))
+                  (as-str (demo-page (as-str template)
+                                     (ref checked)
+                                     (ref faces)
+                                     (as-str broken-error))))))
 
 (defn demo-face (weight style-name)
   (let (file-name (str "iosevka-" style-name ".woff2")
@@ -93,70 +96,6 @@
                         wide-min-width-em
                         (->type-area wide-width-ch gutter-ch wide-columns)))))
 
-(defn demo-page (checked faces)
-  (let (spec (:spec checked)
-        metrics (deref (:metrics (:body-type spec)))
-        template (try (map-err (slurp (as-str (source-path "index.html")))
-                               error-text)))
-    (ok (-> (replaced (as-str template)
-                      "{{spec}}"
-                      (as-str (escaped (as-str (pr-str spec)))))
-            (as-str)
-            (replaced "{{layouts}}" (as-str (layout-rows spec)))
-            (as-str)
-            (replaced "{{baseline-offset}}"
-                      (as-str (str (baseline-offset-px (ref (:body-type spec)))
-                                   "px")))
-            (as-str)
-            (replaced "{{lengths}}" (as-str (length-rows)))
-            (as-str)
-            (replaced "{{warnings}}"
-                      (as-str (warnings-sentence checked)))
-            (as-str)
-            (replaced "{{broken-error}}"
-                      (as-str (escaped (as-str (broken-spec-error metrics)))))
-            (as-str)
-            (replaced "{{grid-css}}"
-                      (as-str (escaped (as-str (grid-css checked)))))
-            (as-str)
-            (replaced "{{fonts-css}}"
-                      (as-str (escaped (as-str (font-face-css faces)))))))))
-
-(defn layout-rows (spec)
-  (reduce (map (iter (:breakpoints spec))
-            (fn (breakpoint)
-              (layout-row (as-str (str "from " (:min-width-em breakpoint) "em"))
-                          (:type-area breakpoint))))
-          (layout-row "narrower screens" (:type-area spec))
-          (fn (rows row) (str rows row))))
-
-(defn layout-row (screen type-area)
-  (str "      <tr><td>" screen "</td><td>"
-       (:width-ch type-area)
-       "ch</td><td>"
-       (:column-count type-area)
-       "</td></tr>\n"))
-
-(defn length-rows ()
-  (str (length-row "(length/px 27.0)" (length/px 27.0))
-       (length-row "(length/ch 3.0)" (length/ch 3.0))
-       (length-row "(length/rem 1.5)" (length/rem 1.5))
-       (length-row "(length/lines 2)" (length/lines 2))
-       (length-row "(length/columns 2)" (length/columns 2))))
-
-(defn length-row (knave length)
-  (str "      <tr><td><code>" knave "</code></td><td><code>"
-       (length-css (ref length))
-       "</code></td></tr>\n"))
-
-(defn warnings-sentence (checked)
-  (if (empty? (:warnings checked))
-    (str "The check found no warnings.")
-    (str "The check warns: "
-         (joined (collect (map (iter (:warnings checked)) error-text))
-                 "; ")
-         ".")))
-
 (defn broken-spec-error (metrics)
   (match (check-grid (demo-spec column-count-that-does-not-fit metrics))
     ((ok _) (str "no error"))
@@ -170,13 +109,5 @@
 
 (defn output-path (file-name)
   (str output-directory "/" file-name))
-
-(def escaped
-  (rust "{0}.replace('&', \"&amp;\").replace('<', \"&lt;\").replace('>', \"&gt;\")"
-    (fn ((ref str)) string)))
-
-(def joined
-  (rust "{0}.join({1})"
-    (fn ((vec string) (ref str)) string)))
 
 (defn error-text (error) (str error))
