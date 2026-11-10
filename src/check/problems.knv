@@ -20,6 +20,9 @@
   (breakpoint-out-of-order :min-width-em f64 :previous-em f64)
   (measure-wider-than-type-area :measure-ch i64 :width-ch i64)
   (type-style-without-lines :name string)
+  (baseline-line-outside-style :name string
+                               :baseline-line i64
+                               :lines i64)
   (type-style-too-big :name string
                       :font-size-px f64
                       :glyph-height-px f64
@@ -49,6 +52,10 @@
           width-ch "ch"))
     ((type-style-without-lines name)
      (str "the type style " name " needs at least one line"))
+    ((baseline-line-outside-style name baseline-line lines)
+     (str "the type style " name
+          " puts its baseline on line " baseline-line
+          ", but it has lines 1 to " lines))
     ((type-style-too-big name font-size-px glyph-height-px
                          line-height-px)
      (str "the type style " name " sets " font-size-px

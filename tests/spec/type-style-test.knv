@@ -14,8 +14,15 @@
 (deftest moves-a-two-line-style-down-to-the-second-baseline
   (assert (= (shift-for 2) 7.0)))
 
-(deftest moves-a-three-line-style-up-to-the-nearer-second-baseline
-  (assert (= (shift-for 3) -13.0)))
+(deftest moves-a-three-line-style-down-to-its-last-baseline
+  (assert (= (shift-for 3) 14.0)))
 
-(deftest moves-a-four-line-style-up-to-the-nearer-third-baseline
-  (assert (= (shift-for 4) -7.0)))
+(deftest moves-a-four-line-style-down-to-its-last-baseline
+  (assert (= (shift-for 4) 20.0)))
+
+(deftest puts-the-baseline-on-the-line-a-style-names
+  (assert (= (style-shift-px (ref (->type-style :name (str "title")
+                                                :lines 4
+                                                :baseline-line (some 3)))
+                             (ref (body-with-tall-ascent)))
+             -7.0)))

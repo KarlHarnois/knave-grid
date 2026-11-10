@@ -16,3 +16,9 @@
                                              :lines 1
                                              :font-size-px (some 30.0)))
              "the type style caption sets 30px type, whose glyphs are 30px tall, in 27px of lines")))
+
+(deftest rejects-a-baseline-line-outside-the-style
+  (assert (= (type-style-error (->type-style :name (str "title")
+                                             :lines 2
+                                             :baseline-line (some 3)))
+             "the type style title puts its baseline on line 3, but it has lines 1 to 2")))

@@ -2,7 +2,9 @@
 (use css/declaration declaration indented)
 (use spec/body-type body-type)
 (use spec/grid-spec grid-spec)
-(use spec/type-style style-metrics type-style)
+
+(use spec/type-style style-baseline-line style-metrics
+                     type-style)
 
 (export exact-baseline-rules)
 
@@ -38,11 +40,9 @@
     (str ".type-"
          (:name style)
          " {\n"
-         (declaration
-           "top"
-           (str "calc(clamp(0px, round(nearest, " offset
-                " - var(--baseline-offset), 1rlh), "
-                (- lines 1)
-                "rlh)" " + var(--baseline-offset) - " offset
-                ")"))
+         (declaration "top"
+                      (str "calc("
+                           (- (style-baseline-line style) 1)
+                           "rlh + var(--baseline-offset) - "
+                           offset ")"))
          "}\n")))

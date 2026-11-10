@@ -3,8 +3,9 @@
 (use spec/grid-spec grid-spec)
 (use spec/line-box glyph-height-px)
 
-(use spec/type-style style-font-size-px style-line-height-px
-                     style-metrics type-style)
+(use spec/type-style style-baseline-line style-font-size-px
+                     style-line-height-px style-metrics
+                     type-style)
 
 (export check-type-styles)
 
@@ -25,14 +26,28 @@
     (result unit grid-error)))
 
 (defn check-type-style (style body)
-  (if (< (:lines style) 1)
-    (err (grid-error/type-style-without-lines (clone (:name style))))
-    (let (font-size-px (style-font-size-px style body)
-          glyph-height (glyph-height-px (ref (style-metrics style body))
-                                        font-size-px)
-          line-height (style-line-height-px style body))
-      (if (> glyph-height line-height)
-        (err (grid-error/type-style-too-big
-               (clone (:name style))
-               font-size-px glyph-height line-height))
-        (ok (do))))))
+  (let (lines (:lines style)
+        baseline-line (style-baseline-line style))
+    (cond
+      ((< lines 1)
+       (err (grid-error/type-style-without-lines (clone (:name style)))))
+      ((or (< baseline-line 1) (> baseline-line lines))
+       (err (grid-error/baseline-line-outside-style (clone (:name style))
+                                                    baseline-line
+                                                    lines)))
+      (else (check-type-style-size style body)))))
+
+(type check-type-style-size
+  (fn ((ref type-style) (ref body-type))
+    (result unit grid-error)))
+
+(defn check-type-style-size (style body)
+  (let (font-size-px (style-font-size-px style body)
+        glyph-height (glyph-height-px (ref (style-metrics style body))
+                                      font-size-px)
+        line-height (style-line-height-px style body))
+    (if (> glyph-height line-height)
+      (err (grid-error/type-style-too-big
+             (clone (:name style))
+             font-size-px glyph-height line-height))
+      (ok (do)))))

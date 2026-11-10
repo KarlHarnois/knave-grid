@@ -46,7 +46,7 @@
   font-size: calc(60rem / 20);
   line-height: 3rlh;
   position: relative;
-  top: calc(-12rem / 20);
+  top: calc(16rem / 20);
 }
 
 .type-lead {
@@ -71,14 +71,14 @@
   }
 
   .type-title {
-    top: calc(clamp(0px, round(nearest, calc(round(down, (3rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)) - var(--baseline-offset), 1rlh), 2rlh) + var(--baseline-offset) - calc(round(down, (3rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)));
+    top: calc(2rlh + var(--baseline-offset) - calc(round(down, (3rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)));
   }
 
   .type-lead {
-    top: calc(clamp(0px, round(nearest, calc(round(down, (2rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)) - var(--baseline-offset), 1rlh), 1rlh) + var(--baseline-offset) - calc(round(down, (2rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)));
+    top: calc(1rlh + var(--baseline-offset) - calc(round(down, (2rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)));
   }
 
   .type-quote {
-    top: calc(clamp(0px, round(nearest, calc(round(down, (2rlh - round(0.7 * 1em, 1px) - round(0.3 * 1em, 1px)) / 2, 1px) + round(0.7 * 1em, 1px)) - var(--baseline-offset), 1rlh), 1rlh) + var(--baseline-offset) - calc(round(down, (2rlh - round(0.7 * 1em, 1px) - round(0.3 * 1em, 1px)) / 2, 1px) + round(0.7 * 1em, 1px)));
+    top: calc(1rlh + var(--baseline-offset) - calc(round(down, (2rlh - round(0.7 * 1em, 1px) - round(0.3 * 1em, 1px)) / 2, 1px) + round(0.7 * 1em, 1px)));
   }
 }
