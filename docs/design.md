@@ -24,7 +24,7 @@ The spec is Knave data. Plain structs come first. A `defgrid` macro that reads l
 
 Lengths are a closed set of units: `px`, `ch`, `rem`, `lines`, and `columns`. The library resolves `lines` and `columns` to real lengths.
 
-Vertical spacing in type styles and placements takes only `lines`, so a spec cannot break the baseline grid by construction.
+Vertical spacing in type styles and placements takes only `lines`, so a spec cannot break the baseline grid by construction. A field for vertical spacing takes a count of lines, not a length, so an absolute unit there is a type error.
 
 ## Defaults
 
@@ -52,11 +52,13 @@ The generated CSS uses `text-box-trim` behind `@supports`, with margins computed
 
 ## Placements and breakpoints
 
-A placement matches an element and gives it a spatial zone: `:span n` columns, a column range `:columns (first last)`, or a subgrid.
+A placement matches elements with a CSS selector and gives them a spatial zone: `:span n` columns, a column range `:columns (first last)`, or a subgrid.
 
 Breakpoints are written in `em` and override the column count.
 
 A span wider than the column count at any breakpoint is a build error.
+
+The generated placement rules sit in a cascade layer, so a site's own unlayered CSS always overrides them.
 
 ## Outputs
 
@@ -66,12 +68,12 @@ The debug overlay draws columns, gutters, modules, and baselines with `repeating
 
 The fit checker has two parts. The first checks that every length the library generates is a whole number of grid units. The second loads built pages in a headless browser in CI and measures them.
 
-The browser check fails on block edges off the grid and warns on text lines off the grid. The browser check also applies the WCAG 1.4.12 text spacing overrides and fails if any text clips.
+The browser check fails the CI build on block edges off the grid and warns on text lines off the grid. An element with the `data-grid-exempt` attribute is left out of the grid measurements. The browser check also applies the WCAG 1.4.12 text spacing overrides and fails if any text clips.
 
 The overlay and the browser check share one measurement script.
 
 ## Open questions
 
-- Does a placement match CSS selectors, or class names that the library defines?
-- Is an absolute unit where `lines` is expected a type error or a warning?
-- Does a fit violation in CI fail the build or warn?
+- Does the 45ch to 75ch warning check the column width, as the first slice does, or the measure?
+- Does `grid-css` set the root font size, which changes what `rem` means in a site's own CSS?
+- Does the overlay scroll with the page, so its baselines stay on the text?
