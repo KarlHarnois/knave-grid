@@ -4,4 +4,4 @@
 
 (defn body-type-at (font-size-px line-height)
   (->body-type font-size-px line-height
-               (->font-metrics 1000 800 200 500 700)))
+               (->font-metrics 1000 800 200 500 700 false)))

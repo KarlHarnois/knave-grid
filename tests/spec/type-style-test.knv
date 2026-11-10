@@ -2,7 +2,8 @@
          style-shift-px)
 
 (defn body-with-tall-ascent ()
-  (->body-type 18.0 1.5 (->font-metrics 1000 965 215 500 700)))
+  (->body-type 18.0 1.5
+               (->font-metrics 1000 965 215 500 700 false)))
 
 (defn shift-for (lines)
   (style-shift-px (ref (->type-style :name (str "style") :lines lines))

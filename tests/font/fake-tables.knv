@@ -1,3 +1,5 @@
+(use font/fake-character-map cmap-table)
+
 (use font/fake-bytes byte i16-bytes joined-bytes u16-bytes
                      u32-bytes zeros)
 
@@ -15,10 +17,12 @@
   :transformed-hmtx? bool
   :cap-height i64
   :os2-version i64
+  :fixed-pitch? bool
   (defaults :zero-width 500
             :transformed-hmtx? false
             :cap-height 700
-            :os2-version 4))
+            :os2-version 4
+            :fixed-pitch? true))
 
 (defstruct fake-table
   :tag string
@@ -26,10 +30,6 @@
   :bytes (vec u8))
 
 (def use-typo-metrics-flag 128)
-
-(def zero-code-point 48)
-
-(def last-code-point 65535)
 
 (def notdef-width 600)
 
@@ -59,34 +59,8 @@
        (->fake-table (str "head") 1 (head-table font))
        (->fake-table (str "hhea") 2 (hhea-table font))
        (->fake-table (str "hmtx") 3 hmtx)
-       (->fake-table (str "OS/2") 6 (os2-table font))))
-
-(defn cmap-table ()
-  (joined-bytes (ref (vec (u16-bytes 0)
-                          (u16-bytes 1)
-                          (u16-bytes 3)
-                          (u16-bytes 1)
-                          (u32-bytes 12)
-                          (format-4-subtable)))))
-
-(defn format-4-subtable ()
-  (let (zero-glyph-delta (- 1 zero-code-point))
-    (joined-bytes (ref (vec (u16-bytes 4)
-                            (u16-bytes 32)
-                            (u16-bytes 0)
-                            (u16-bytes 4)
-                            (u16-bytes 4)
-                            (u16-bytes 1)
-                            (u16-bytes 0)
-                            (u16-bytes zero-code-point)
-                            (u16-bytes last-code-point)
-                            (u16-bytes 0)
-                            (u16-bytes zero-code-point)
-                            (u16-bytes last-code-point)
-                            (u16-bytes zero-glyph-delta)
-                            (u16-bytes 1)
-                            (u16-bytes 0)
-                            (u16-bytes 0))))))
+       (->fake-table (str "OS/2") 6 (os2-table font))
+       (->fake-table (str "post") 7 (post-table font))))
 
 (type head-table
   (fn (fake-font) (vec u8)))
@@ -139,3 +113,11 @@
 
 (defn selection-flags (font)
   (if (:uses-typo-metrics? font) use-typo-metrics-flag 0))
+
+(type post-table
+  (fn (fake-font) (vec u8)))
+
+(defn post-table (font)
+  (joined-bytes (ref (vec (zeros 12)
+                          (u32-bytes (if (:fixed-pitch? font) 1 0))
+                          (zeros 16)))))

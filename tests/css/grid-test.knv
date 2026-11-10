@@ -7,7 +7,7 @@
   (->font-face :family (str "Fake Serif")
                :url (str "/fake-serif.woff2")
                :weight 400
-               :metrics (->font-metrics 1000 700 300 500 700)))
+               :metrics (->font-metrics 1000 700 300 500 700 false)))
 
 (defn type-styles ()
   (vec (->type-style :name (str "title") :lines 3)
