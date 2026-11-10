@@ -1,6 +1,7 @@
 (use font-metrics font-metrics)
 
-(export ->body-type baseline-offset-px body-type leading-px)
+(export ->body-type baseline-offset-px body-type ch-px
+        leading-px)
 
 (defstruct body-type
   :font-size-px f64
@@ -39,3 +40,11 @@
 (defn whole-pixels (type font-units)
   (rounded (/ (* (:font-size-px type) (float-of font-units))
               (float-of (:units-per-em (:metrics type))))))
+
+(type ch-px (fn ((ref body-type)) f64))
+
+(defn ch-px (type)
+  (let (metrics (:metrics type))
+    (/ (* (:font-size-px type)
+          (float-of (:zero-width metrics)))
+       (float-of (:units-per-em metrics)))))

@@ -1,5 +1,7 @@
 (use fake-type body-type-at)
-(use lib ->grid-spec ->type-area check-grid grid-warning)
+
+(use lib ->breakpoint ->grid-spec ->type-area check-grid
+         grid-warning)
 
 (defn checked-spec (column-count measure-ch)
   (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)
@@ -19,7 +21,7 @@
   (let (spec (->grid-spec :body-type (body-type-at 18.0 1.5)
                           :type-area (->type-area 60 3 1)))
     (assert (= (str (unwrap-err (check-grid spec)))
-               "the measure of 66ch is wider than the type area of 60ch"))))
+               "the measure of 66ch is wider than the widest type area, of 60ch"))))
 
 (deftest rejects-a-type-area-that-does-not-fit
   (assert (= (error-text 7 66)
@@ -27,7 +29,7 @@
 
 (deftest rejects-a-measure-wider-than-the-type-area
   (assert (= (error-text 2 120)
-             "the measure of 120ch is wider than the type area of 117ch")))
+             "the measure of 120ch is wider than the widest type area, of 117ch")))
 
 (deftest warns-about-a-measure-narrower-than-45ch
   (assert (= (warnings-of 40)
@@ -36,3 +38,30 @@
 (deftest warns-about-a-measure-wider-than-75ch
   (assert (= (warnings-of 80)
              (vec (grid-warning/measure-out-of-range 80)))))
+
+(defn spec-with-breakpoints (breakpoints)
+  (->grid-spec :body-type (body-type-at 18.0 1.5)
+               :type-area (->type-area 57 3 1)
+               :breakpoints breakpoints))
+
+(defn breakpoint-error (breakpoints)
+  (str (unwrap-err (check-grid (spec-with-breakpoints breakpoints)))))
+
+(deftest accepts-breakpoints-that-fit-and-are-wide-enough
+  (let (spec (spec-with-breakpoints
+               (vec (->breakpoint 36.0 (->type-area 57 3 2))
+                    (->breakpoint 70.0 (->type-area 117 3 4)))))
+    (assert (empty? (:warnings (unwrap-ok (check-grid spec)))))))
+
+(deftest rejects-a-breakpoint-whose-type-area-does-not-fit
+  (assert (= (breakpoint-error (vec (->breakpoint 70.0 (->type-area 117 3 7))))
+             "at 70em, a type area of 117ch with a gutter of 3ch does not fit 7 columns; the column counts that fit are 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 24, 30")))
+
+(deftest rejects-a-breakpoint-narrower-than-its-type-area-and-margins
+  (assert (= (breakpoint-error (vec (->breakpoint 64.0 (->type-area 117 3 4))))
+             "the type area of 117ch needs 69.1875em with a gutter on each side, but its breakpoint starts at 64em")))
+
+(deftest rejects-breakpoints-out-of-order
+  (assert (= (breakpoint-error (vec (->breakpoint 70.0 (->type-area 117 3 4))
+                                    (->breakpoint 36.0 (->type-area 57 3 2))))
+             "the breakpoint at 36em must start after the one before it, at 70em")))

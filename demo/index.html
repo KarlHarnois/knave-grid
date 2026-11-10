@@ -27,11 +27,18 @@
 
 <section>
   <h2>The type area</h2>
-  <p>The type area is 117ch wide, with a 3ch gutter. Four columns fit because 4 divides 117 + 3 = 120, so each column is {{column-width}} wide.</p>
+  <p>The type area follows the width of the screen. The spec gives one for narrow screens and one per breakpoint, and the check makes sure each one fits its columns and its breakpoint, with a gutter of margin on each side. The gutter is 3ch everywhere.</p>
+  <table>
+    <thead><tr><th>Screen</th><th>Type area</th><th>Columns</th></tr></thead>
+    <tbody>
+{{layouts}}
+    </tbody>
+  </table>
+  <p>Resize the window with the grid on to watch the columns change. These four cells follow them:</p>
   <div class="grid">
-    <div class="cell"><p>A column is a vertical division of the type area. This one is the first of four.</p></div>
+    <div class="cell"><p>A column is a vertical division of the type area.</p></div>
     <div class="cell"><p>A gutter is the space between two columns. The overlay leaves it clear.</p></div>
-    <div class="cell"><p>The <code>.grid</code> rule lays these cells out with <code>repeat(var(--columns), var(--column))</code>.</p></div>
+    <div class="cell"><p>The <code>.grid</code> rule lays these cells out with <code>var(--columns)</code> and <code>var(--column)</code>.</p></div>
     <div class="cell"><p>Each cell's text sits on the same baselines as the text around it.</p></div>
   </div>
 </section>
@@ -65,7 +72,7 @@
 <section>
   <h2>What the check says</h2>
   <p>This spec passes. {{warnings}}</p>
-  <p>A spec whose type area does not fit its columns is an error. The same type area split into seven columns gives:</p>
+  <p>A spec whose type area does not fit its columns is an error. The same spec with the widest type area split into seven columns gives:</p>
   <pre><code>{{broken-error}}</code></pre>
 </section>
 
