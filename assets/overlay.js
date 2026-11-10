@@ -1,53 +1,69 @@
-class GridOverlay {
-  static #CLASS_NAME = "grid-overlay";
-  static #QUERY_PARAMETER = "grid";
-  static #TOGGLE_KEY = "g";
-  static #TOGGLE_BUTTONS = "[data-grid-toggle]";
+class RootClassToggle {
   static #FORM_FIELDS = "input, textarea, select";
 
-  static start() {
-    if (GridOverlay.#isRequested()) GridOverlay.#show();
+  #className;
+  #queryParameter;
+  #buttons;
+  #key;
+
+  constructor({ className, queryParameter, buttons, key = null }) {
+    this.#className = className;
+    this.#queryParameter = queryParameter;
+    this.#buttons = buttons;
+    this.#key = key;
+  }
+
+  start() {
+    if (this.#isRequested()) this.#classes().add(this.#className);
     document.addEventListener("keydown", (event) => {
-      if (GridOverlay.#isToggleKey(event)) GridOverlay.#toggle();
+      if (this.#isToggleKey(event)) this.#toggle();
     });
     document.addEventListener("click", (event) => {
-      if (event.target.closest?.(GridOverlay.#TOGGLE_BUTTONS)) GridOverlay.#toggle();
+      if (event.target.closest?.(this.#buttons)) this.#toggle();
     });
-    GridOverlay.#markToggleButtons();
+    this.#markButtons();
   }
 
-  static #isRequested() {
-    return new URLSearchParams(location.search).has(GridOverlay.#QUERY_PARAMETER);
+  #isRequested() {
+    return new URLSearchParams(location.search).has(this.#queryParameter);
   }
 
-  static #isToggleKey(event) {
-    return event.key === GridOverlay.#TOGGLE_KEY
+  #isToggleKey(event) {
+    return this.#key !== null
+      && event.key === this.#key
       && !event.ctrlKey && !event.metaKey && !event.altKey
-      && !GridOverlay.#isTextField(event.target);
+      && !RootClassToggle.#isTextField(event.target);
   }
 
   static #isTextField(target) {
-    return target.isContentEditable || Boolean(target.closest?.(GridOverlay.#FORM_FIELDS));
+    return target.isContentEditable || Boolean(target.closest?.(RootClassToggle.#FORM_FIELDS));
   }
 
-  static #show() {
-    GridOverlay.#classes().add(GridOverlay.#CLASS_NAME);
+  #toggle() {
+    this.#classes().toggle(this.#className);
+    this.#markButtons();
   }
 
-  static #toggle() {
-    GridOverlay.#classes().toggle(GridOverlay.#CLASS_NAME);
-    GridOverlay.#markToggleButtons();
-  }
-
-  static #markToggleButtons() {
-    const shown = String(GridOverlay.#classes().contains(GridOverlay.#CLASS_NAME));
-    document.querySelectorAll(GridOverlay.#TOGGLE_BUTTONS)
+  #markButtons() {
+    const shown = String(this.#classes().contains(this.#className));
+    document.querySelectorAll(this.#buttons)
       .forEach((button) => button.setAttribute("aria-pressed", shown));
   }
 
-  static #classes() {
+  #classes() {
     return document.documentElement.classList;
   }
 }
 
-GridOverlay.start();
+new RootClassToggle({
+  className: "grid-overlay",
+  queryParameter: "grid",
+  buttons: "[data-grid-toggle]",
+  key: "g",
+}).start();
+
+new RootClassToggle({
+  className: "grid-guides",
+  queryParameter: "guides",
+  buttons: "[data-grid-guides-toggle]",
+}).start();
