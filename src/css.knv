@@ -1,3 +1,4 @@
+(use body-type baseline-offset-px)
 (use check checked-grid)
 (use length length length-css)
 
@@ -28,6 +29,7 @@
                       (str (root-font-size-percent type) "%"))
          (declaration "line-height" (str (:line-height type)))
          (declaration "--leading" (length-css (length/lines 1) spec))
+         (declaration "--baseline-offset" (baseline-offset-rem type))
          (declaration "--gutter" (str (:gutter-ch type-area) "ch"))
          (declaration "--columns" (str (:column-count type-area)))
          (declaration "--column"
@@ -40,6 +42,13 @@
 
 (defn declaration (property value)
   (str "  " property ": " value ";\n"))
+
+(defn baseline-offset-rem (type)
+  (str "calc("
+       (baseline-offset-px type)
+       "rem / "
+       (:font-size-px type)
+       ")"))
 
 (defn root-font-size-percent (type)
   (* 100.0

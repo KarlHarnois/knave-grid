@@ -1,8 +1,41 @@
-(export ->body-type body-type leading-px)
+(use font-metrics font-metrics)
+
+(export ->body-type baseline-offset-px body-type leading-px)
 
 (defstruct body-type
   :font-size-px f64
-  :line-height f64)
+  :line-height f64
+  :metrics font-metrics)
+
+(def float-of
+  (rust "{0} as f64" (fn (i64) f64)))
+
+(def rounded
+  (rust "{0}.round()" (fn (f64) f64)))
+
+(def floored
+  (rust "{0}.floor()" (fn (f64) f64)))
+
+(type leading-px
+  (fn ((ref body-type)) f64))
 
 (defn leading-px (type)
   (* (:font-size-px type) (:line-height type)))
+
+(type baseline-offset-px
+  (fn ((ref body-type)) f64))
+
+(defn baseline-offset-px (type)
+  (let (metrics (:metrics type)
+        ascent (whole-pixels type (:ascent metrics))
+        descent (whole-pixels type (:descent metrics))
+        half-leading (floored (/ (- (- (leading-px type) ascent) descent)
+                                 2.0)))
+    (+ half-leading ascent)))
+
+(type whole-pixels
+  (fn ((ref body-type) i64) f64))
+
+(defn whole-pixels (type font-units)
+  (rounded (/ (* (:font-size-px type) (float-of font-units))
+              (float-of (:units-per-em (:metrics type))))))

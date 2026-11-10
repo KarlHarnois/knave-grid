@@ -1,8 +1,8 @@
-(use lib ->body-type ->grid-spec ->type-area check-grid
-         grid-warning)
+(use fake-type body-type-at)
+(use lib ->grid-spec ->type-area check-grid grid-warning)
 
 (defn checked-spec (column-count measure-ch)
-  (check-grid (->grid-spec :body-type (->body-type 18.0 1.5)
+  (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)
                            :type-area (->type-area 117 3 column-count)
                            :measure-ch measure-ch)))
 
@@ -16,7 +16,7 @@
   (assert (empty? (warnings-of 66))))
 
 (deftest defaults-the-measure-to-66ch
-  (let (spec (->grid-spec :body-type (->body-type 18.0 1.5)
+  (let (spec (->grid-spec :body-type (body-type-at 18.0 1.5)
                           :type-area (->type-area 60 3 1)))
     (assert (= (str (unwrap-err (check-grid spec)))
                "the measure of 66ch is wider than the type area of 60ch"))))

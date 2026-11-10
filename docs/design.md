@@ -46,7 +46,9 @@ Phase 2 adds proportional type: sizes on a 1.25 ratio scale, and line-height = c
 
 A heading block adds up to a whole number of leadings: its lines plus the space above and below it.
 
-The library reads font metrics from the font files at build time to place each style's baseline on the grid.
+The library reads font metrics from the font files at build time to place each style's baseline on the grid. It reads TrueType, OpenType and WOFF2 files. A font that sets the `USE_TYPO_METRICS` flag gives its `OS/2` typo ascent and descent; any other font gives its `hhea` ascent and descent.
+
+A baseline sits half the leading left over by the ascent and descent, plus the ascent, below the top of its line. The library rounds the ascent and descent to whole pixels and the half leading down, as Chromium does, and `grid-css` writes the body text's offset as `--baseline-offset`.
 
 The generated CSS uses `text-box-trim` behind `@supports`, with margins computed from font metrics as the fallback.
 
@@ -64,7 +66,7 @@ The generated placement rules sit in a cascade layer, so a site's own unlayered 
 
 `grid-css` generates the CSS from a spec.
 
-The debug overlay draws columns, gutters, modules, and baselines with `repeating-linear-gradient`. It is a layer over the whole body, so its lines scroll with the elements they measure. While the overlay is on, the body is `position: relative`. A key press or a `?grid` query parameter toggles the overlay. The overlay outlines every element that breaks the grid.
+The debug overlay draws columns, gutters, modules, and baselines with `repeating-linear-gradient`. It draws each baseline at `--baseline-offset` below the top of its line. It is a layer over the whole body, so its lines scroll with the elements they measure. While the overlay is on, the body is `position: relative`. A key press or a `?grid` query parameter toggles the overlay. The overlay outlines every element that breaks the grid.
 
 The fit checker has two parts. The first checks that every length the library generates is a whole number of grid units. The second loads built pages in a headless browser in CI and measures them.
 
@@ -74,4 +76,4 @@ The overlay and the browser check share one measurement script.
 
 ## Open questions
 
-- Until font metrics land, does the overlay draw the edges of each line slot, or lines labeled as approximate baselines?
+- Browsers on macOS use the `hhea` metrics even when a font asks for its typo metrics. Does the library write `ascent-override` and `descent-override` into the site's `@font-face` rules so every browser places the baseline the same way?

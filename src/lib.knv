@@ -1,6 +1,6 @@
-(use body-type ->body-type leading-px)
 (use check check-grid checked-grid grid-error grid-warning)
 (use css grid-css)
+(use body-type ->body-type baseline-offset-px leading-px)
 
 (use font-metrics ->font-metrics font-error font-metrics
                   parse-font-metrics read-font-metrics)
@@ -11,7 +11,8 @@
 (use type-area ->type-area)
 
 (export ->body-type ->font-metrics ->grid-spec ->type-area
-        check-grid checked-grid font-error font-metrics
-        grid-css grid-error grid-warning leading-px length
-        length-css overlay-css overlay-javascript
-        parse-font-metrics read-font-metrics)
+        baseline-offset-px check-grid checked-grid
+        font-error font-metrics grid-css grid-error
+        grid-warning leading-px length length-css
+        overlay-css overlay-javascript parse-font-metrics
+        read-font-metrics)

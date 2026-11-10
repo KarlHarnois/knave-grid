@@ -1,8 +1,8 @@
-(use lib ->body-type ->grid-spec ->type-area check-grid
-         grid-css)
+(use fake-type body-type-at)
+(use lib ->grid-spec ->type-area check-grid grid-css)
 
 (defn four-column-grid ()
-  (unwrap-ok (check-grid (->grid-spec :body-type (->body-type 20.0 1.4)
+  (unwrap-ok (check-grid (->grid-spec :body-type (body-type-at 20.0 1.4)
                                       :type-area (->type-area 100 4 4)
                                       :measure-ch 60))))
 
