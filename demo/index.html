@@ -5,17 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>knave-grid demo</title>
 <link rel="stylesheet" href="fonts.css">
-<link rel="stylesheet" href="grid.css">
+<link rel="stylesheet" href="grid-monospace.css" id="grid-monospace">
+<link rel="stylesheet" href="grid-proportional.css" id="grid-proportional" disabled>
 <link rel="stylesheet" href="style.css">
 <link rel="stylesheet" href="grid-overlay.css">
 <script src="grid-overlay.js" defer></script>
+<script src="font-toggle.js" defer></script>
 </head>
 <body>
 <main class="type-area">
 <header>
   <h1 class="type-title">knave-grid</h1>
   <p class="lede">A Swiss grid for static sites, generated from one Knave spec. Every rule, color and box on this page sits on the grid that the spec below describes.</p>
-  <p><button type="button" class="grid-toggle" data-grid-toggle>Toggle grid</button> <button type="button" class="grid-toggle" data-grid-guides-toggle>Toggle guides</button></p>
+  <p><button type="button" class="grid-toggle" data-grid-toggle>Toggle grid</button> <button type="button" class="grid-toggle" data-grid-guides-toggle>Toggle guides</button> <button type="button" class="grid-toggle" data-font-toggle>Font: Iosevka</button></p>
   <p class="toggle">You can also press <kbd>g</kbd>, or open <a href="?grid">this page with <code>?grid</code></a>. The pink lines are baselines, and the blue bands are columns.</p>
 </header>
 
@@ -27,9 +29,9 @@
 
 <section>
   <h2>The type area</h2>
-  <p>The type area follows the width of the screen. The spec gives one for narrow screens and one per breakpoint, and the check makes sure each one fits its columns and its breakpoint, with its margins on each side. The gutter and the margins are 3ch everywhere, and the page's <code>main</code> takes its width from the generated <code>.type-area</code> rule.</p>
+  <p>Every measure here is in squares: one square is one leading, 27px, in both directions, which is exactly 3ch of Iosevka. The type area follows the width of the screen, and each breakpoint sets its own width, columns, gutter and margins. The check makes sure each type area fits its columns and its breakpoint. Head and foot margins count squares from the page edge to the nearest baseline, so the page starts and ends on a baseline.</p>
   <table>
-    <thead><tr><th>Screen</th><th>Type area</th><th>Columns</th></tr></thead>
+    <thead><tr><th>Screen</th><th>Width</th><th>Columns</th><th>Side margins</th><th>Head / foot</th></tr></thead>
     <tbody>
 {{layouts}}
     </tbody>
@@ -60,7 +62,7 @@
 
 <section>
   <h2>Type styles</h2>
-  <p class="measure">A type style says how many grid lines tall it is, and its type grows with it. The library shifts each style so its baseline lands on the nearest body baseline in its block, without changing the block's height, so the text after it stays on the grid. Turn on the overlay to see each one sit on a pink line.</p>
+  <p class="measure">A type style says how many grid lines tall it is, and its type grows with it. The library shifts each style so its baseline lands on the last body baseline in its block, or on the line the spec names, without changing the block's height, so the text after it stays on the grid. Turn on the overlay to see each one sit on a pink line.</p>
   <p class="type-display">Two lines tall</p>
   <p class="type-headline">Three lines</p>
   <p class="type-title">Four lines</p>

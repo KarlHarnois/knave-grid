@@ -3,21 +3,20 @@
 (use spec/body-type baseline-offset-px body-type leading-px)
 (use spec/line-box baseline-in-line-px)
 
-(export ->type-style style-font-size-px style-line-height-px
-        style-metrics style-shift-px type-style)
+(export ->type-style style-baseline-line style-font-size-px
+        style-line-height-px style-metrics style-shift-px
+        type-style)
 
 (defstruct type-style
   :name string
   :lines i64
   :font-size-px (option f64)
   :face (option font-face)
-  (defaults :font-size-px none :face none))
+  :baseline-line (option i64)
+  (defaults :font-size-px none :face none :baseline-line none))
 
 (def float-of
   (rust "{0} as f64" (fn (i64) f64)))
-
-(def rounded
-  (rust "{0}.round()" (fn (f64) f64)))
 
 (type style-font-size-px
   (fn ((ref type-style) (ref body-type))
@@ -44,22 +43,24 @@
   (let (baseline (baseline-in-line-px (ref (style-metrics style body))
                                       (style-font-size-px style body)
                                       (style-line-height-px style body)))
-    (- (nearest-grid-baseline-px style body baseline) baseline)))
+    (- (grid-baseline-px style body) baseline)))
 
-(type nearest-grid-baseline-px
-  (fn ((ref type-style) (ref body-type) f64)
+(type style-baseline-line
+  (fn ((ref type-style)) i64))
+
+(defn style-baseline-line (style)
+  (match (:baseline-line style)
+    ((some line) line)
+    (none (:lines style))))
+
+(type grid-baseline-px
+  (fn ((ref type-style) (ref body-type))
     f64))
 
-(defn nearest-grid-baseline-px (style body baseline)
-  (let (leading (leading-px body)
-        body-baseline (baseline-offset-px body)
-        last-line (float-of (- (:lines style) 1))
-        line (rounded (/ (- baseline body-baseline) leading))
-        line-in-block (cond
-                        ((< line 0.0) 0.0)
-                        ((> line last-line) last-line)
-                        (else line)))
-    (+ (* line-in-block leading) body-baseline)))
+(defn grid-baseline-px (style body)
+  (+ (* (float-of (- (style-baseline-line style) 1))
+        (leading-px body))
+     (baseline-offset-px body)))
 
 (type style-metrics
   (fn ((ref type-style) (ref body-type))

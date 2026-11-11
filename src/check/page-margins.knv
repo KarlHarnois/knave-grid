@@ -1,0 +1,18 @@
+(use check/problems grid-error)
+(use spec/type-area type-area)
+
+(export check-page-margins)
+
+(type check-page-margins
+  (fn ((ref type-area))
+    (result unit grid-error)))
+
+(defn check-page-margins (type-area)
+  (cond
+    ((< (:head type-area) 1)
+     (err (grid-error/page-margin-too-small (str "head")
+                                            (:head type-area))))
+    ((< (:foot type-area) 1)
+     (err (grid-error/page-margin-too-small (str "foot")
+                                            (:foot type-area))))
+    (else (ok (do)))))

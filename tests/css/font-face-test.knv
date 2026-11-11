@@ -4,11 +4,11 @@
   (vec (->font-face :family (str "Fake Sans")
                     :url (str "/fake-sans-regular.woff2")
                     :weight 400
-                    :metrics (->font-metrics 1000 800 200 500 700))
+                    :metrics (->font-metrics 1000 800 200 500 700 false))
        (->font-face :family (str "Fake Sans")
                     :url (str "/fake-sans-bold.woff2")
                     :weight 700
-                    :metrics (->font-metrics 2000 1850 570 500 700)
+                    :metrics (->font-metrics 2000 1850 570 500 700 false)
                     :display (str "block"))))
 
 (deftest overrides-each-face-with-its-metrics

@@ -1,9 +1,10 @@
-(use check/problems grid-error grid-warning
-                    narrowest-measure-ch widest-measure-ch)
-
-(use browser default-font-size-px)
+(use check/measure check-measure measure-warnings)
+(use check/page-margins check-page-margins)
+(use check/problems grid-error grid-warning)
+(use check/square check-square)
 (use check/type-styles check-type-styles)
-(use spec/body-type body-type ch-px)
+(use browser default-font-size-px)
+(use spec/body-type body-type leading-px)
 (use spec/grid-spec breakpoint grid-spec)
 (use spec/type-area fits? fitting-column-counts type-area)
 
@@ -26,6 +27,8 @@
   (let (type-area (:type-area spec))
     (if (fits? type-area)
       (do
+        (try (check-square (:body-type spec)))
+        (try (check-page-margins type-area))
         (try (check-breakpoints (ref spec) 0 0.0))
         (try (check-measure (ref spec)))
         (try (check-type-styles (ref spec) 0))
@@ -66,49 +69,17 @@
                                                   type-area))))
       ((> needed-em min-width-em)
        (err (grid-error/breakpoint-too-narrow min-width-em
-                                              (:width-ch type-area)
-                                              (:margin-ch type-area)
+                                              (:width type-area)
+                                              (:margin type-area)
                                               needed-em)))
-      (else (ok (do))))))
+      (else (check-page-margins type-area)))))
 
 (type needed-em
   (fn ((ref body-type) (ref type-area))
     f64))
 
 (defn needed-em (type type-area)
-  (let (width-with-margins-ch (+ (:width-ch type-area)
-                                 (* margin-count (:margin-ch type-area))))
-    (/ (* (float-of width-with-margins-ch) (ch-px type))
+  (let (width-with-margins (+ (:width type-area)
+                              (* margin-count (:margin type-area))))
+    (/ (* (float-of width-with-margins) (leading-px type))
        default-font-size-px)))
-
-(type check-measure
-  (fn ((ref grid-spec))
-    (result unit grid-error)))
-
-(defn check-measure (spec)
-  (let (measure-ch (:measure-ch spec)
-        widest-ch (widest-type-area-ch spec))
-    (if (> measure-ch widest-ch)
-      (err (grid-error/measure-wider-than-type-area measure-ch
-                                                    widest-ch))
-      (ok (do)))))
-
-(type widest-type-area-ch
-  (fn ((ref grid-spec)) i64))
-
-(defn widest-type-area-ch (spec)
-  (reduce (map (iter (:breakpoints spec))
-            (fn (breakpoint)
-              (:width-ch (:type-area breakpoint))))
-          (:width-ch (:type-area spec))
-          (fn (widest width)
-            (if (> width widest) width widest))))
-
-(defn measure-warnings (measure-ch)
-  (if (readable-measure? measure-ch)
-    (vec)
-    (vec (grid-warning/measure-out-of-range measure-ch))))
-
-(defn readable-measure? (measure-ch)
-  (and (>= measure-ch narrowest-measure-ch)
-       (<= measure-ch widest-measure-ch)))

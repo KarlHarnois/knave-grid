@@ -1,0 +1,28 @@
+(use check/problems grid-error)
+(use spec/body-type body-type ch-px leading-px)
+
+(export check-square)
+
+(def rounded
+  (rust "{0}.round()" (fn (f64) f64)))
+
+(def whole-number-tolerance 0.000001)
+
+(type check-square
+  (fn ((ref body-type))
+    (result unit grid-error)))
+
+(defn check-square (body)
+  (let (square-px (leading-px body)
+        ch (ch-px body)
+        characters (/ square-px ch))
+    (if (and (:monospace? (:metrics body))
+             (> (abs-difference characters (rounded characters))
+                whole-number-tolerance))
+      (err (grid-error/square-not-whole-characters square-px ch))
+      (ok (do)))))
+
+(defn abs-difference (left right)
+  (if (> left right)
+    (- left right)
+    (- right left)))

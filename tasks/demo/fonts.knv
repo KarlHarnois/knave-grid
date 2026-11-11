@@ -1,0 +1,44 @@
+(use demo/files copy-file error-text output-path
+                source-path)
+
+(use lib ->font-face font-face read-font-metrics)
+
+(export demo-family-faces)
+
+(defstruct demo-family
+  :family string
+  :file-prefix string)
+
+(type demo-family-faces
+  (fn ((ref str) (ref str))
+    (result (vec font-face) string)))
+
+(defn demo-family-faces (family file-prefix)
+  (let (demo-family (->demo-family (str family) (str file-prefix)))
+    (try (copy-license (ref demo-family)))
+    (ok (vec (try (demo-face (ref demo-family) 400 "regular"))
+             (try (demo-face (ref demo-family) 700 "bold"))))))
+
+(type copy-license
+  (fn ((ref demo-family))
+    (result unit string)))
+
+(defn copy-license (demo-family)
+  (let (file-name (str (:file-prefix demo-family) "-license.txt"))
+    (copy-file (as-str (source-path (as-str (str "fonts/" file-name))))
+               (as-str (output-path (as-str file-name))))))
+
+(type demo-face
+  (fn ((ref demo-family) i64 (ref str))
+    (result font-face string)))
+
+(defn demo-face (demo-family weight style-name)
+  (let (file-name (str (:file-prefix demo-family) "-" style-name ".woff2")
+        source (source-path (as-str (str "fonts/" file-name))))
+    (try (copy-file (as-str source)
+                    (as-str (output-path (as-str file-name)))))
+    (ok (->font-face :family (clone (:family demo-family))
+                     :url file-name
+                     :weight weight
+                     :metrics (try (map-err (read-font-metrics (as-str source))
+                                            error-text))))))

@@ -30,9 +30,6 @@ body {
   font-variant-ligatures: none;
 }
 
-main {
-  padding-block: calc(2 * var(--leading));
-}
 
 h1, h2, p, ul, pre, table {
   margin: 0 0 var(--leading);
@@ -75,7 +72,7 @@ pre {
 
 .grid .cell p { margin: 0; }
 
-table { border-collapse: collapse; }
+table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
 
 th { text-align: left; }
 
@@ -110,3 +107,7 @@ thead th { box-shadow: inset 0 -1px 0 var(--rule); }
 .picture-row { margin-bottom: var(--leading); }
 
 .beside-picture { margin: 0; }
+
+main > :last-child > :last-child { margin-bottom: 0; }
+
+.font-proportional body { font-family: "Noto Sans", sans-serif; }
