@@ -1,0 +1,46 @@
+(use spec/body-type body-type ch-px leading-px)
+(use spec/type-area span-width type-area)
+
+(export measure-characters measure-columns)
+
+(def float-of
+  (rust "{0} as f64" (fn (i64) f64)))
+
+(type measure-columns
+  (fn ((ref type-area) (ref body-type) i64)
+    i64))
+
+(defn measure-columns (type-area body measure-ch)
+  (match (:measure-columns type-area)
+    ((some columns) columns)
+    (none (widest-span-within type-area body measure-ch
+                              (:column-count type-area)))))
+
+(type widest-span-within
+  (fn ((ref type-area) (ref body-type) i64 i64)
+    i64))
+
+(defn widest-span-within (type-area body measure-ch columns)
+  (cond
+    ((<= columns 1) 1)
+    ((<= (span-px type-area body columns)
+         (* (float-of measure-ch) (ch-px body)))
+     columns)
+    (else (recur type-area body measure-ch (- columns 1)))))
+
+(type measure-characters
+  (fn ((ref type-area) (ref body-type) i64)
+    f64))
+
+(defn measure-characters (type-area body measure-ch)
+  (/ (span-px type-area body
+              (measure-columns type-area body measure-ch))
+     (ch-px body)))
+
+(type span-px
+  (fn ((ref type-area) (ref body-type) i64)
+    f64))
+
+(defn span-px (type-area body columns)
+  (* (float-of (span-width type-area columns))
+     (leading-px body)))

@@ -12,6 +12,7 @@
                   parse-font-metrics read-font-metrics)
 
 (use spec/length length length-css)
+(use spec/measure measure-columns)
 (use overlay overlay-css overlay-javascript)
 (use spec/grid-spec ->breakpoint ->grid-spec breakpoint)
 
@@ -25,6 +26,7 @@
         baseline-offset-px check-grid checked-grid
         font-error font-face font-face-css font-metrics
         grid-css grid-error grid-warning leading-px length
-        length-css overlay-css overlay-javascript
-        parse-font-metrics read-font-metrics
-        style-font-size-px style-shift-px type-style)
+        length-css measure-columns overlay-css
+        overlay-javascript parse-font-metrics
+        read-font-metrics style-font-size-px style-shift-px
+        type-style)

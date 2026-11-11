@@ -6,6 +6,7 @@
 (use css/fields field-declarations field-rule)
 (use css/type-styles type-style-rules)
 (use spec/length length length-css)
+(use spec/measure measure-columns)
 (use spec/grid-spec breakpoint grid-spec)
 (use spec/type-area span-width type-area)
 
@@ -51,23 +52,25 @@
                       (length-css (ref (length/lines 1))))
          (declaration "--baseline-offset" (baseline-offset-rem type))
          (field-declarations type)
-         (declaration "--measure" (str (:measure-ch spec) "ch"))
-         (type-area-declarations (:type-area spec))
+         (type-area-declarations (:type-area spec) spec)
          "}\n")))
 
 (type breakpoint-rules
   (fn ((ref grid-spec)) string))
 
 (defn breakpoint-rules (spec)
-  (reduce (map (iter (:breakpoints spec)) breakpoint-rule) (str)
-    (fn (rules rule) (str rules "\n" rule))))
+  (reduce (map (iter (:breakpoints spec))
+            (fn (breakpoint) (breakpoint-rule breakpoint spec)))
+          (str)
+          (fn (rules rule) (str rules "\n" rule))))
 
 (type breakpoint-rule
-  (fn ((ref breakpoint)) string))
+  (fn ((ref breakpoint) (ref grid-spec))
+    string))
 
-(defn breakpoint-rule (breakpoint)
+(defn breakpoint-rule (breakpoint spec)
   (let (root (str ":root {\n"
-                  (type-area-declarations (:type-area breakpoint))
+                  (type-area-declarations (:type-area breakpoint) spec)
                   "}\n"))
     (str "@media (min-width: "
          (:min-width-em breakpoint)
@@ -76,9 +79,10 @@
          "}\n")))
 
 (type type-area-declarations
-  (fn ((ref type-area)) string))
+  (fn ((ref type-area) (ref grid-spec))
+    string))
 
-(defn type-area-declarations (type-area)
+(defn type-area-declarations (type-area spec)
   (str (declaration "--gutter" (squares-css (:gutter type-area)))
        (declaration "--columns" (str (:column-count type-area)))
        (declaration "--column"
@@ -87,7 +91,18 @@
                     (squares-css (:width type-area)))
        (declaration "--margin" (squares-css (:margin type-area)))
        (declaration "--head" (str (:head type-area)))
-       (declaration "--foot" (str (:foot type-area)))))
+       (declaration "--foot" (str (:foot type-area)))
+       (declaration "--measure" (measure-css type-area spec))))
+
+(type measure-css
+  (fn ((ref type-area) (ref grid-spec))
+    string))
+
+(defn measure-css (type-area spec)
+  (squares-css (span-width type-area
+                           (measure-columns type-area
+                                            (:body-type spec)
+                                            (:measure-ch spec)))))
 
 (defn squares-css (count)
   (length-css (ref (length/lines count))))

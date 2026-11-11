@@ -4,7 +4,7 @@
 (defn spec-with-breakpoints (breakpoints)
   (->grid-spec :body-type (body-type-at 18.0 1.5)
                :type-area (->type-area :width 19 :column-count 1)
-               :measure-ch 50
+               :measure-ch 66
                :breakpoints breakpoints))
 
 (defn breakpoint-error (breakpoints)

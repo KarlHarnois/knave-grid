@@ -32,9 +32,9 @@
         (try (check-breakpoints (ref spec) 0 0.0))
         (try (check-measure (ref spec)))
         (try (check-type-styles (ref spec) 0))
-        (let (warnings (measure-warnings (:measure-ch spec)))
+        (let (warnings (measure-warnings (ref spec)))
           (ok (->checked-grid spec warnings))))
-      (err (grid-error/type-area-does-not-fit (deref type-area)
+      (err (grid-error/type-area-does-not-fit type-area
                                               (fitting-column-counts
                                                 type-area))))))
 
@@ -63,10 +63,9 @@
        (err (grid-error/breakpoint-out-of-order min-width-em
                                                 previous-em)))
       ((not (fits? type-area))
-       (err (grid-error/breakpoint-does-not-fit min-width-em
-                                                (deref type-area)
-                                                (fitting-column-counts
-                                                  type-area))))
+       (err (grid-error/breakpoint-does-not-fit
+              min-width-em type-area
+              (fitting-column-counts type-area))))
       ((> needed-em min-width-em)
        (err (grid-error/breakpoint-too-narrow min-width-em
                                               (:width type-area)

@@ -47,7 +47,7 @@
 
 <section>
   <h2>The measure</h2>
-  <p class="measure">The measure is the length of a line of text. This paragraph is limited to <code>var(--measure)</code>, which the spec sets to 66ch, the usual target for comfortable reading. The library warns when a measure falls outside 45ch to 75ch, and refuses a measure wider than the type area, because no text could be set at it. Lines that run much longer than this make the eye lose its place on the way back to the start of the next line.</p>
+  <p class="measure">The measure is the length of a line of text. Each type area sets it as a number of its columns, so this paragraph, limited to <code>var(--measure)</code>, ends on a column edge. The demo leaves the number out, so the library picks the widest span within 66ch, the usual target for comfortable reading: two columns on wide screens, 19 squares or 57 characters of Iosevka. The library warns when a span holds fewer than 45 or more than 75 characters, and refuses a span wider than the type area. Lines that run much longer than this make the eye lose its place on the way back to the start of the next line.</p>
 </section>
 
 <section>

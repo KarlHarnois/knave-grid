@@ -8,7 +8,12 @@
   :margin i64
   :head i64
   :foot i64
-  (defaults :gutter 1 :margin 1 :head 2 :foot 2))
+  :measure-columns (option i64)
+  (defaults :gutter 1
+            :margin 1
+            :head 2
+            :foot 2
+            :measure-columns none))
 
 (type span-width
   (fn ((ref type-area) i64) i64))
