@@ -1,3 +1,4 @@
+(use font/family ->font-family)
 (use lib ->font-file read-font-family)
 
 (defn family-error (files)
@@ -12,3 +13,7 @@
                                              :path (str "tests/fixtures/missing.woff2")
                                              :url (str "/missing.woff2"))))
              "cannot read tests/fixtures/missing.woff2: No such file or directory (os error 2)")))
+
+(deftest prints-a-family-by-its-name
+  (assert (= (pr-str (->font-family (str "Fake Sans") (vec)))
+             "(font-family \"Fake Sans\")")))

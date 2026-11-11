@@ -1,0 +1,96 @@
+(export form read-text)
+
+(defenum form
+  (atom :text string)
+  (group :items (vec form)))
+
+(type tokens-of
+  (fn ((ref str)) (vec string)))
+
+(defn tokens-of (text)
+  (collect-tokens text
+                  (collect (chars text))
+                  0
+                  (vec)))
+
+(type collect-tokens
+  (fn ((ref str)
+       (vec char)
+       usize
+       (vec string))
+    (vec string)))
+
+(defn collect-tokens (text characters index tokens)
+  (if (>= index (len characters))
+    tokens
+    (let (end (token-end (ref characters) index))
+      (if (whitespace? (at characters index))
+        (recur text characters (+ index 1) tokens)
+        (do
+          (push! tokens (str (subs text index end)))
+          (recur text characters end tokens))))))
+
+(type token-end
+  (fn ((ref (vec char)) usize) usize))
+
+(defn token-end (characters start)
+  (let (first (at characters start))
+    (cond
+      ((paren? first) (+ start 1))
+      ((= first (char "\"")) (string-end characters (+ start 1)))
+      (else (atom-end characters start)))))
+
+(type string-end
+  (fn ((ref (vec char)) usize) usize))
+
+(defn string-end (characters index)
+  (cond
+    ((= (at characters index) (char "\\"))
+     (recur characters (+ index 2)))
+    ((= (at characters index) (char "\"")) (+ index 1))
+    (else (recur characters (+ index 1)))))
+
+(type atom-end
+  (fn ((ref (vec char)) usize) usize))
+
+(defn atom-end (characters index)
+  (if (or (>= index (len characters))
+          (paren? (at characters index))
+          (whitespace? (at characters index)))
+    index
+    (recur characters (+ index 1))))
+
+(defn paren? (character)
+  (or (= character (char "("))
+      (= character (char ")"))))
+
+(defn whitespace? (character)
+  (or (= character (char " "))
+      (= character (char "\n"))))
+
+(type read-form
+  (fn ((ref (vec string)) usize)
+    (pair form usize)))
+
+(defn read-form (tokens index)
+  (if (= (at tokens index) "(")
+    (let-match ((pair items next) (read-items tokens (+ index 1) (vec)))
+      (pair (form/group items) next))
+    (pair (form/atom (clone (at tokens index)))
+          (+ index 1))))
+
+(type read-items
+  (fn ((ref (vec string)) usize (vec form))
+    (pair (vec form) usize)))
+
+(defn read-items (tokens index items)
+  (if (= (at tokens index) ")")
+    (pair items (+ index 1))
+    (let-match ((pair item next) (read-form tokens index))
+      (do (push! items item) (recur tokens next items)))))
+
+(type read-text (fn ((ref str)) form))
+
+(defn read-text (text)
+  (let-match ((pair form _) (read-form (ref (tokens-of text)) 0))
+    form))

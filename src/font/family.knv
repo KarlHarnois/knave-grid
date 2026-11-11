@@ -49,3 +49,6 @@
 
 (defn family-metrics (family)
   (:metrics (at (:faces family) 0)))
+
+(show font-family (family)
+  (font-family (:name family)))
