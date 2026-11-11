@@ -15,7 +15,8 @@
 
 (deftest overrides-each-face-with-its-metrics
   (let (spec (->grid-spec :body-type (->body-type 18.0 1.5 (fake-sans-family))
-                          :type-areas (vec (->type-area :width 19
+                          :type-areas (vec (->type-area :name (str "page")
+                                                        :width 19
                                                         :column-count 1))))
     (assert (= (font-face-css (ref spec))
                (unwrap-ok (slurp "tests/fixtures/font-faces.css"))))))

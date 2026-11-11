@@ -5,6 +5,7 @@
 (defn checked-spec (column-count)
   (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)
                            :type-areas (vec (->type-area
+                                              :name (str "page")
                                               :width 39
                                               :column-count column-count)))))
 
@@ -13,7 +14,7 @@
 
 (deftest rejects-a-type-area-that-does-not-fit
   (assert (= (error-text 7)
-             "on narrow screens, a type area of 39 squares with a gutter of 1 square does not fit 7 columns; the column counts that fit are 1, 2, 4, 5, 8, 10, 20")))
+             "in the page type area, 39 squares with a gutter of 1 square do not fit 7 columns; the column counts that fit are 1, 2, 4, 5, 8, 10, 20")))
 
 (deftest accepts-a-monospace-font-whose-square-is-whole-characters
   (let (body (body-type-with 18.0 1.5
@@ -21,6 +22,7 @@
     (assert (ok? (check-grid (->grid-spec
                                :body-type body
                                :type-areas (vec (->type-area
+                                                  :name (str "page")
                                                   :width 39
                                                   :column-count 4))))))))
 
@@ -31,6 +33,7 @@
                                   (->grid-spec
                                     :body-type body
                                     :type-areas (vec (->type-area
+                                                       :name (str "page")
                                                        :width 39
                                                        :column-count 4))))))
                "the body font is monospace, but a square of 28px is 2.8 characters of 10px; choose a line-height that makes it a whole number"))))

@@ -6,7 +6,7 @@
         body-type ch-px leading-px)
 
 (defstruct body-type
-  :font-size-px f64
+  :size f64
   :line-height f64
   :font-family font-family)
 
@@ -24,20 +24,20 @@
   (fn ((ref body-type)) f64))
 
 (defn leading-px (type)
-  (* (:font-size-px type) (:line-height type)))
+  (* (:size type) (:line-height type)))
 
 (type baseline-offset-px
   (fn ((ref body-type)) f64))
 
 (defn baseline-offset-px (type)
   (baseline-in-line-px (body-metrics type)
-                       (:font-size-px type)
+                       (:size type)
                        (leading-px type)))
 
 (type ch-px (fn ((ref body-type)) f64))
 
 (defn ch-px (type)
   (let (metrics (body-metrics type))
-    (/ (* (:font-size-px type)
+    (/ (* (:size type)
           (float-of (:zero-width metrics)))
        (float-of (:units-per-em metrics)))))

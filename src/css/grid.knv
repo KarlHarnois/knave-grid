@@ -121,11 +121,11 @@
   (str "calc("
        (baseline-offset-px type)
        "rem / "
-       (:font-size-px type)
+       (:size type)
        ")"))
 
 (type root-font-size-percent
   (fn ((ref body-type)) f64))
 
 (defn root-font-size-percent (type)
-  (* 100.0 (/ (:font-size-px type) default-font-size-px)))
+  (* 100.0 (/ (:size type) default-font-size-px)))

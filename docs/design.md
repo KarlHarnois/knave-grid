@@ -21,7 +21,7 @@ The library names its parts with the terms of the Swiss grid tradition, as Josef
 
 ## Spec
 
-The spec is Knave data. Plain structs come first. A `defgrid` macro that reads like a spec MAY come later, built on those structs.
+The spec is Knave data. Plain structs come first. The `defgrid` macro writes a spec as named parts and expands to those structs: `(defgrid site (iosevka) (body iosevka :size 18 :line-height 1.5) (type-areas (narrow :width 19 :column-count 1) (wide :width 39 :column-count 4 :margin 2)) (type-styles (headline :lines 3)))` defines `site`, a function of the font families that builds the spec and returns what `check-grid` returns, so a site cannot skip the check. Each clause in `type-areas` and `type-styles` starts with the part's name, and the rest are the struct's own fields, so the constructor reports a missing or unknown field.
 
 Vertical spacing in type styles and placements takes only `lines`, so a spec cannot break the baseline grid by construction. A field for vertical spacing takes a count of lines, not a length, so an absolute unit there is a type error.
 
@@ -71,9 +71,9 @@ The generated CSS uses `text-box-trim` behind `@supports`, with margins computed
 
 A placement matches elements with a CSS selector and gives them a spatial zone: `:span n` columns, a column range `:columns (first last)`, or a subgrid.
 
-A spec lists its type areas from narrowest to widest. The first applies on every screen, shrinking when the screen is narrower than it. Each later one takes over once the screen is as wide as the type area plus its margin on each side, so a spec never names a breakpoint: to start a type area later, give it wider margins. `grid-css` writes a media query per later type area that redefines `--gutter`, `--columns`, `--column`, `--_grid-grid-width`, `--_grid-margin` and `--measure`, so the `.grid` rule and the overlay follow without media queries of their own.
+A spec lists its type areas from narrowest to widest. Each type area has a name, such as `narrow` or `wide`, that says which screens it is for, and the check names it in every message. The first applies on every screen, shrinking when the screen is narrower than it. Each later one takes over once the screen is as wide as the type area plus its margin on each side, so a spec never names a breakpoint: to start a type area later, give it wider margins. `grid-css` writes a media query per later type area that redefines `--gutter`, `--columns`, `--column`, `--_grid-grid-width`, `--_grid-margin` and `--measure`, so the `.grid` rule and the overlay follow without media queries of their own.
 
-The check fails when a spec has no type area, when a type area does not fit its columns, and when a later type area needs no more width than the one before it. It converts squares to em with the leading and the 16px default font size that media queries use, and counts a span's characters through the width of the font's "0" glyph, which is what `1ch` measures.
+The check fails when a spec has no type area, when two type areas share a name, when a type area does not fit its columns, and when a later type area needs no more width than the one before it. It converts squares to em with the leading and the 16px default font size that media queries use, and counts a span's characters through the width of the font's "0" glyph, which is what `1ch` measures.
 
 The `.grid` columns are `minmax(0, var(--column))`, so on a screen narrower than the first type area the columns shrink instead of overflowing.
 

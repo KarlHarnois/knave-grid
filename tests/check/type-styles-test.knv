@@ -4,6 +4,8 @@
 (defn type-style-error (style)
   (str (unwrap-err (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)
                                             :type-areas (vec (->type-area
+                                                               :name (str
+                                                                       "page")
                                                                :width 19
                                                                :column-count 1))
                                             :type-styles (vec style))))))
@@ -15,7 +17,7 @@
 (deftest rejects-type-too-tall-for-its-lines
   (assert (= (type-style-error (->type-style :name (str "caption")
                                              :lines 1
-                                             :font-size-px (some 30.0)))
+                                             :size (some 30.0)))
              "the type style caption sets 30px type, whose glyphs are 30px tall, in 27px of lines")))
 
 (deftest rejects-a-baseline-line-outside-the-style

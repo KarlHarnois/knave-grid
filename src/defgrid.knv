@@ -1,0 +1,38 @@
+(use code string symbol-name)
+(use prelude/macros header-shape)
+(use check/grid check-grid)
+(use spec/body-type ->body-type)
+(use spec/grid-spec ->grid-spec)
+(use spec/type-area ->type-area)
+(use spec/type-style ->type-style)
+
+(export defgrid)
+
+(defmacro name-text (name)
+  (string (symbol-name name)))
+
+(defrule defgrid
+  "Defines a function that builds a grid spec from its parts and checks it."
+  ((grid-name (parameter ...)
+              ((quote body) family body-field ...)
+              ((quote type-areas) (area-name area-field ...) ...)
+              ((quote type-styles) (style-name style-field ...) ...))
+   (defn grid-name (parameter ...)
+     (check-grid
+       (->grid-spec
+         :body-type (->body-type :font-family family body-field ...)
+         :type-areas (vec (->type-area :name (str (name-text area-name))
+                                       area-field ...)
+                          ...)
+         :type-styles (vec (->type-style :name (str (name-text style-name))
+                                         style-field ...)
+                           ...)))))
+  ((grid-name (parameter ...)
+              ((quote body) family body-field ...)
+              ((quote type-areas) (area-name area-field ...) ...))
+   (defgrid grid-name (parameter ...)
+     (body family body-field ...)
+     (type-areas (area-name area-field ...) ...)
+     (type-styles))))
+
+(header-shape (defgrid name parameters))

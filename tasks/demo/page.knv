@@ -4,7 +4,7 @@
 (use demo/html escaped)
 (use lib grid-css)
 (use spec/body-type baseline-offset-px)
-(use spec/layout layout-label)
+(use spec/layout layout)
 (use spec/type-style style-font-size-px style-shift-px)
 
 (export demo-page)
@@ -60,24 +60,32 @@
 
 (defn layout-rows (checked)
   (reduce (map (iter (:layouts checked))
-            (fn (layout)
-              (layout-row (as-str (layout-label layout))
-                          (:type-area layout))))
+            (fn (layout) (layout-row layout)))
           (str)
           (fn (rows row) (str rows row))))
 
-(defn layout-row (screen type-area)
-  (str "      <tr><td>" screen "</td><td>"
-       (:width type-area)
-       "</td><td>"
-       (:column-count type-area)
-       "</td><td>"
-       (:margin type-area)
-       "</td><td>"
-       (:head type-area)
-       " / "
-       (:foot type-area)
-       "</td></tr>\n"))
+(defn layout-row (layout)
+  (let (type-area (:type-area layout))
+    (str "      <tr><td>"
+         (:name type-area)
+         "</td><td>"
+         (start-text layout)
+         "</td><td>"
+         (:width type-area)
+         "</td><td>"
+         (:column-count type-area)
+         "</td><td>"
+         (:margin type-area)
+         "</td><td>"
+         (:head type-area)
+         " / "
+         (:foot type-area)
+         "</td></tr>\n")))
+
+(defn start-text (layout)
+  (if (:narrowest? layout)
+    (str "any width")
+    (str (:min-width-em layout) "em")))
 
 (defn warnings-sentence (checked)
   (if (empty? (:warnings checked))

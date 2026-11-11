@@ -13,12 +13,10 @@
 (defstruct type-style
   :name string
   :lines i64
-  :font-size-px (option f64)
+  :size (option f64)
   :font-family (option font-family)
   :baseline-line (option i64)
-  (defaults :font-size-px none
-            :font-family none
-            :baseline-line none))
+  (defaults :size none :font-family none :baseline-line none))
 
 (def float-of
   (rust "{0} as f64" (fn (i64) f64)))
@@ -28,9 +26,9 @@
     f64))
 
 (defn style-font-size-px (style body)
-  (match (:font-size-px style)
+  (match (:size style)
     ((some size) size)
-    (none (* (float-of (:lines style)) (:font-size-px body)))))
+    (none (* (float-of (:lines style)) (:size body)))))
 
 (type style-line-height-px
   (fn ((ref type-style) (ref body-type))
