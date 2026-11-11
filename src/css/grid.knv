@@ -1,4 +1,6 @@
-(use spec/body-type baseline-offset-px body-type)
+(use spec/body-type baseline-offset-px body-type
+                    body-weight)
+
 (use browser default-font-size-px)
 (use check/grid checked-grid)
 (use css/declaration declaration indented)
@@ -54,6 +56,7 @@
                       (str (root-font-size-percent type) "%"))
          (declaration "font-family"
                       (str "\"" (:name (:font-family type)) "\""))
+         (declaration "font-weight" (str (body-weight type)))
          (declaration "line-height" (str (:line-height type)))
          (declaration "--leading" (squares-css 1))
          (declaration "--_grid-baseline-offset"

@@ -1,5 +1,8 @@
 (use spec/fake-type body-type-at)
-(use lib ->grid-spec ->type-area ->type-style check-grid)
+(use check/grid check-grid)
+(use spec/grid-spec ->grid-spec)
+(use spec/type-area ->type-area)
+(use spec/type-style ->type-style)
 
 (defn type-style-error (style)
   (str (unwrap-err (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)

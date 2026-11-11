@@ -1,3 +1,5 @@
+(use font/weight weight-names)
+
 (export ->font-tables ->table-entry font-error font-tables
         malformed present table-entry table-entry-for
         table-offset)
@@ -5,7 +7,8 @@
 (defenum font-error
   (unreadable :path string :reason string)
   (malformed :reason string)
-  (family-without-files :family string))
+  (family-without-files :family string)
+  (unknown-weight :family string :weight string))
 
 (display font-error (error)
   (match error
@@ -14,7 +17,10 @@
     ((malformed reason) (str "not a usable font: " reason))
     ((family-without-files family)
      (str "the font family " family
-          " needs at least one font file"))))
+          " needs at least one font file"))
+    ((unknown-weight family weight)
+     (str "the font family " family " names the weight "
+          weight ", but font weights are " weight-names))))
 
 (defstruct table-entry
   :tag string

@@ -1,0 +1,14 @@
+(export weight-names weight-number)
+
+(def weight-names "light, regular, medium or bold")
+
+(type weight-number
+  (fn ((ref str)) (option i64)))
+
+(defn weight-number (name)
+  (cond
+    ((= name "light") (some 300))
+    ((= name "regular") (some 400))
+    ((= name "medium") (some 500))
+    ((= name "bold") (some 700))
+    (else none)))

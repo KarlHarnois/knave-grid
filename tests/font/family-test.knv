@@ -1,18 +1,36 @@
-(use font/family ->font-family)
-(use lib ->font-file read-font-family)
+(use font/family ->declared-file ->font-family
+                 read-declared-family)
+
+(use font/fake-font-files fake-font-directory
+                          write-fake-font-files)
 
 (defn family-error (files)
-  (str (unwrap-err (read-font-family "Fake Sans" files))))
+  (str (unwrap-err (read-declared-family "tests/fixtures" "Fake Sans" files))))
 
 (deftest rejects-a-family-without-files
   (assert (= (family-error (vec))
              "the font family Fake Sans needs at least one font file")))
 
 (deftest names-a-font-file-it-cannot-read
-  (assert (= (family-error (vec (->font-file :weight 400
-                                             :path (str "tests/fixtures/missing.woff2")
-                                             :url (str "/missing.woff2"))))
+  (assert (= (family-error (vec (->declared-file (str "regular")
+                                                 (str "missing.woff2"))))
              "cannot read tests/fixtures/missing.woff2: No such file or directory (os error 2)")))
+
+(deftest rejects-a-weight-it-does-not-know
+  (assert (= (family-error (vec (->declared-file (str "heavy")
+                                                 (str "missing.woff2"))))
+             "the font family Fake Sans names the weight heavy, but font weights are light, regular, medium or bold")))
+
+(deftest reads-each-file-from-the-directory
+  (write-fake-font-files)
+  (let (family (unwrap-ok (read-declared-family fake-font-directory
+                                                "Fake Sans"
+                                                (vec (->declared-file (str
+                                                                        "bold")
+                                                                      (str "fake-sans-bold.ttf"))))))
+    (assert (= (:path (at (:faces family) 0))
+               "target/fake-fonts/fake-sans-bold.ttf"))
+    (assert (= (:weight (at (:faces family) 0)) 700))))
 
 (deftest prints-a-family-by-its-name
   (assert (= (pr-str (->font-family (str "Fake Sans") (vec)))

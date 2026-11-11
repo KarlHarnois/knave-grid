@@ -1,0 +1,26 @@
+(use font/fake-fonts ->fake-font truetype-bytes)
+
+(export fake-font-directory write-fake-font-files)
+
+(def fake-font-directory "target/fake-fonts")
+
+(def create-directories
+  (rust "std::fs::create_dir_all({0}).unwrap()"
+    (fn ((ref str)) unit)))
+
+(def write-whole-file
+  (rust "{{ let partial = format!(\"{{}}.{{:?}}\", {0}, std::thread::current().id()); std::fs::write(&partial, {1}).unwrap(); std::fs::rename(&partial, {0}).unwrap(); }}"
+    (fn ((ref str) (ref (vec u8))) unit)))
+
+(defn write-fake-font-files ()
+  (create-directories fake-font-directory)
+  (let (bytes (truetype-bytes (->fake-font :units-per-em 1000
+                                           :hhea-ascender 800
+                                           :hhea-descender -200
+                                           :typo-ascender 800
+                                           :typo-descender -200
+                                           :uses-typo-metrics? false)))
+    (write-whole-file "target/fake-fonts/fake-sans-regular.ttf"
+                      (ref bytes))
+    (write-whole-file "target/fake-fonts/fake-sans-bold.ttf"
+                      (ref bytes))))

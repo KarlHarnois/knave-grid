@@ -1,13 +1,15 @@
 (use font/family family-metrics font-family)
+(use font/weight weight-number)
 (use font/metrics font-metrics)
 
 (use spec/body-type baseline-offset-px body-metrics
-                    body-type leading-px)
+                    body-type body-weight leading-px)
 
 (use spec/line-box baseline-in-line-px)
 
-(export ->type-style style-baseline-line style-font-size-px
-        style-line-height-px style-metrics style-shift-px
+(export ->type-style style-baseline-line style-family-name
+        style-font-size-px style-line-height-px
+        style-metrics style-shift-px style-weight
         type-style)
 
 (defstruct type-style
@@ -15,8 +17,32 @@
   :lines i64
   :size (option f64)
   :font-family (option font-family)
+  :weight (option string)
   :baseline-line (option i64)
-  (defaults :size none :font-family none :baseline-line none))
+  (defaults :size none
+            :font-family none
+            :weight none
+            :baseline-line none))
+
+(type style-weight
+  (fn ((ref type-style) (ref body-type))
+    i64))
+
+(defn style-weight (style body)
+  (match (:weight style)
+    ((some name)
+     (unwrap-or (weight-number (as-str name))
+                (body-weight body)))
+    (none (body-weight body))))
+
+(type style-family-name
+  (fn ((ref type-style) (ref body-type))
+    string))
+
+(defn style-family-name (style body)
+  (match (:font-family style)
+    ((some family) (clone (:name family)))
+    (none (clone (:name (:font-family body))))))
 
 (def float-of
   (rust "{0} as f64" (fn (i64) f64)))
@@ -71,5 +97,7 @@
 
 (defn style-metrics (style body)
   (match (:font-family style)
-    ((some family) (deref (family-metrics family)))
-    (none (deref (body-metrics body)))))
+    ((some family)
+     (deref (family-metrics family (style-weight style body))))
+    (none (deref (family-metrics (:font-family body)
+                                 (style-weight style body))))))

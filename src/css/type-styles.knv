@@ -3,7 +3,7 @@
 (use spec/grid-spec grid-spec)
 
 (use spec/type-style style-font-size-px style-shift-px
-                     type-style)
+                     style-weight type-style)
 
 (export type-style-rules)
 
@@ -26,6 +26,7 @@
        (class-name (as-str (:name style)))
        " {\n"
        (family-declaration style)
+       (weight-declaration style body)
        (declaration "font-size"
                     (relative-to-body (style-font-size-px style body) body))
        (declaration "line-height" (str (:lines style) "rlh"))
@@ -41,6 +42,16 @@
   (match (:font-family style)
     ((some family)
      (declaration "font-family" (str "\"" (:name family) "\"")))
+    (none (str))))
+
+(type weight-declaration
+  (fn ((ref type-style) (ref body-type))
+    string))
+
+(defn weight-declaration (style body)
+  (match (:weight style)
+    ((some _)
+     (declaration "font-weight" (str (style-weight style body))))
     (none (str))))
 
 (defn class-name (style-name) (str "type-" style-name))

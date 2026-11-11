@@ -1,0 +1,39 @@
+(export paren? token-end whitespace?)
+
+(type token-end
+  (fn ((ref (vec char)) usize) usize))
+
+(defn token-end (characters start)
+  (let (first (at characters start))
+    (cond
+      ((paren? first) (+ start 1))
+      ((= first (char "\"")) (string-end characters (+ start 1)))
+      (else (atom-end characters start)))))
+
+(type string-end
+  (fn ((ref (vec char)) usize) usize))
+
+(defn string-end (characters index)
+  (cond
+    ((= (at characters index) (char "\\"))
+     (recur characters (+ index 2)))
+    ((= (at characters index) (char "\"")) (+ index 1))
+    (else (recur characters (+ index 1)))))
+
+(type atom-end
+  (fn ((ref (vec char)) usize) usize))
+
+(defn atom-end (characters index)
+  (if (or (>= index (len characters))
+          (paren? (at characters index))
+          (whitespace? (at characters index)))
+    index
+    (recur characters (+ index 1))))
+
+(defn paren? (character)
+  (or (= character (char "("))
+      (= character (char ")"))))
+
+(defn whitespace? (character)
+  (or (= character (char " "))
+      (= character (char "\n"))))

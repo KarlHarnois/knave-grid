@@ -21,7 +21,19 @@ The library names its parts with the terms of the Swiss grid tradition, as Josef
 
 ## Spec
 
-The spec is Knave data. Plain structs come first. The `defgrid` macro writes a spec as named parts and expands to those structs: `(defgrid site (iosevka) (body iosevka :size 18 :line-height 1.5) (type-areas (narrow :width 19 :column-count 1) (wide :width 39 :column-count 4 :margin 2)) (type-styles (headline :lines 3)))` defines `site`, a function of the font families that builds the spec and returns what `check-grid` returns, so a site cannot skip the check. Each clause in `type-areas` and `type-styles` starts with the part's name, and the rest are the struct's own fields, so the constructor reports a missing or unknown field.
+A site writes its grid with the `defgrid` macro, the one way into the library:
+
+```lisp
+(defgrid site ()
+  (fonts :from "static/fonts"
+    (iosevka "Iosevka" (regular "iosevka-regular.woff2") (bold "iosevka-bold.woff2")))
+  (body iosevka :size 18 :line-height 1.5)
+  (type-areas (narrow :width 19 :column-count 1)
+              (wide :width 39 :column-count 4 :margin 2))
+  (type-styles (headline :lines 3 :weight bold)))
+```
+
+`site` is a function that reads the fonts, builds the spec and checks it, and returns the checked grid, a font error or the check error, so a site cannot skip the check. A site passes the checked grid to `write-grid` with the path of the stylesheet to write, such as `(write-grid (ref grid) "public/grid.css")`, and `write-grid` copies each font file the grid uses beside it. The stylesheet loads them by their bare file names, so a site never states where its fonts are served, and a flat folder such as a Shopify theme's `assets` works as well as a static site's output. Each font names its weights, `light`, `regular`, `medium` or `bold`, and their files, which the build reads from `:from`. Each clause in `type-areas` and `type-styles` starts with the part's name, and the rest are the struct's own fields, so the constructor reports a missing or unknown field. The `defgrid` function takes parameters, which its clauses can use, as the demo does to build the same grid with two body fonts. The library exports `defgrid`, `write-grid`, the overlay assets, the checked grid and the error and warning types, and nothing else.
 
 Vertical spacing in type styles and placements takes only `lines`, so a spec cannot break the baseline grid by construction. A field for vertical spacing takes a count of lines, not a length, so an absolute unit there is a type error.
 
@@ -57,7 +69,7 @@ Phase 2 adds proportional type: sizes on a 1.25 ratio scale, and line-height = c
 
 A heading block adds up to a whole number of leadings: its lines plus the space above and below it.
 
-A font family is read once with `read-font-family`, from a name and one file per weight, each with the path the build reads and the URL the page loads. The family is opaque: its metrics never appear in the API. Its first file sets the metrics the grid uses, so it is the regular weight. The body type and the type styles name families, so the spec holds every font the page uses, and `grid-css` sets the body family on the root and writes the `@font-face` rules. The library reads font metrics from the font files at build time to place each style's baseline on the grid. It reads TrueType, OpenType and WOFF2 files, and takes each font's `hhea` ascent and descent, which Safari reads on macOS and iOS whatever the font asks for.
+The body names a font and a weight, `regular` unless it says otherwise, and the check fails when the font has no file of that weight, so the metrics that place the baseline come from the face the page renders. `grid-css` sets the body's family and weight on the root and writes an `@font-face` rule for each file of each font the spec uses. A type style can name its own font and weight. Font metrics never appear in the API. The library reads font metrics from the font files at build time to place each style's baseline on the grid. It reads TrueType, OpenType and WOFF2 files, and takes each font's `hhea` ascent and descent, which Safari reads on macOS and iOS whatever the font asks for.
 
 A baseline sits half the leading left over by the ascent and descent, plus the ascent, below the top of its line. The library rounds the ascent and descent to whole pixels and the half leading down, as Chromium does, and `grid-css` writes the body text's offset as `--_grid-baseline-offset`.
 

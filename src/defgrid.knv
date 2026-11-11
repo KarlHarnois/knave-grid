@@ -1,6 +1,8 @@
 (use code string symbol-name)
 (use prelude/macros header-shape)
 (use check/grid check-grid)
+(use check/problems grid-error)
+(use font/family ->declared-file read-declared-family)
 (use spec/body-type ->body-type)
 (use spec/grid-spec ->grid-spec)
 (use spec/type-area ->type-area)
@@ -11,28 +13,71 @@
 (defmacro name-text (name)
   (string (symbol-name name)))
 
+(defrule with-fonts
+  ((directory () body) body)
+  ((directory ((font-name family-name (weight-name file-name) ...)
+               font ...)
+              body)
+   (let (font-name (try (map-err
+                          (read-declared-family
+                            directory family-name
+                            (vec (->declared-file (str (name-text weight-name))
+                                                  (str file-name))
+                                 ...))
+                          (fn (error) (grid-error/unusable-font error)))))
+     (with-fonts directory (font ...) body))))
+
+(defrule body-type-of
+  (((field ...)) (->body-type field ...))
+  (((field ...) (quote :weight) weight-name rest ...)
+   (body-type-of (field ... :weight (str (name-text weight-name)))
+                 rest ...))
+  (((field ...) key value rest ...)
+   (body-type-of (field ... key value) rest ...)))
+
+(defrule type-style-of
+  (((field ...)) (->type-style field ...))
+  (((field ...) (quote :weight) weight-name rest ...)
+   (type-style-of (field ...
+                         :weight (some (str (name-text weight-name))))
+                  rest ...))
+  (((field ...) (quote :size) value rest ...)
+   (type-style-of (field ... :size (some value)) rest ...))
+  (((field ...) (quote :font-family) value rest ...)
+   (type-style-of (field ... :font-family (some value))
+                  rest ...))
+  (((field ...) (quote :baseline-line) value rest ...)
+   (type-style-of (field ... :baseline-line (some value))
+                  rest ...))
+  (((field ...) key value rest ...)
+   (type-style-of (field ... key value) rest ...)))
+
 (defrule defgrid
-  "Defines a function that builds a grid spec from its parts and checks it."
+  "Defines a function that reads a grid's fonts, builds its spec and checks it."
   ((grid-name (parameter ...)
+              ((quote fonts) (quote :from) directory font ...)
               ((quote body) family body-field ...)
               ((quote type-areas) (area-name area-field ...) ...)
               ((quote type-styles) (style-name style-field ...) ...))
    (defn grid-name (parameter ...)
-     (check-grid
-       (->grid-spec
-         :body-type (->body-type :font-family family body-field ...)
-         :type-areas (vec (->type-area :name (str (name-text area-name))
-                                       area-field ...)
-                          ...)
-         :type-styles (vec (->type-style :name (str (name-text style-name))
-                                         style-field ...)
-                           ...)))))
+     (with-fonts
+       directory
+       (font ...)
+       (check-grid
+         (->grid-spec
+           :body-type (body-type-of (:font-family family) body-field ...)
+           :type-areas (vec (->type-area :name (str (name-text area-name))
+                                         area-field ...)
+                            ...)
+           :type-styles (vec (type-style-of (:name (str (name-text style-name)))
+                                            style-field ...)
+                             ...))))))
   ((grid-name (parameter ...)
-              ((quote body) family body-field ...)
-              ((quote type-areas) (area-name area-field ...) ...))
+              fonts body
+              ((quote type-areas) area ...))
    (defgrid grid-name (parameter ...)
-     (body family body-field ...)
-     (type-areas (area-name area-field ...) ...)
+     fonts body
+     (type-areas area ...)
      (type-styles))))
 
 (header-shape (defgrid name parameters))

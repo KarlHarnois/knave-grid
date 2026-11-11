@@ -1,54 +1,84 @@
 (use font/metrics font-error font-metrics read-font-metrics)
+(use font/weight weight-number)
 
-(export ->font-face ->font-family ->font-file family-metrics
-        font-face font-family font-file read-font-family)
+(export ->declared-file ->font-face ->font-family
+        declared-file family-metrics font-face font-family
+        has-weight? read-declared-family)
 
-(defstruct font-file
-  :weight i64
-  :path string
-  :url string)
+(defstruct declared-file
+  :weight-name string
+  :file-name string)
 
 (defstruct font-face
   :weight i64
-  :url string
+  :file-name string
+  :path string
   :metrics font-metrics)
 
 (defstruct font-family
   :name string
   :faces (vec font-face))
 
-(type read-font-family
-  (fn ((ref str) (vec font-file))
+(type read-declared-family
+  (fn ((ref str)
+       (ref str)
+       (vec declared-file))
     (result font-family font-error)))
 
-(defn read-font-family (name files)
+(defn read-declared-family (directory name files)
   (if (empty? files)
     (err (font-error/family-without-files (str name)))
     (ok (->font-family (str name)
-                       (try (read-faces (ref files) 0 (vec)))))))
+                       (try (read-faces directory name (ref files) 0 (vec)))))))
 
 (type read-faces
-  (fn ((ref (vec font-file))
+  (fn ((ref str)
+       (ref str)
+       (ref (vec declared-file))
        usize
        (vec font-face))
     (result (vec font-face) font-error)))
 
-(defn read-faces (files index faces)
+(defn read-faces (directory name files index faces)
   (if (>= index (len files))
     (ok faces)
-    (let (file (at files index)
-          face (->font-face (:weight file)
-                            (clone (:url file))
-                            (try (read-font-metrics (as-str (:path file)))))
+    (let (face (try (read-face directory name (at files index)))
           read (do (push! faces face) faces))
-      (recur files (+ index 1) read))))
+      (recur directory name files (+ index 1) read))))
+
+(type read-face
+  (fn ((ref str)
+       (ref str)
+       (ref declared-file))
+    (result font-face font-error)))
+
+(defn read-face (directory name file)
+  (let (path (str directory "/" (:file-name file)))
+    (match (weight-number (as-str (:weight-name file)))
+      ((some weight)
+       (ok (->font-face weight
+                        (clone (:file-name file))
+                        (clone path)
+                        (try (read-font-metrics (as-str path))))))
+      (none (err (font-error/unknown-weight (str name)
+                                            (clone (:weight-name file))))))))
+
+(type has-weight?
+  (fn ((ref font-family) i64) bool))
+
+(defn has-weight? (family weight)
+  (any? (iter (:faces family))
+    (fn (face) (= (:weight face) weight))))
 
 (type family-metrics
-  (fn ((ref font-family))
+  (fn ((ref font-family) i64)
     (ref font-metrics)))
 
-(defn family-metrics (family)
-  (:metrics (at (:faces family) 0)))
+(defn family-metrics (family weight)
+  (match (find (iter (:faces family))
+           (fn (face) (= (:weight face) weight)))
+    ((some face) (:metrics face))
+    (none (:metrics (at (:faces family) 0)))))
 
 (show font-family (family)
   (font-family (:name family)))

@@ -1,4 +1,4 @@
-(use demo/forms paren? token-end whitespace?)
+(use demo/tokens paren? token-end whitespace?)
 (use demo/html escaped)
 
 (export highlighted)

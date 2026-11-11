@@ -2,7 +2,7 @@
 (use spec/type-style type-style)
 (use demo/highlight highlighted)
 (use demo/html escaped)
-(use lib grid-css)
+(use css/grid grid-css)
 (use spec/body-type baseline-offset-px)
 (use spec/layout layout)
 (use spec/type-style style-font-size-px style-shift-px)

@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Fake Sans";
-  src: url("/fake-sans-regular.woff2");
+  src: url("fake-sans-regular.woff2");
   font-weight: 400;
   font-display: swap;
   ascent-override: 80%;
@@ -10,7 +10,7 @@
 
 @font-face {
   font-family: "Fake Sans";
-  src: url("/fake-sans-bold.woff2");
+  src: url("fake-sans-bold.woff2");
   font-weight: 700;
   font-display: swap;
   ascent-override: 92.5%;

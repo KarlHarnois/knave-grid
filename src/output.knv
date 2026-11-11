@@ -1,0 +1,83 @@
+(use check/grid checked-grid)
+(use css/font-face spec-families)
+(use css/grid grid-css)
+(use font/family font-face font-family)
+
+(export write-error write-grid)
+
+(defenum write-error
+  (unwritable :path string :reason string))
+
+(display write-error (error)
+  (match error
+    ((unwritable path reason)
+     (str "cannot write " path ": " reason))))
+
+(def create-directories
+  (rust "std::fs::create_dir_all({0}).map_err(|error| error.to_string())"
+    (fn ((ref str)) (result unit string))))
+
+(def copy-file
+  (rust "std::fs::copy({0}, {1}).map(drop).map_err(|error| error.to_string())"
+    (fn ((ref str) (ref str))
+      (result unit string))))
+
+(def write-file
+  (rust "std::fs::write({0}, {1}).map_err(|error| error.to_string())"
+    (fn ((ref str) (ref str))
+      (result unit string))))
+
+(def parent-directory
+  (rust "std::path::Path::new({0}).parent().map(|parent| parent.to_string_lossy().into_owned()).unwrap_or_default()"
+    (fn ((ref str)) string)))
+
+(def sibling-path
+  (rust "std::path::Path::new({0}).with_file_name({1}).to_string_lossy().into_owned()"
+    (fn ((ref str) (ref str)) string)))
+
+(type write-grid
+  (fn ((ref checked-grid) (ref str))
+    (result unit write-error)))
+
+(defn write-grid (checked stylesheet-path)
+  (let (directory (parent-directory stylesheet-path))
+    (try (written (as-str directory)
+                  (create-directories (as-str directory))))
+    (try (copy-faces (spec-families (:spec checked))
+                     stylesheet-path 0))
+    (written stylesheet-path
+             (write-file stylesheet-path (as-str (grid-css checked))))))
+
+(type copy-faces
+  (fn ((vec font-family) (ref str) usize)
+    (result unit write-error)))
+
+(defn copy-faces (families stylesheet-path index)
+  (if (>= index (len families))
+    (ok (do))
+    (do
+      (try (copy-family-faces (at families index) stylesheet-path 0))
+      (recur families stylesheet-path (+ index 1)))))
+
+(type copy-family-faces
+  (fn ((ref font-family) (ref str) usize)
+    (result unit write-error)))
+
+(defn copy-family-faces (family stylesheet-path index)
+  (if (>= index (len (:faces family)))
+    (ok (do))
+    (let (face (at (:faces family) index)
+          target (sibling-path stylesheet-path (as-str (:file-name face))))
+      (try (written (as-str target)
+                    (copy-file (as-str (:path face))
+                               (as-str target))))
+      (recur family stylesheet-path (+ index 1)))))
+
+(type written
+  (fn ((ref str) (result unit string))
+    (result unit write-error)))
+
+(defn written (path outcome)
+  (map-err outcome
+    (fn (reason)
+      (write-error/unwritable (str path) reason))))

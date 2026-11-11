@@ -1,0 +1,58 @@
+(use check/problems grid-error)
+(use font/family font-family has-weight?)
+(use font/weight weight-number)
+(use spec/grid-spec grid-spec)
+(use spec/type-style type-style)
+
+(export check-font-weights)
+
+(type check-font-weights
+  (fn ((ref grid-spec))
+    (result unit grid-error)))
+
+(defn check-font-weights (spec)
+  (let (body (:body-type spec))
+    (try (check-weight (str "the body")
+                       (:font-family body)
+                       (as-str (:weight body))))
+    (check-styles spec 0)))
+
+(type check-styles
+  (fn ((ref grid-spec) usize)
+    (result unit grid-error)))
+
+(defn check-styles (spec index)
+  (if (>= index (len (:type-styles spec)))
+    (ok (do))
+    (do
+      (try (check-style spec (at (:type-styles spec) index)))
+      (recur spec (+ index 1)))))
+
+(type check-style
+  (fn ((ref grid-spec) (ref type-style))
+    (result unit grid-error)))
+
+(defn check-style (spec style)
+  (let (body (:body-type spec)
+        owner (str "the type style " (:name style))
+        family (match (:font-family style)
+                 ((some family) family)
+                 (none (:font-family body)))
+        weight (match (:weight style)
+                 ((some name) (clone name))
+                 (none (clone (:weight body)))))
+    (check-weight owner family (as-str weight))))
+
+(type check-weight
+  (fn (string (ref font-family) (ref str))
+    (result unit grid-error)))
+
+(defn check-weight (owner family weight)
+  (match (weight-number weight)
+    ((some number)
+     (if (has-weight? family number)
+       (ok (do))
+       (err (grid-error/missing-font-weight owner
+                                            (clone (:name family))
+                                            (str weight)))))
+    (none (err (grid-error/unknown-font-weight owner (str weight))))))

@@ -1,35 +1,22 @@
-(use demo/files copy-file error-text output-path
-                source-path)
+(use demo/files copy-file output-path source-path)
 
-(use lib ->font-file font-family font-file read-font-family)
+(export copy-font-licenses)
 
-(export demo-font-family)
+(def license-files
+  (vec "iosevka-license.txt" "noto-sans-license.txt"))
 
-(type demo-font-family
-  (fn ((ref str) (ref str))
-    (result font-family string)))
+(type copy-font-licenses
+  (fn () (result unit string)))
 
-(defn demo-font-family (family file-prefix)
-  (try (copy-demo-file (as-str (str file-prefix "-license.txt"))))
-  (let (regular (try (demo-file 400 file-prefix "regular"))
-        bold (try (demo-file 700 file-prefix "bold")))
-    (map-err (read-font-family family (vec regular bold))
-             error-text)))
+(defn copy-font-licenses () (copy-license-files 0))
 
-(type demo-file
-  (fn (i64 (ref str) (ref str))
-    (result font-file string)))
+(type copy-license-files
+  (fn (usize) (result unit string)))
 
-(defn demo-file (weight file-prefix style-name)
-  (let (file-name (str file-prefix "-" style-name ".woff2"))
-    (try (copy-demo-file (as-str file-name)))
-    (ok (->font-file :weight weight
-                     :path (source-path (as-str (str "fonts/" file-name)))
-                     :url file-name))))
-
-(type copy-demo-file
-  (fn ((ref str)) (result unit string)))
-
-(defn copy-demo-file (file-name)
-  (copy-file (as-str (source-path (as-str (str "fonts/" file-name))))
-             (as-str (output-path file-name))))
+(defn copy-license-files (index)
+  (if (>= index (len license-files))
+    (ok (do))
+    (let (file-name (at license-files index))
+      (try (copy-file (as-str (source-path (as-str (str "fonts/" file-name))))
+                      (as-str (output-path file-name))))
+      (recur (+ index 1)))))

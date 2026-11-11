@@ -1,21 +1,33 @@
 (use font/family family-metrics font-family)
+(use font/weight weight-number)
 (use font/metrics font-metrics)
 (use spec/line-box baseline-in-line-px)
 
 (export ->body-type baseline-offset-px body-metrics
-        body-type ch-px leading-px)
+        body-type body-weight ch-px leading-px)
 
 (defstruct body-type
   :size f64
   :line-height f64
-  :font-family font-family)
+  :font-family font-family
+  :weight string
+  (defaults :weight (str "regular")))
+
+(type body-weight
+  (fn ((ref body-type)) i64))
+
+(defn body-weight (type)
+  (unwrap-or (weight-number (as-str (:weight type)))
+             regular-weight))
+
+(def regular-weight 400)
 
 (type body-metrics
   (fn ((ref body-type))
     (ref font-metrics)))
 
 (defn body-metrics (type)
-  (family-metrics (:font-family type)))
+  (family-metrics (:font-family type) (body-weight type)))
 
 (def float-of
   (rust "{0} as f64" (fn (i64) f64)))

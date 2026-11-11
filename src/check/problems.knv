@@ -1,3 +1,5 @@
+(use font/tables font-error)
+(use font/weight weight-names)
 (use spec/type-area type-area)
 
 (export grid-error grid-warning narrowest-measure-ch squares
@@ -9,6 +11,11 @@
 
 (defenum grid-error
   (no-type-area)
+  (unusable-font :error font-error)
+  (unknown-font-weight :owner string :weight string)
+  (missing-font-weight :owner string
+                       :family string
+                       :weight string)
   (type-area-does-not-fit :layout string
                           :type-area type-area
                           :fitting-counts (vec i64))
@@ -34,6 +41,13 @@
 (display grid-error (error)
   (match error
     (no-type-area (str "a grid spec needs at least one type area"))
+    ((unusable-font error) (str error))
+    ((unknown-font-weight owner weight)
+     (str owner " sets the weight " weight
+          ", but font weights are " weight-names))
+    ((missing-font-weight owner family weight)
+     (str owner " uses " family " at weight " weight
+          ", but the family has no " weight " file"))
     ((type-area-does-not-fit layout type-area fitting-counts)
      (str "in " layout ", "
           (fit-message type-area fitting-counts)))

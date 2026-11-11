@@ -1,12 +1,14 @@
 (use spec/fake-type body-type-at)
 (use font/metrics ->font-metrics)
 (use spec/fake-type fake-family)
-
-(use lib ->grid-spec ->type-area ->type-style check-grid
-         grid-css)
+(use check/grid check-grid)
+(use css/grid grid-css)
+(use spec/grid-spec ->grid-spec)
+(use spec/type-area ->type-area)
+(use spec/type-style ->type-style)
 
 (defn fake-serif-family ()
-  (fake-family "Fake Serif" "/fake-serif.woff2"
+  (fake-family "Fake Serif" "fake-serif.woff2"
                (->font-metrics 1000 700 300 500 700 false)))
 
 (defn type-styles ()
