@@ -31,3 +31,17 @@
   grid-template-columns: repeat(var(--columns), minmax(0, var(--column)));
   column-gap: var(--gutter);
 }
+
+.type-title {
+  font-size: calc(60rem / 20);
+  line-height: 3rlh;
+  position: relative;
+  top: calc(-12rem / 20);
+}
+
+.type-lead {
+  font-size: calc(30rem / 20);
+  line-height: 2rlh;
+  position: relative;
+  top: calc(11rem / 20);
+}

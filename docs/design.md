@@ -44,6 +44,8 @@ The measure defaults to `66ch`. The library warns when the measure is outside `4
 
 Phase 1 targets monospace type: body 18/27, display 36/54 and 54/81. Every line-height is a whole number of leadings.
 
+A type style names how many grid lines tall it is. Its font size is that many times the body size unless the spec sets one, and its line-height is that many leadings. `grid-css` writes it as a `.type-<name>` class. The class shifts the text with `position: relative`, so its baseline lands on the nearest body baseline in its block and the block keeps its height. The check fails on a style with no lines and on a style whose glyphs are taller than its lines.
+
 Phase 2 adds proportional type: sizes on a 1.25 ratio scale, and line-height = ceil(size × 1.2 / sub-unit) × sub-unit.
 
 A heading block adds up to a whole number of leadings: its lines plus the space above and below it.

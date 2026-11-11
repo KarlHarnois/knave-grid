@@ -13,7 +13,7 @@
 <body>
 <main class="type-area">
 <header>
-  <h1>knave-grid</h1>
+  <h1 class="type-title">knave-grid</h1>
   <p class="lede">A Swiss grid for static sites, generated from one Knave spec. Every rule, color and box on this page sits on the grid that the spec below describes.</p>
   <p><button type="button" class="grid-toggle" data-grid-toggle>Toggle grid</button></p>
   <p class="toggle">You can also press <kbd>g</kbd>, or open <a href="?grid">this page with <code>?grid</code></a>. The pink lines are baselines, and the blue bands are columns.</p>
@@ -56,6 +56,20 @@
     <li>Spacing between blocks is a whole number of leadings, written as <code>calc(n * var(--leading))</code>.</li>
     <li>Boxes draw their edges with shadows, which take no space, so a border never pushes the next line off.</li>
   </ul>
+</section>
+
+<section>
+  <h2>Type styles</h2>
+  <p class="measure">A type style says how many grid lines tall it is, and its type grows with it. The library shifts each style so its baseline lands on the nearest body baseline in its block, without changing the block's height, so the text after it stays on the grid. Turn on the overlay to see each one sit on a pink line.</p>
+  <p class="type-display">Two lines tall</p>
+  <p class="type-headline">Three lines</p>
+  <p class="type-title">Four lines</p>
+  <table>
+    <thead><tr><th>Class</th><th>Lines</th><th>Size</th><th>Shift</th></tr></thead>
+    <tbody>
+{{type-styles}}
+    </tbody>
+  </table>
 </section>
 
 <section>

@@ -1,8 +1,9 @@
 (use demo/page demo-page)
 
 (use lib ->body-type ->breakpoint ->font-face ->grid-spec
-         ->type-area check-grid font-face-css grid-css
-         overlay-css overlay-javascript read-font-metrics)
+         ->type-area ->type-style check-grid font-face-css
+         grid-css overlay-css overlay-javascript
+         read-font-metrics)
 
 (def source-directory "demo")
 
@@ -99,7 +100,10 @@
                                     (->type-area wide-width-ch
                                                  gutter-ch
                                                  wide-columns
-                                                 margin-ch)))))
+                                                 margin-ch)))
+    :type-styles (vec (->type-style :name (str "display") :lines 2)
+                      (->type-style :name (str "headline") :lines 3)
+                      (->type-style :name (str "title") :lines 4))))
 
 (defn broken-spec-error (metrics)
   (match (check-grid (demo-spec column-count-that-does-not-fit metrics))

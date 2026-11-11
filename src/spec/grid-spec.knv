@@ -1,5 +1,6 @@
 (use spec/body-type body-type)
 (use spec/type-area type-area)
+(use spec/type-style type-style)
 
 (export ->breakpoint ->grid-spec breakpoint grid-spec)
 
@@ -12,4 +13,7 @@
   :type-area type-area
   :measure-ch i64
   :breakpoints (vec breakpoint)
-  (defaults :measure-ch 66 :breakpoints (vec)))
+  :type-styles (vec type-style)
+  (defaults :measure-ch 66
+            :breakpoints (vec)
+            :type-styles (vec)))
