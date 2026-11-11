@@ -80,8 +80,15 @@ th, td { padding: 0 3ch 0 0; vertical-align: top; }
 
 thead th { box-shadow: inset 0 -1px 0 var(--rule); }
 
+.controls {
+  row-gap: var(--leading);
+  margin-bottom: var(--leading);
+}
+
 .grid-toggle {
+  width: 100%;
   padding: 0 1ch;
+  text-align: left;
   border: 0;
   background: var(--cell);
   box-shadow: 0 0 0 1px var(--rule);
@@ -89,7 +96,6 @@ thead th { box-shadow: inset 0 -1px 0 var(--rule); }
   font: inherit;
   line-height: var(--leading);
   height: var(--leading);
-  vertical-align: top;
   cursor: pointer;
 }
 
