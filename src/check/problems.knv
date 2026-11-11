@@ -2,15 +2,11 @@
 (use font/weight weight-names)
 (use spec/type-area type-area)
 
-(export grid-error grid-warning narrowest-measure-ch squares
-        widest-measure-ch)
-
-(def narrowest-measure-ch 45)
-
-(def widest-measure-ch 75)
+(export column-count-text grid-error squares)
 
 (defenum grid-error
   (no-type-area)
+  (body-font-without-zero :family string)
   (unusable-font :error font-error)
   (unknown-font-weight :owner string :weight string)
   (missing-font-weight :owner string
@@ -45,6 +41,9 @@
 (display grid-error (error)
   (match error
     (no-type-area (str "a grid spec needs at least one type area"))
+    ((body-font-without-zero family)
+     (str "the body font " family
+          " has no glyph for 0, so the grid cannot measure its characters; give the body a full font file"))
     ((unusable-font error) (str error))
     ((unknown-font-weight owner weight)
      (str owner " sets the weight " weight
@@ -134,16 +133,3 @@
 (def joined-counts
   (rust "{0}.iter().map(|count| count.to_string()).collect::<Vec<_>>().join(\", \")"
     (fn ((ref (vec i64))) string)))
-
-(defenum grid-warning
-  (measure-out-of-range :layout string
-                        :columns i64
-                        :characters f64))
-
-(display grid-warning (warning)
-  (match warning
-    ((measure-out-of-range layout columns characters)
-     (str "in " layout ", the measure spans "
-          (column-count-text (deref columns))
-          ", " characters " characters, outside "
-          narrowest-measure-ch " to " widest-measure-ch))))

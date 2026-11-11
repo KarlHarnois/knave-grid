@@ -1,5 +1,7 @@
-(use check/problems grid-error grid-warning
-                    narrowest-measure-ch widest-measure-ch)
+(use check/problems grid-error)
+
+(use check/warnings grid-warning narrowest-measure-ch
+                    widest-measure-ch)
 
 (use spec/grid-spec grid-spec)
 (use spec/layout layout layout-label)

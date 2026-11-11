@@ -75,10 +75,16 @@
     (ref font-metrics)))
 
 (defn family-metrics (family weight)
-  (match (find (iter (:faces family))
-           (fn (face) (= (:weight face) weight)))
-    ((some face) (:metrics face))
-    (none (:metrics (at (:faces family) 0)))))
+  (ref (:metrics (at (:faces family) (face-index family weight 0)))))
+
+(type face-index
+  (fn ((ref font-family) i64 usize) usize))
+
+(defn face-index (family weight index)
+  (cond
+    ((>= index (len (:faces family))) 0)
+    ((= (:weight (at (:faces family) index)) weight) index)
+    (else (recur family weight (+ index 1)))))
 
 (show font-family (family)
   (font-family (:name family)))

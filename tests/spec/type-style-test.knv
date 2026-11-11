@@ -5,7 +5,7 @@
 
 (defn body-with-tall-ascent ()
   (body-type-with 18.0 1.5
-                  (->font-metrics 1000 965 215 500 700 false)))
+                  (->font-metrics 1000 965 215 (some 500) 700 false)))
 
 (defn hanging-line-for (lines size)
   (style-baseline-line

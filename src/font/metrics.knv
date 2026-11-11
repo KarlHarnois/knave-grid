@@ -14,7 +14,7 @@
   :units-per-em i64
   :ascent i64
   :descent i64
-  :zero-width i64
+  :zero-width (option i64)
   :cap-height i64
   :monospace? bool)
 
@@ -77,9 +77,19 @@
           (try (present (i16-at data (+ hhea hhea-ascender-offset))))
           (- 0
              (try (present (i16-at data (+ hhea hhea-descender-offset)))))
-          (try (advance-width tables zero-glyph))
+          (try (zero-width tables zero-glyph))
           (try (cap-height tables))
           (try (monospace? tables))))))
+
+(type zero-width
+  (fn ((ref font-tables) (option i64))
+    (result (option i64) font-error)))
+
+(defn zero-width (tables zero-glyph)
+  (match zero-glyph
+    ((some glyph)
+     (ok (some (try (advance-width tables glyph)))))
+    (none (ok none))))
 
 (type advance-width
   (fn ((ref font-tables) i64)

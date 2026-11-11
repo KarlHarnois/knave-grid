@@ -19,4 +19,4 @@
 
 (defn body-type-at (font-size-px line-height)
   (body-type-with font-size-px line-height
-                  (->font-metrics 1000 800 200 500 700 false)))
+                  (->font-metrics 1000 800 200 (some 500) 700 false)))
