@@ -62,7 +62,7 @@
     (ok (from-defgrid (as-str source)))))
 
 (def from-defgrid
-  (rust "{0}[{0}.find(\"(defgrid\").unwrap_or(0)..].trim_end().to_string()"
+  (rust "{0}[{0}.find(\"\\n(defgrid\").map_or(0, |start| start + 1)..].trim_end().to_string()"
     (fn ((ref str)) string)))
 
 (defn broken-spec-error ()
