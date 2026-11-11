@@ -80,8 +80,7 @@
   ((grid-name (parameter ...)
               fonts body
               ((quote type-areas) area ...))
-   (defgrid grid-name
-     (parameter ...)
+   (defgrid grid-name (parameter ...)
      fonts body
      (type-areas area ...)
      (type-styles))))
