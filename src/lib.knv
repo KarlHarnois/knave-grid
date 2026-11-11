@@ -1,6 +1,3 @@
-(use spec/body-type ->body-type baseline-offset-px
-                    leading-px)
-
 (use check/grid check-grid checked-grid grid-error
                 grid-warning)
 
@@ -10,20 +7,15 @@
                  read-font-family)
 
 (use font/tables font-error)
-(use spec/length length length-css)
 (use overlay overlay-css overlay-javascript)
-(use spec/grid-spec ->grid-spec)
-(use spec/layout layout-label)
-
-(use spec/type-style ->type-style style-font-size-px
-                     style-shift-px type-style)
-
-(use spec/type-area ->type-area)
+(use spec/body-type ->body-type body-type)
+(use spec/grid-spec ->grid-spec grid-spec)
+(use spec/type-area ->type-area type-area)
+(use spec/type-style ->type-style type-style)
 
 (export ->body-type ->font-file ->grid-spec ->type-area
-        ->type-style baseline-offset-px check-grid
-        checked-grid font-error font-family font-file
-        grid-css grid-error grid-warning layout-label
-        leading-px length length-css overlay-css
-        overlay-javascript read-font-family
-        style-font-size-px style-shift-px type-style)
+        ->type-style body-type check-grid checked-grid
+        font-error font-family font-file grid-css grid-error
+        grid-spec grid-warning overlay-css
+        overlay-javascript read-font-family type-area
+        type-style)

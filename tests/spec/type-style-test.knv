@@ -1,6 +1,7 @@
 (use spec/fake-type body-type-with)
 (use font/metrics ->font-metrics)
-(use lib ->type-style style-shift-px)
+(use lib ->type-style)
+(use spec/type-style style-shift-px)
 
 (defn body-with-tall-ascent ()
   (body-type-with 18.0 1.5

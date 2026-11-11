@@ -6,7 +6,6 @@
 (use css/font-face font-face-css)
 (use css/fields field-declarations field-rule)
 (use css/type-styles type-style-rules)
-(use spec/length length length-css)
 (use spec/measure measure-columns)
 (use spec/grid-spec grid-spec)
 (use spec/layout layout)
@@ -56,8 +55,7 @@
          (declaration "font-family"
                       (str "\"" (:name (:font-family type)) "\""))
          (declaration "line-height" (str (:line-height type)))
-         (declaration "--leading"
-                      (length-css (ref (length/lines 1))))
+         (declaration "--leading" (squares-css 1))
          (declaration "--baseline-offset" (baseline-offset-rem type))
          (field-declarations type)
          (type-area-declarations (:type-area narrowest) spec)
@@ -112,8 +110,7 @@
   (squares-css (span-width type-area
                            (measure-columns type-area (:body-type spec)))))
 
-(defn squares-css (count)
-  (length-css (ref (length/lines count))))
+(defn squares-css (count) (str count "rlh"))
 
 (type baseline-offset-rem
   (fn ((ref body-type)) string))

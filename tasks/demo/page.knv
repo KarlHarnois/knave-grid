@@ -1,8 +1,9 @@
 (use spec/body-type body-type)
 (use spec/type-style type-style)
-
-(use lib baseline-offset-px grid-css layout-label length
-         length-css style-font-size-px style-shift-px)
+(use lib grid-css)
+(use spec/body-type baseline-offset-px)
+(use spec/layout layout-label)
+(use spec/type-style style-font-size-px style-shift-px)
 
 (export demo-page)
 
@@ -23,8 +24,6 @@
         (replaced "{{baseline-offset}}"
                   (as-str (str (baseline-offset-px (ref (:body-type spec)))
                                "px")))
-        (as-str)
-        (replaced "{{lengths}}" (as-str (length-rows)))
         (as-str)
         (replaced "{{warnings}}"
                   (as-str (warnings-sentence checked)))
@@ -77,18 +76,6 @@
        " / "
        (:foot type-area)
        "</td></tr>\n"))
-
-(defn length-rows ()
-  (str (length-row "(length/px 27.0)" (length/px 27.0))
-       (length-row "(length/ch 3.0)" (length/ch 3.0))
-       (length-row "(length/rem 1.5)" (length/rem 1.5))
-       (length-row "(length/lines 2)" (length/lines 2))
-       (length-row "(length/columns 2)" (length/columns 2))))
-
-(defn length-row (knave length)
-  (str "      <tr><td><code>" knave "</code></td><td><code>"
-       (length-css (ref length))
-       "</code></td></tr>\n"))
 
 (defn warnings-sentence (checked)
   (if (empty? (:warnings checked))

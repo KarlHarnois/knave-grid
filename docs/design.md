@@ -23,8 +23,6 @@ The library names its parts with the terms of the Swiss grid tradition, as Josef
 
 The spec is Knave data. Plain structs come first. A `defgrid` macro that reads like a spec MAY come later, built on those structs.
 
-Lengths are a closed set of units: `px`, `ch`, `rem`, `lines`, and `columns`. The library resolves `lines` to `rlh`, and `columns` to the width of its columns and the gutters between them, written with `--column` and `--gutter` so it follows the breakpoints.
-
 Vertical spacing in type styles and placements takes only `lines`, so a spec cannot break the baseline grid by construction. A field for vertical spacing takes a count of lines, not a length, so an absolute unit there is a type error.
 
 ## Defaults
