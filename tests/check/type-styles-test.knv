@@ -17,14 +17,31 @@
   (assert (= (type-style-error (->type-style :name (str "empty") :lines 0))
              "the type style empty needs at least one line")))
 
-(deftest rejects-type-too-tall-for-its-lines
+(deftest rejects-capitals-too-tall-to-hang-in-their-lines
   (assert (= (type-style-error (->type-style :name (str "caption")
                                              :lines 1
                                              :size (some 30.0)))
-             "the type style caption sets 30px type, whose glyphs are 30px tall, in 27px of lines")))
+             "the capitals of the type style caption need 2 lines to hang from the top of its block, but it has 1 line")))
 
 (deftest rejects-a-baseline-line-outside-the-style
   (assert (= (type-style-error (->type-style :name (str "title")
                                              :lines 2
                                              :baseline-line (some 3)))
              "the type style title puts its baseline on line 3, but it has lines 1 to 2")))
+
+(deftest lets-a-hanging-style-set-tighter-than-its-glyphs
+  (assert (ok? (check-grid
+                 (->grid-spec :body-type (body-type-at 18.0 1.5)
+                              :type-areas (vec (->type-area :name (str "page")
+                                                            :width 19
+                                                            :column-count 1))
+                              :type-styles (vec (->type-style :name (str "wordmark")
+                                                              :lines 3
+                                                              :size (some 91.0))))))))
+
+(deftest rejects-type-too-tall-for-the-line-it-names
+  (assert (= (type-style-error (->type-style :name (str "caption")
+                                             :lines 1
+                                             :size (some 30.0)
+                                             :baseline-line (some 1)))
+             "the type style caption sets 30px type, whose glyphs are 30px tall, in 27px of lines")))
