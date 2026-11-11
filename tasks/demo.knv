@@ -1,13 +1,14 @@
+(use demo/files copy-file create-directories error-text
+                output-directory output-path source-path
+                write-output)
+
+(use demo/fonts demo-family-faces)
 (use demo/page demo-page)
 
-(use lib ->body-type ->breakpoint ->font-face ->grid-spec
-         ->type-area ->type-style check-grid font-face-css
-         grid-css overlay-css overlay-javascript
-         read-font-metrics)
-
-(def source-directory "demo")
-
-(def output-directory "target/demo")
+(use lib ->body-type ->breakpoint ->grid-spec ->type-area
+         ->type-style check-grid checked-grid font-face-css
+         font-metrics grid-css overlay-css
+         overlay-javascript)
 
 (def body-font-size-px 18.0)
 
@@ -29,58 +30,56 @@
 
 (def measure-ch 66)
 
-(def create-directories
-  (rust "std::fs::create_dir_all({0}).map_err(|error| error.to_string())"
-    (fn ((ref str)) (result unit string))))
-
-(def copy-file
-  (rust "std::fs::copy({0}, {1}).map(drop).map_err(|error| error.to_string())"
-    (fn ((ref str) (ref str))
-      (result unit string))))
-
-(def write-file
-  (rust "std::fs::write({0}, {1}).map_err(|error| error.to_string())"
-    (fn ((ref str) (ref str))
-      (result unit string))))
+(def page-files (vec "style.css" "font-toggle.js"))
 
 (deftask demo ()
   "Builds a page that shows the grid into target/demo/."
   (try (create-directories output-directory))
-  (let (regular (try (demo-face 400 "regular"))
-        bold (try (demo-face 700 "bold"))
-        metrics (deref (:metrics regular))
-        checked (try (map-err (check-grid (demo-spec wide-column-count metrics))
-                              error-text))
-        broken-error (broken-spec-error metrics)
-        faces (vec regular bold)
+  (let (monospace (try (demo-family-faces "Iosevka" "iosevka"))
+        proportional (try (demo-family-faces "Noto Sans" "noto-sans"))
+        monospace-metrics (deref (:metrics (at monospace 0)))
+        monospace-grid (try (checked-demo-grid monospace-metrics))
+        proportional-grid (try (checked-demo-grid (deref (:metrics (at proportional
+                                                                       0)))))
+        faces (all-faces monospace proportional)
         template (try (map-err (slurp (as-str (source-path "index.html")))
                                error-text)))
     (try (write-output "fonts.css"
                        (as-str (font-face-css (ref faces)))))
-    (try (write-output "grid.css"
-                       (as-str (grid-css (ref checked)))))
+    (try (write-output "grid-monospace.css"
+                       (as-str (grid-css (ref monospace-grid)))))
+    (try (write-output "grid-proportional.css"
+                       (as-str (grid-css (ref proportional-grid)))))
     (try (write-output "grid-overlay.css" overlay-css))
     (try (write-output "grid-overlay.js" overlay-javascript))
-    (try (copy-file (as-str (source-path "style.css"))
-                    (as-str (output-path "style.css"))))
-    (try (copy-file (as-str (source-path "fonts/iosevka-license.txt"))
-                    (as-str (output-path "iosevka-license.txt"))))
+    (try (copy-page-files 0))
     (write-output "index.html"
                   (as-str (demo-page (as-str template)
-                                     (ref checked)
+                                     (ref monospace-grid)
                                      (ref faces)
-                                     (as-str broken-error))))))
+                                     (as-str (broken-spec-error
+                                               monospace-metrics)))))))
 
-(defn demo-face (weight style-name)
-  (let (file-name (str "iosevka-" style-name ".woff2")
-        source (source-path (as-str (str "fonts/" file-name))))
-    (try (copy-file (as-str source)
-                    (as-str (output-path (as-str file-name)))))
-    (ok (->font-face :family (str "Iosevka")
-                     :url (str file-name)
-                     :weight weight
-                     :metrics (try (map-err (read-font-metrics (as-str source))
-                                            error-text))))))
+(defn all-faces (monospace proportional)
+  (let (faces monospace)
+    (for-each (iter proportional)
+      (fn (face) (push! faces (clone face))))
+    faces))
+
+(defn copy-page-files (index)
+  (if (>= index (len page-files))
+    (ok (do))
+    (let (file-name (at page-files index))
+      (try (copy-file (as-str (source-path file-name))
+                      (as-str (output-path file-name))))
+      (recur (+ index 1)))))
+
+(type checked-demo-grid
+  (fn (font-metrics) (result checked-grid string)))
+
+(defn checked-demo-grid (metrics)
+  (map-err (check-grid (demo-spec wide-column-count metrics))
+           error-text))
 
 (defn demo-spec (wide-columns metrics)
   (->grid-spec
@@ -104,14 +103,3 @@
   (match (check-grid (demo-spec column-count-that-does-not-fit metrics))
     ((ok _) (str "no error"))
     ((err error) (str error))))
-
-(defn write-output (file-name text)
-  (write-file (as-str (output-path file-name)) text))
-
-(defn source-path (file-name)
-  (str source-directory "/" file-name))
-
-(defn output-path (file-name)
-  (str output-directory "/" file-name))
-
-(defn error-text (error) (str error))
