@@ -4,13 +4,17 @@
 
 (defenum font-error
   (unreadable :path string :reason string)
-  (malformed :reason string))
+  (malformed :reason string)
+  (family-without-files :family string))
 
 (display font-error (error)
   (match error
     ((unreadable path reason)
      (str "cannot read " path ": " reason))
-    ((malformed reason) (str "not a usable font: " reason))))
+    ((malformed reason) (str "not a usable font: " reason))
+    ((family-without-files family)
+     (str "the font family " family
+          " needs at least one font file"))))
 
 (defstruct table-entry
   :tag string

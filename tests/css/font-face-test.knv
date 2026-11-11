@@ -1,16 +1,21 @@
-(use lib ->font-face ->font-metrics font-face-css)
+(use css/font-face font-face-css)
+(use font/family ->font-face ->font-family)
+(use font/metrics ->font-metrics)
+(use lib ->body-type ->grid-spec ->type-area)
 
-(defn fake-sans-faces ()
-  (vec (->font-face :family (str "Fake Sans")
-                    :url (str "/fake-sans-regular.woff2")
-                    :weight 400
-                    :metrics (->font-metrics 1000 800 200 500 700 false))
-       (->font-face :family (str "Fake Sans")
-                    :url (str "/fake-sans-bold.woff2")
-                    :weight 700
-                    :metrics (->font-metrics 2000 1850 570 500 700 false)
-                    :display (str "block"))))
+(defn fake-sans-family ()
+  (->font-family (str "Fake Sans")
+                 (vec (->font-face 400
+                                   (str "/fake-sans-regular.woff2")
+                                   (->font-metrics 1000 800 200 500 700 false))
+                      (->font-face
+                        700
+                        (str "/fake-sans-bold.woff2")
+                        (->font-metrics 2000 1850 570 500 700 false)))))
 
 (deftest overrides-each-face-with-its-metrics
-  (assert (= (font-face-css (ref (fake-sans-faces)))
-             (unwrap-ok (slurp "tests/fixtures/font-faces.css")))))
+  (let (spec (->grid-spec :body-type (->body-type 18.0 1.5 (fake-sans-family))
+                          :type-areas (vec (->type-area :width 19
+                                                        :column-count 1))))
+    (assert (= (font-face-css (ref spec))
+               (unwrap-ok (slurp "tests/fixtures/font-faces.css"))))))

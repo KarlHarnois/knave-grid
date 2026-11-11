@@ -8,16 +8,14 @@
 (def widest-measure-ch 75)
 
 (defenum grid-error
-  (type-area-does-not-fit :type-area type-area
+  (no-type-area)
+  (type-area-does-not-fit :layout string
+                          :type-area type-area
                           :fitting-counts (vec i64))
-  (breakpoint-does-not-fit :min-width-em f64
-                           :type-area type-area
-                           :fitting-counts (vec i64))
-  (breakpoint-too-narrow :min-width-em f64
-                         :width i64
-                         :margin i64
-                         :needed-em f64)
-  (breakpoint-out-of-order :min-width-em f64 :previous-em f64)
+  (type-areas-out-of-order :width i64
+                           :margin i64
+                           :min-width-em f64
+                           :previous-em f64)
   (measure-columns-outside :layout string
                            :columns i64
                            :column-count i64)
@@ -34,27 +32,23 @@
 
 (display grid-error (error)
   (match error
-    ((type-area-does-not-fit type-area fitting-counts)
-     (fit-message type-area fitting-counts))
-    ((breakpoint-does-not-fit min-width-em type-area
-                              fitting-counts)
-     (str "at " min-width-em "em, "
-          (fit-message type-area fitting-counts)))
-    ((breakpoint-too-narrow min-width-em width margin needed-em)
+    (no-type-area (str "a grid spec needs at least one type area"))
+    ((type-area-does-not-fit layout type-area fitting-counts)
+     (str layout ", " (fit-message type-area fitting-counts)))
+    ((type-areas-out-of-order width margin min-width-em
+                              previous-em)
      (str "the type area of "
           (squares (deref width))
           " with margins of "
           (squares (deref margin))
-          " needs " needed-em
-          "em, but its breakpoint starts at " min-width-em
-          "em"))
-    ((breakpoint-out-of-order min-width-em previous-em)
-     (str "the breakpoint at " min-width-em
-          "em must start after the one before it, at "
-          previous-em "em"))
+          " needs " min-width-em
+          "em, no more than the one before it, which needs "
+          previous-em
+          "em; list type areas from narrowest to widest"))
     ((measure-columns-outside layout columns column-count)
-     (str layout ", the measure spans " columns
-          " columns, but the type area has columns 1 to "
+     (str layout ", the measure spans "
+          (column-count-text (deref columns))
+          ", but the type area has columns 1 to "
           column-count))
     ((square-not-whole-characters square-px ch-px)
      (str "the body font is monospace, but a square of "
@@ -78,6 +72,11 @@
      (str "the type style " name " sets " font-size-px
           "px type, whose glyphs are " glyph-height-px
           "px tall, in " line-height-px "px of lines"))))
+
+(defn column-count-text (count)
+  (if (= count 1)
+    (str "1 column")
+    (str count " columns")))
 
 (defn squares (count)
   (if (= count 1)
@@ -110,6 +109,7 @@
 (display grid-warning (warning)
   (match warning
     ((measure-out-of-range layout columns characters)
-     (str layout ", the measure spans " columns " columns, "
-          characters " characters, outside "
+     (str layout ", the measure spans "
+          (column-count-text (deref columns))
+          ", " characters " characters, outside "
           narrowest-measure-ch " to " widest-measure-ch))))

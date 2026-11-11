@@ -3,20 +3,21 @@
 (use check/grid checked-grid)
 (use css/declaration declaration indented)
 (use css/exact-baselines exact-baseline-rules)
+(use css/font-face font-face-css)
 (use css/fields field-declarations field-rule)
 (use css/type-styles type-style-rules)
-(use spec/length length length-css)
 (use spec/measure measure-columns)
-(use spec/grid-spec breakpoint grid-spec)
+(use spec/grid-spec grid-spec)
+(use spec/layout layout)
 (use spec/type-area span-width type-area)
 
 (export grid-css)
 
 (def type-area-rule
   ".type-area {
-  width: min(100% - 2 * var(--margin), var(--grid-width));
+  width: min(100% - 2 * var(--_grid-margin), var(--_grid-grid-width));
   margin-inline: auto;
-  padding-block: calc(var(--head) * var(--leading) - var(--baseline-offset)) calc((var(--foot) - 1) * var(--leading) + var(--baseline-offset));
+  padding-block: calc(var(--_grid-head) * var(--leading) - var(--_grid-baseline-offset)) calc((var(--_grid-foot) - 1) * var(--leading) + var(--_grid-baseline-offset));
 }
 ")
 
@@ -32,48 +33,56 @@
   (fn ((ref checked-grid)) string))
 
 (defn grid-css (checked)
-  (let (spec (:spec checked))
-    (str (root-rule spec)
-         (breakpoint-rules spec)
+  (let (spec (:spec checked)
+        all (:layouts checked))
+    (str (font-face-css spec)
+         "\n"
+         (root-rule spec (at all 0))
+         (media-rules spec all)
          "\n" type-area-rule "\n" grid-rule "\n" field-rule
          (type-style-rules spec)
          (exact-baseline-rules spec))))
 
 (type root-rule
-  (fn ((ref grid-spec)) string))
+  (fn ((ref grid-spec) (ref layout))
+    string))
 
-(defn root-rule (spec)
+(defn root-rule (spec narrowest)
   (let (type (:body-type spec))
     (str ":root {\n"
          (declaration "font-size"
                       (str (root-font-size-percent type) "%"))
+         (declaration "font-family"
+                      (str "\"" (:name (:font-family type)) "\""))
          (declaration "line-height" (str (:line-height type)))
-         (declaration "--leading"
-                      (length-css (ref (length/lines 1))))
-         (declaration "--baseline-offset" (baseline-offset-rem type))
+         (declaration "--leading" (squares-css 1))
+         (declaration "--_grid-baseline-offset"
+                      (baseline-offset-rem type))
          (field-declarations type)
-         (type-area-declarations (:type-area spec) spec)
+         (type-area-declarations (:type-area narrowest) spec)
          "}\n")))
 
-(type breakpoint-rules
-  (fn ((ref grid-spec)) string))
+(type media-rules
+  (fn ((ref grid-spec) (ref (vec layout)))
+    string))
 
-(defn breakpoint-rules (spec)
-  (reduce (map (iter (:breakpoints spec))
-            (fn (breakpoint) (breakpoint-rule breakpoint spec)))
+(defn media-rules (spec all)
+  (reduce (map (filter (iter all)
+                 (fn (layout) (not (:narrowest? layout))))
+               (fn (layout) (media-rule layout spec)))
           (str)
           (fn (rules rule) (str rules "\n" rule))))
 
-(type breakpoint-rule
-  (fn ((ref breakpoint) (ref grid-spec))
+(type media-rule
+  (fn ((ref layout) (ref grid-spec))
     string))
 
-(defn breakpoint-rule (breakpoint spec)
+(defn media-rule (layout spec)
   (let (root (str ":root {\n"
-                  (type-area-declarations (:type-area breakpoint) spec)
+                  (type-area-declarations (:type-area layout) spec)
                   "}\n"))
     (str "@media (min-width: "
-         (:min-width-em breakpoint)
+         (:min-width-em layout)
          "em) {\n"
          (indented (as-str root))
          "}\n")))
@@ -87,11 +96,12 @@
        (declaration "--columns" (str (:column-count type-area)))
        (declaration "--column"
                     (squares-css (span-width type-area 1)))
-       (declaration "--grid-width"
+       (declaration "--_grid-grid-width"
                     (squares-css (:width type-area)))
-       (declaration "--margin" (squares-css (:margin type-area)))
-       (declaration "--head" (str (:head type-area)))
-       (declaration "--foot" (str (:foot type-area)))
+       (declaration "--_grid-margin"
+                    (squares-css (:margin type-area)))
+       (declaration "--_grid-head" (str (:head type-area)))
+       (declaration "--_grid-foot" (str (:foot type-area)))
        (declaration "--measure" (measure-css type-area spec))))
 
 (type measure-css
@@ -100,12 +110,9 @@
 
 (defn measure-css (type-area spec)
   (squares-css (span-width type-area
-                           (measure-columns type-area
-                                            (:body-type spec)
-                                            (:measure-ch spec)))))
+                           (measure-columns type-area (:body-type spec)))))
 
-(defn squares-css (count)
-  (length-css (ref (length/lines count))))
+(defn squares-css (count) (str count "rlh"))
 
 (type baseline-offset-rem
   (fn ((ref body-type)) string))

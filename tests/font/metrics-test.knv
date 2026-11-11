@@ -1,7 +1,7 @@
 (use font/fake-fonts ->fake-font truetype-bytes woff2-bytes)
 
-(use lib ->font-metrics parse-font-metrics
-         read-font-metrics)
+(use font/metrics ->font-metrics parse-font-metrics
+                  read-font-metrics)
 
 (defn font-asking-for-typo-metrics ()
   (->fake-font :units-per-em 2000

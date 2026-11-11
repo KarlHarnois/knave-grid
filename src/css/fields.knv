@@ -1,5 +1,5 @@
 (use css/declaration declaration)
-(use spec/body-type body-type)
+(use spec/body-type body-metrics body-type)
 
 (export field-declarations field-rule)
 
@@ -10,7 +10,7 @@
   ".field {
   box-sizing: border-box;
   height: calc(var(--field-lines, 1) * var(--leading));
-  padding-block: var(--cap-top) calc(var(--leading) - var(--descender-bottom));
+  padding-block: var(--_grid-cap-top) calc(var(--leading) - var(--_grid-descender-bottom));
   background-clip: content-box;
   object-fit: cover;
 }
@@ -20,13 +20,13 @@
   (fn ((ref body-type)) string))
 
 (defn field-declarations (body)
-  (let (metrics (:metrics body)
+  (let (metrics (body-metrics body)
         em (float-of (:units-per-em metrics)))
-    (str (declaration "--cap-top"
-                      (str "calc(var(--baseline-offset) - "
+    (str (declaration "--_grid-cap-top"
+                      (str "calc(var(--_grid-baseline-offset) - "
                            (/ (float-of (:cap-height metrics)) em)
                            " * 1rem)"))
-         (declaration "--descender-bottom"
-                      (str "calc(var(--baseline-offset) + "
+         (declaration "--_grid-descender-bottom"
+                      (str "calc(var(--_grid-baseline-offset) + "
                            (/ (float-of (:descent metrics)) em)
                            " * 1rem)")))))

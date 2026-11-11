@@ -1,13 +1,21 @@
+(use font/family family-metrics font-family)
 (use font/metrics font-metrics)
 (use spec/line-box baseline-in-line-px)
 
-(export ->body-type baseline-offset-px body-type ch-px
-        leading-px)
+(export ->body-type baseline-offset-px body-metrics
+        body-type ch-px leading-px)
 
 (defstruct body-type
   :font-size-px f64
   :line-height f64
-  :metrics font-metrics)
+  :font-family font-family)
+
+(type body-metrics
+  (fn ((ref body-type))
+    (ref font-metrics)))
+
+(defn body-metrics (type)
+  (family-metrics (:font-family type)))
 
 (def float-of
   (rust "{0} as f64" (fn (i64) f64)))
@@ -22,14 +30,14 @@
   (fn ((ref body-type)) f64))
 
 (defn baseline-offset-px (type)
-  (baseline-in-line-px (:metrics type)
+  (baseline-in-line-px (body-metrics type)
                        (:font-size-px type)
                        (leading-px type)))
 
 (type ch-px (fn ((ref body-type)) f64))
 
 (defn ch-px (type)
-  (let (metrics (:metrics type))
+  (let (metrics (body-metrics type))
     (/ (* (:font-size-px type)
           (float-of (:zero-width metrics)))
        (float-of (:units-per-em metrics)))))

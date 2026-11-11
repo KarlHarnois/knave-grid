@@ -1,0 +1,45 @@
+(use browser default-font-size-px)
+(use spec/body-type body-type leading-px)
+(use spec/grid-spec grid-spec)
+(use spec/type-area type-area)
+
+(export layout layout-label layouts)
+
+(def margin-count 2)
+
+(def float-of
+  (rust "{0} as f64" (fn (i64) f64)))
+
+(defstruct layout
+  :type-area type-area
+  :min-width-em f64
+  :narrowest? bool)
+
+(type layouts
+  (fn ((ref grid-spec)) (vec layout)))
+
+(defn layouts (spec)
+  (collect (map (enumerate (iter (:type-areas spec)))
+             (fn (entry)
+               (let-match ((pair index type-area) entry)
+                 (->layout (clone type-area)
+                           (min-width-em (:body-type spec) type-area)
+                           (= index 0)))))))
+
+(type min-width-em
+  (fn ((ref body-type) (ref type-area))
+    f64))
+
+(defn min-width-em (body type-area)
+  (let (width-with-margins (+ (:width type-area)
+                              (* margin-count (:margin type-area))))
+    (/ (* (float-of width-with-margins) (leading-px body))
+       default-font-size-px)))
+
+(type layout-label
+  (fn ((ref layout)) string))
+
+(defn layout-label (layout)
+  (if (:narrowest? layout)
+    (str "on narrow screens")
+    (str "from " (:min-width-em layout) "em")))

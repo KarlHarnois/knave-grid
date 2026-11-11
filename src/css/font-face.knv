@@ -1,6 +1,7 @@
 (use css/declaration declaration)
-(use font/face font-face)
+(use font/family font-face font-family)
 (use font/metrics font-metrics)
+(use spec/grid-spec grid-spec)
 
 (export font-face-css)
 
@@ -12,21 +13,46 @@
   (rust "{0} as f64" (fn (i64) f64)))
 
 (type font-face-css
-  (fn ((ref (vec font-face))) string))
+  (fn ((ref grid-spec)) string))
 
-(defn font-face-css (faces)
-  (joined-rules (collect (map (iter faces) font-face-rule))))
+(defn font-face-css (spec)
+  (joined-rules (collect (map (iter (spec-families spec)) family-rules))))
+
+(type spec-families
+  (fn ((ref grid-spec)) (vec font-family)))
+
+(defn spec-families (spec)
+  (let (families (vec (clone (:font-family (:body-type spec)))))
+    (for-each (iter (:type-styles spec))
+      (fn (style)
+        (match (:font-family style)
+          ((some family)
+           (if (not (any? (iter families)
+                      (fn (known)
+                        (= (:name known) (:name family)))))
+             (push! families (clone family))
+             (do)))
+          (none (do)))))
+    families))
+
+(type family-rules
+  (fn ((ref font-family)) string))
+
+(defn family-rules (family)
+  (joined-rules (collect (map (iter (:faces family))
+                           (fn (face) (font-face-rule family face))))))
 
 (type font-face-rule
-  (fn ((ref font-face)) string))
+  (fn ((ref font-family) (ref font-face))
+    string))
 
-(defn font-face-rule (face)
+(defn font-face-rule (family face)
   (let (metrics (:metrics face))
     (str "@font-face {\n"
-         (declaration "font-family" (str "\"" (:family face) "\""))
+         (declaration "font-family" (str "\"" (:name family) "\""))
          (declaration "src" (str "url(\"" (:url face) "\")"))
          (declaration "font-weight" (str (:weight face)))
-         (declaration "font-display" (:display face))
+         (declaration "font-display" "swap")
          (declaration "ascent-override"
                       (em-percent metrics (:ascent metrics)))
          (declaration "descent-override"
