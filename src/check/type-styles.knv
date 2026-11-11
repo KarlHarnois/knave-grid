@@ -27,15 +27,24 @@
 
 (defn check-type-style (style body)
   (let (lines (:lines style)
-        baseline-line (style-baseline-line style))
+        baseline-line (style-baseline-line style body))
     (cond
       ((< lines 1)
        (err (grid-error/type-style-without-lines (clone (:name style)))))
-      ((or (< baseline-line 1) (> baseline-line lines))
-       (err (grid-error/baseline-line-outside-style (clone (:name style))
-                                                    baseline-line
-                                                    lines)))
-      (else (check-type-style-size style body)))))
+      (else (do
+              (try (check-type-style-size style body))
+              (check-baseline-line style baseline-line lines))))))
+
+(type check-baseline-line
+  (fn ((ref type-style) i64 i64)
+    (result unit grid-error)))
+
+(defn check-baseline-line (style baseline-line lines)
+  (if (or (< baseline-line 1) (> baseline-line lines))
+    (err (grid-error/baseline-line-outside-style (clone (:name style))
+                                                 baseline-line
+                                                 lines))
+    (ok (do))))
 
 (type check-type-style-size
   (fn ((ref type-style) (ref body-type))

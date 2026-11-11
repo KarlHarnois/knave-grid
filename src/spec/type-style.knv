@@ -5,6 +5,7 @@
 (use spec/body-type baseline-offset-px body-metrics
                     body-type body-weight leading-px)
 
+(use spec/hanging hanging-line)
 (use spec/line-box baseline-in-line-px)
 
 (export ->type-style style-baseline-line style-family-name
@@ -75,19 +76,22 @@
     (- (grid-baseline-px style body) baseline)))
 
 (type style-baseline-line
-  (fn ((ref type-style)) i64))
+  (fn ((ref type-style) (ref body-type))
+    i64))
 
-(defn style-baseline-line (style)
+(defn style-baseline-line (style body)
   (match (:baseline-line style)
     ((some line) line)
-    (none (:lines style))))
+    (none (hanging-line (ref (style-metrics style body))
+                        (style-font-size-px style body)
+                        body))))
 
 (type grid-baseline-px
   (fn ((ref type-style) (ref body-type))
     f64))
 
 (defn grid-baseline-px (style body)
-  (+ (* (float-of (- (style-baseline-line style) 1))
+  (+ (* (float-of (- (style-baseline-line style body) 1))
         (leading-px body))
      (baseline-offset-px body)))
 
