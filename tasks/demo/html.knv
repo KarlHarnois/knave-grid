@@ -1,0 +1,5 @@
+(export escaped)
+
+(def escaped
+  (rust "{0}.replace('&', \"&amp;\").replace('<', \"&lt;\").replace('>', \"&gt;\")"
+    (fn ((ref str)) string)))

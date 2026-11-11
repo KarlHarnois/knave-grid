@@ -1,0 +1,77 @@
+(use demo/forms paren? token-end whitespace?)
+(use demo/html escaped)
+
+(export highlighted)
+
+(def constants (vec "none" "true" "false"))
+
+(type highlighted
+  (fn ((ref str)) string))
+
+(defn highlighted (text)
+  (let (characters (collect (chars text)))
+    (highlight-from text (ref characters) 0 (str))))
+
+(type highlight-from
+  (fn ((ref str)
+       (ref (vec char))
+       usize string)
+    string))
+
+(defn highlight-from (text characters index html)
+  (if (>= index (len characters))
+    html
+    (let (end (piece-end characters index)
+          piece (piece-html (subs text index end)))
+      (recur text characters end (str html piece)))))
+
+(type piece-end
+  (fn ((ref (vec char)) usize) usize))
+
+(defn piece-end (characters index)
+  (if (punctuation? (at characters index))
+    (+ index 1)
+    (token-end characters index)))
+
+(type piece-html
+  (fn ((ref str)) string))
+
+(defn piece-html (piece)
+  (if (punctuation? (at (collect (chars piece)) 0))
+    (escaped piece)
+    (token-html piece)))
+
+(defn punctuation? (character)
+  (or (whitespace? character) (paren? character)))
+
+(type token-html
+  (fn ((ref str)) string))
+
+(defn token-html (token)
+  (str "<span class=\"code-"
+       (token-kind token)
+       "\">"
+       (escaped token)
+       "</span>"))
+
+(type token-kind
+  (fn ((ref str)) (ref str)))
+
+(defn token-kind (token)
+  (cond
+    ((starts-with? token ":") "keyword")
+    ((starts-with? token "\"") "string")
+    ((number? token) "number")
+    ((any? (iter constants)
+       (fn (constant)
+         (= (deref constant) token)))
+     "constant")
+    (else "name")))
+
+(def starts-with?
+  (rust "{0}.starts_with({1})"
+    (fn ((ref str) (ref str)) bool)))
+
+(def number?
+  (rust "{0}.parse::<f64>().is_ok()"
+    (fn ((ref str)) bool)))
