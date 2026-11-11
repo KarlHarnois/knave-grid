@@ -5,19 +5,8 @@
 (use demo/fonts demo-font-family)
 (use demo/page demo-page)
 
-(use lib ->body-type ->grid-spec ->type-area ->type-style
-         check-grid checked-grid font-family grid-css
+(use lib checked-grid defgrid font-family grid-css
          overlay-css overlay-javascript)
-
-(def body-font-size-px 18.0)
-
-(def body-line-height 1.5)
-
-(def narrow-width 19)
-
-(def medium-column-count 2)
-
-(def wide-width 39)
 
 (def wide-column-count 4)
 
@@ -58,29 +47,22 @@
   (fn (font-family) (result checked-grid string)))
 
 (defn checked-demo-grid (family)
-  (map-err (check-grid (demo-spec wide-column-count family))
-           error-text))
+  (map-err (demo-grid family wide-column-count) error-text))
 
-(defn demo-spec (wide-columns family)
-  (->grid-spec
-    :body-type (->body-type body-font-size-px body-line-height family)
-    :type-areas (vec (->type-area :name (str "phone")
-                                  :width narrow-width
-                                  :column-count 1
-                                  :head 1)
-                     (->type-area :name (str "tablet")
-                                  :width narrow-width
-                                  :column-count medium-column-count)
-                     (->type-area :name (str "desktop")
-                                  :width wide-width
-                                  :column-count wide-columns
-                                  :margin 2
-                                  :foot 3))
-    :type-styles (vec (->type-style :name (str "display") :lines 2)
-                      (->type-style :name (str "headline") :lines 3)
-                      (->type-style :name (str "title") :lines 4))))
+(defgrid demo-grid
+         (family desktop-columns)
+         (body family :size 18 :line-height 1.5)
+         (type-areas (phone :width 19 :column-count 1 :head 1)
+                     (tablet :width 19 :column-count 2)
+                     (desktop :width 39
+                              :column-count desktop-columns
+                              :margin 2
+                              :foot 3))
+         (type-styles (display :lines 2)
+                      (headline :lines 3)
+                      (title :lines 4)))
 
 (defn broken-spec-error (family)
-  (match (check-grid (demo-spec column-count-that-does-not-fit family))
+  (match (demo-grid family column-count-that-does-not-fit)
     ((ok _) (str "no error"))
     ((err error) (str error))))

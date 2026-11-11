@@ -11,9 +11,7 @@
 
 (defn type-styles ()
   (vec (->type-style :name (str "title") :lines 3)
-       (->type-style :name (str "lead")
-                     :lines 2
-                     :font-size-px (some 30.0))
+       (->type-style :name (str "lead") :lines 2 :size (some 30.0))
        (->type-style :name (str "quote")
                      :lines 2
                      :font-family (some (fake-serif-family)))))

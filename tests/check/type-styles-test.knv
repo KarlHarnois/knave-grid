@@ -17,7 +17,7 @@
 (deftest rejects-type-too-tall-for-its-lines
   (assert (= (type-style-error (->type-style :name (str "caption")
                                              :lines 1
-                                             :font-size-px (some 30.0)))
+                                             :size (some 30.0)))
              "the type style caption sets 30px type, whose glyphs are 30px tall, in 27px of lines")))
 
 (deftest rejects-a-baseline-line-outside-the-style

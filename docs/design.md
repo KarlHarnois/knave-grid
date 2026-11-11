@@ -21,7 +21,7 @@ The library names its parts with the terms of the Swiss grid tradition, as Josef
 
 ## Spec
 
-The spec is Knave data. Plain structs come first. A `defgrid` macro that reads like a spec MAY come later, built on those structs.
+The spec is Knave data. Plain structs come first. The `defgrid` macro writes a spec as named parts and expands to those structs: `(defgrid site (iosevka) (body iosevka :size 18 :line-height 1.5) (type-areas (phone :width 19 :column-count 1) (desktop :width 39 :column-count 4 :margin 2)) (type-styles (headline :lines 3)))` defines `site`, a function of the font families that builds the spec and returns what `check-grid` returns, so a site cannot skip the check. Each clause in `type-areas` and `type-styles` starts with the part's name, and the rest are the struct's own fields, so the constructor reports a missing or unknown field.
 
 Vertical spacing in type styles and placements takes only `lines`, so a spec cannot break the baseline grid by construction. A field for vertical spacing takes a count of lines, not a length, so an absolute unit there is a type error.
 

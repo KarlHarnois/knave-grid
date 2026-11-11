@@ -49,4 +49,4 @@
   (fn (f64 (ref body-type)) string))
 
 (defn relative-to-body (px body)
-  (str "calc(" px "rem / " (:font-size-px body) ")"))
+  (str "calc(" px "rem / " (:size body) ")"))
