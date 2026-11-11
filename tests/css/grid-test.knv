@@ -1,13 +1,13 @@
 (use spec/fake-type body-type-at)
+(use font/metrics ->font-metrics)
+(use spec/fake-type fake-family)
 
-(use lib ->font-face ->font-metrics ->grid-spec ->type-area
-         ->type-style check-grid grid-css)
+(use lib ->grid-spec ->type-area ->type-style check-grid
+         grid-css)
 
-(defn fake-serif-face ()
-  (->font-face :family (str "Fake Serif")
-               :url (str "/fake-serif.woff2")
-               :weight 400
-               :metrics (->font-metrics 1000 700 300 500 700 false)))
+(defn fake-serif-family ()
+  (fake-family "Fake Serif" "/fake-serif.woff2"
+               (->font-metrics 1000 700 300 500 700 false)))
 
 (defn type-styles ()
   (vec (->type-style :name (str "title") :lines 3)
@@ -16,7 +16,7 @@
                      :font-size-px (some 30.0))
        (->type-style :name (str "quote")
                      :lines 2
-                     :face (some (fake-serif-face)))))
+                     :font-family (some (fake-serif-family)))))
 
 (defn four-column-grid ()
   (unwrap-ok (check-grid (->grid-spec :body-type (body-type-at 20.0 1.4)

@@ -1,5 +1,26 @@
+@font-face {
+  font-family: "Fake Sans";
+  src: url("/fake-sans.woff2");
+  font-weight: 400;
+  font-display: swap;
+  ascent-override: 80%;
+  descent-override: 20%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Fake Serif";
+  src: url("/fake-serif.woff2");
+  font-weight: 400;
+  font-display: swap;
+  ascent-override: 70%;
+  descent-override: 30%;
+  line-gap-override: 0%;
+}
+
 :root {
   font-size: 125%;
+  font-family: "Fake Sans";
   line-height: 1.4;
   --leading: 1rlh;
   --baseline-offset: calc(20rem / 20);
@@ -64,7 +85,6 @@
 
 .type-quote {
   font-family: "Fake Serif";
-  font-weight: 400;
   font-size: calc(40rem / 20);
   line-height: 2rlh;
   position: relative;

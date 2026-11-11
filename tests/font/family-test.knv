@@ -1,0 +1,14 @@
+(use lib ->font-file read-font-family)
+
+(defn family-error (files)
+  (str (unwrap-err (read-font-family "Fake Sans" files))))
+
+(deftest rejects-a-family-without-files
+  (assert (= (family-error (vec))
+             "the font family Fake Sans needs at least one font file")))
+
+(deftest names-a-font-file-it-cannot-read
+  (assert (= (family-error (vec (->font-file :weight 400
+                                             :path (str "tests/fixtures/missing.woff2")
+                                             :url (str "/missing.woff2"))))
+             "cannot read tests/fixtures/missing.woff2: No such file or directory (os error 2)")))

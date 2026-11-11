@@ -1,5 +1,5 @@
 (use check/problems grid-error)
-(use spec/body-type body-type ch-px leading-px)
+(use spec/body-type body-metrics body-type ch-px leading-px)
 
 (export check-square)
 
@@ -16,7 +16,7 @@
   (let (square-px (leading-px body)
         ch (ch-px body)
         characters (/ square-px ch))
-    (if (and (:monospace? (:metrics body))
+    (if (and (:monospace? (body-metrics body))
              (> (abs-difference characters (rounded characters))
                 whole-number-tolerance))
       (err (grid-error/square-not-whole-characters square-px ch))

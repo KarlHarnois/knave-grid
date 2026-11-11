@@ -25,7 +25,7 @@
   (str "."
        (class-name (as-str (:name style)))
        " {\n"
-       (face-declarations style)
+       (family-declaration style)
        (declaration "font-size"
                     (relative-to-body (style-font-size-px style body) body))
        (declaration "line-height" (str (:lines style) "rlh"))
@@ -34,14 +34,13 @@
                     (relative-to-body (style-shift-px style body) body))
        "}\n"))
 
-(type face-declarations
+(type family-declaration
   (fn ((ref type-style)) string))
 
-(defn face-declarations (style)
-  (match (:face style)
-    ((some face)
-     (str (declaration "font-family" (str "\"" (:family face) "\""))
-          (declaration "font-weight" (str (:weight face)))))
+(defn family-declaration (style)
+  (match (:font-family style)
+    ((some family)
+     (declaration "font-family" (str "\"" (:name family) "\"")))
     (none (str))))
 
 (defn class-name (style-name) (str "type-" style-name))

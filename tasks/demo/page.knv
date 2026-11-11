@@ -1,6 +1,8 @@
-(use lib baseline-offset-px font-face-css grid-css
-         layout-label length length-css style-font-size-px
-         style-shift-px)
+(use spec/body-type body-type)
+(use spec/type-style type-style)
+
+(use lib baseline-offset-px grid-css layout-label length
+         length-css style-font-size-px style-shift-px)
 
 (export demo-page)
 
@@ -9,7 +11,7 @@
     (fn ((ref str) (ref str) (ref str))
       string)))
 
-(defn demo-page (template checked faces broken-error)
+(defn demo-page (template checked broken-error)
   (let (spec (:spec checked))
     (-> (replaced template "{{spec}}"
                   (as-str (escaped (as-str (pr-str spec)))))
@@ -31,10 +33,7 @@
                   (as-str (escaped broken-error)))
         (as-str)
         (replaced "{{grid-css}}"
-                  (as-str (escaped (as-str (grid-css checked)))))
-        (as-str)
-        (replaced "{{fonts-css}}"
-                  (as-str (escaped (as-str (font-face-css faces))))))))
+                  (as-str (escaped (as-str (grid-css checked))))))))
 
 (defn type-style-rows (spec)
   (reduce (map (iter (:type-styles spec))
@@ -42,6 +41,10 @@
               (type-style-row style (:body-type spec))))
           (str)
           (fn (rows row) (str rows row))))
+
+(type type-style-row
+  (fn ((ref type-style) (ref body-type))
+    string))
 
 (defn type-style-row (style body)
   (str "      <tr><td><code>.type-"

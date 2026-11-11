@@ -49,7 +49,7 @@ Phase 1 targets monospace type: body 18/27, display 36/54 and 54/81. Every line-
 
 A type style names how many grid lines tall it is. Its font size is that many times the body size unless the spec sets one, and its line-height is that many leadings. `grid-css` writes it as a `.type-<name>` class. The class shifts the text with `position: relative`, so its baseline lands on a body baseline in its block and the block keeps its height. That is the last line of the block unless the style names another with `:baseline-line`, so a heading sits closer to the text that follows it than to the text above. The check fails on a style with no lines, on a baseline line outside the style's lines, and on a style whose glyphs are taller than its lines.
 
-A type style MAY name one of the font faces, and then its class sets that face's family and weight and every baseline calculation for it uses that face's metrics. Without a face, it uses the body font.
+A type style MAY name a font family, and then its class sets that family and every baseline calculation for it uses the family's metrics. Without one, it uses the body font.
 
 Browsers round font metrics at the size they render, which depends on the reader's default font size. So the generated CSS computes the body baseline and each style's shift in the browser with `round()`, behind `@supports (top: round(1px, 1px))`, and keeps the values computed at the spec's size as the fallback.
 
@@ -57,11 +57,11 @@ Phase 2 adds proportional type: sizes on a 1.25 ratio scale, and line-height = c
 
 A heading block adds up to a whole number of leadings: its lines plus the space above and below it.
 
-The library reads font metrics from the font files at build time to place each style's baseline on the grid. It reads TrueType, OpenType and WOFF2 files, and takes each font's `hhea` ascent and descent, which Safari reads on macOS and iOS whatever the font asks for.
+A font family is read once with `read-font-family`, from a name and one file per weight, each with the path the build reads and the URL the page loads. The family is opaque: its metrics never appear in the API. Its first file sets the metrics the grid uses, so it is the regular weight. The body type and the type styles name families, so the spec holds every font the page uses, and `grid-css` sets the body family on the root and writes the `@font-face` rules. The library reads font metrics from the font files at build time to place each style's baseline on the grid. It reads TrueType, OpenType and WOFF2 files, and takes each font's `hhea` ascent and descent, which Safari reads on macOS and iOS whatever the font asks for.
 
 A baseline sits half the leading left over by the ascent and descent, plus the ascent, below the top of its line. The library rounds the ascent and descent to whole pixels and the half leading down, as Chromium does, and `grid-css` writes the body text's offset as `--baseline-offset`.
 
-Chromium and Firefox read a font's `OS/2` typo metrics instead when the font sets the `USE_TYPO_METRICS` flag. So `font-face-css` writes each face's `@font-face` rule with `ascent-override`, `descent-override` and `line-gap-override: 0%` set from the `hhea` metrics, and every browser places the baseline the same way. Safari does not support these descriptors, which is why the library takes the metrics Safari reads. A site passes its faces to `font-face-css` instead of writing its own `@font-face` rules.
+Chromium and Firefox read a font's `OS/2` typo metrics instead when the font sets the `USE_TYPO_METRICS` flag. So `grid-css` writes each face's `@font-face` rule with `ascent-override`, `descent-override` and `line-gap-override: 0%` set from the `hhea` metrics, and every browser places the baseline the same way. Safari does not support these descriptors, which is why the library takes the metrics Safari reads. A site does not write its own `@font-face` rules for the grid's families.
 
 A browser check in CI loads the built pages in WebKit on macOS and fails when the body text's baseline is not at `--baseline-offset`.
 

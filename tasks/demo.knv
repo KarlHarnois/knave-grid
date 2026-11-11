@@ -2,12 +2,12 @@
                 output-directory output-path source-path
                 write-output)
 
-(use demo/fonts demo-family-faces)
+(use demo/fonts demo-font-family)
 (use demo/page demo-page)
 
 (use lib ->body-type ->grid-spec ->type-area ->type-style
-         check-grid checked-grid font-face-css font-metrics
-         grid-css overlay-css overlay-javascript)
+         check-grid checked-grid font-family grid-css
+         overlay-css overlay-javascript)
 
 (def body-font-size-px 18.0)
 
@@ -30,17 +30,12 @@
 (deftask demo ()
   "Builds a page that shows the grid into target/demo/."
   (try (create-directories output-directory))
-  (let (monospace (try (demo-family-faces "Iosevka" "iosevka"))
-        proportional (try (demo-family-faces "Noto Sans" "noto-sans"))
-        monospace-metrics (deref (:metrics (at monospace 0)))
-        monospace-grid (try (checked-demo-grid monospace-metrics))
-        proportional-grid (try (checked-demo-grid (deref (:metrics (at proportional
-                                                                       0)))))
-        faces (all-faces monospace proportional)
+  (let (monospace (try (demo-font-family "Iosevka" "iosevka"))
+        proportional (try (demo-font-family "Noto Sans" "noto-sans"))
+        monospace-grid (try (checked-demo-grid (clone monospace)))
+        proportional-grid (try (checked-demo-grid proportional))
         template (try (map-err (slurp (as-str (source-path "index.html")))
                                error-text)))
-    (try (write-output "fonts.css"
-                       (as-str (font-face-css (ref faces)))))
     (try (write-output "grid-monospace.css"
                        (as-str (grid-css (ref monospace-grid)))))
     (try (write-output "grid-proportional.css"
@@ -51,15 +46,7 @@
     (write-output "index.html"
                   (as-str (demo-page (as-str template)
                                      (ref monospace-grid)
-                                     (ref faces)
-                                     (as-str (broken-spec-error
-                                               monospace-metrics)))))))
-
-(defn all-faces (monospace proportional)
-  (let (faces monospace)
-    (for-each (iter proportional)
-      (fn (face) (push! faces (clone face))))
-    faces))
+                                     (as-str (broken-spec-error monospace)))))))
 
 (defn copy-page-files (index)
   (if (>= index (len page-files))
@@ -70,15 +57,15 @@
       (recur (+ index 1)))))
 
 (type checked-demo-grid
-  (fn (font-metrics) (result checked-grid string)))
+  (fn (font-family) (result checked-grid string)))
 
-(defn checked-demo-grid (metrics)
-  (map-err (check-grid (demo-spec wide-column-count metrics))
+(defn checked-demo-grid (family)
+  (map-err (check-grid (demo-spec wide-column-count family))
            error-text))
 
-(defn demo-spec (wide-columns metrics)
+(defn demo-spec (wide-columns family)
   (->grid-spec
-    :body-type (->body-type body-font-size-px body-line-height metrics)
+    :body-type (->body-type body-font-size-px body-line-height family)
     :type-areas (vec (->type-area :width narrow-width :column-count 1 :head 1)
                      (->type-area :width narrow-width
                                   :column-count medium-column-count)
@@ -91,7 +78,7 @@
                       (->type-style :name (str "headline") :lines 3)
                       (->type-style :name (str "title") :lines 4))))
 
-(defn broken-spec-error (metrics)
-  (match (check-grid (demo-spec column-count-that-does-not-fit metrics))
+(defn broken-spec-error (family)
+  (match (check-grid (demo-spec column-count-that-does-not-fit family))
     ((ok _) (str "no error"))
     ((err error) (str error))))

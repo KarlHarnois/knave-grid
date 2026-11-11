@@ -1,0 +1,51 @@
+(use font/metrics font-error font-metrics read-font-metrics)
+
+(export ->font-face ->font-family ->font-file family-metrics
+        font-face font-family font-file read-font-family)
+
+(defstruct font-file
+  :weight i64
+  :path string
+  :url string)
+
+(defstruct font-face
+  :weight i64
+  :url string
+  :metrics font-metrics)
+
+(defstruct font-family
+  :name string
+  :faces (vec font-face))
+
+(type read-font-family
+  (fn ((ref str) (vec font-file))
+    (result font-family font-error)))
+
+(defn read-font-family (name files)
+  (if (empty? files)
+    (err (font-error/family-without-files (str name)))
+    (ok (->font-family (str name)
+                       (try (read-faces (ref files) 0 (vec)))))))
+
+(type read-faces
+  (fn ((ref (vec font-file))
+       usize
+       (vec font-face))
+    (result (vec font-face) font-error)))
+
+(defn read-faces (files index faces)
+  (if (>= index (len files))
+    (ok faces)
+    (let (file (at files index)
+          face (->font-face (:weight file)
+                            (clone (:url file))
+                            (try (read-font-metrics (as-str (:path file)))))
+          read (do (push! faces face) faces))
+      (recur files (+ index 1) read))))
+
+(type family-metrics
+  (fn ((ref font-family))
+    (ref font-metrics)))
+
+(defn family-metrics (family)
+  (:metrics (at (:faces family) 0)))

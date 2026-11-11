@@ -5,12 +5,11 @@
                 grid-warning)
 
 (use css/grid grid-css)
-(use css/font-face font-face-css)
-(use font/face ->font-face font-face)
 
-(use font/metrics ->font-metrics font-error font-metrics
-                  parse-font-metrics read-font-metrics)
+(use font/family ->font-file font-family font-file
+                 read-font-family)
 
+(use font/tables font-error)
 (use spec/length length length-css)
 (use spec/measure measure-columns)
 (use overlay overlay-css overlay-javascript)
@@ -22,12 +21,10 @@
 
 (use spec/type-area ->type-area)
 
-(export ->body-type ->font-face ->font-metrics ->grid-spec
-        ->type-area ->type-style baseline-offset-px
-        check-grid checked-grid font-error font-face
-        font-face-css font-metrics grid-css grid-error
-        grid-warning layout-label leading-px length
-        length-css measure-columns overlay-css
-        overlay-javascript parse-font-metrics
-        read-font-metrics style-font-size-px style-shift-px
-        type-style)
+(export ->body-type ->font-file ->grid-spec ->type-area
+        ->type-style baseline-offset-px check-grid
+        checked-grid font-error font-family font-file
+        grid-css grid-error grid-warning layout-label
+        leading-px length length-css measure-columns
+        overlay-css overlay-javascript read-font-family
+        style-font-size-px style-shift-px type-style)

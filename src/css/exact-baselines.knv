@@ -1,6 +1,6 @@
 (use css/baseline baseline-offset-css)
 (use css/declaration declaration indented)
-(use spec/body-type body-type)
+(use spec/body-type body-metrics body-type)
 (use spec/grid-spec grid-spec)
 
 (use spec/type-style style-baseline-line style-metrics
@@ -18,7 +18,7 @@
         root (str ":root {\n"
                   (declaration
                     "--baseline-offset"
-                    (baseline-offset-css (:metrics body) "1rem" "1rlh"))
+                    (baseline-offset-css (body-metrics body) "1rem" "1rlh"))
                   "}\n")
         rules (reduce (map (iter (:type-styles spec))
                         (fn (style) (exact-shift-rule style body)))

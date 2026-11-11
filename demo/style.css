@@ -26,7 +26,8 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font: 1rem/var(--leading) Iosevka, ui-monospace, monospace;
+  font-size: 1rem;
+  line-height: var(--leading);
   font-variant-ligatures: none;
 }
 
@@ -110,4 +111,3 @@ thead th { box-shadow: inset 0 -1px 0 var(--rule); }
 
 main > :last-child > :last-child { margin-bottom: 0; }
 
-.font-proportional body { font-family: "Noto Sans", sans-serif; }

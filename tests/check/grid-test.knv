@@ -1,7 +1,6 @@
-(use spec/fake-type body-type-at)
-
-(use lib ->body-type ->font-metrics ->grid-spec ->type-area
-         check-grid)
+(use spec/fake-type body-type-at body-type-with)
+(use font/metrics ->font-metrics)
+(use lib ->grid-spec ->type-area check-grid)
 
 (defn checked-spec (column-count measure-ch)
   (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)
@@ -18,8 +17,8 @@
              "on narrow screens, a type area of 39 squares with a gutter of 1 square does not fit 7 columns; the column counts that fit are 1, 2, 4, 5, 8, 10, 20")))
 
 (deftest accepts-a-monospace-font-whose-square-is-whole-characters
-  (let (body (->body-type 18.0 1.5
-                          (->font-metrics 1000 800 200 500 700 true)))
+  (let (body (body-type-with 18.0 1.5
+                             (->font-metrics 1000 800 200 500 700 true)))
     (assert (ok? (check-grid (->grid-spec
                                :body-type body
                                :type-areas (vec (->type-area
@@ -27,8 +26,8 @@
                                                   :column-count 4))))))))
 
 (deftest rejects-a-monospace-font-whose-square-splits-a-character
-  (let (body (->body-type 20.0 1.4
-                          (->font-metrics 1000 800 200 500 700 true)))
+  (let (body (body-type-with 20.0 1.4
+                             (->font-metrics 1000 800 200 500 700 true)))
     (assert (= (str (unwrap-err (check-grid
                                   (->grid-spec
                                     :body-type body
