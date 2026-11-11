@@ -2,6 +2,7 @@
         type-area)
 
 (defstruct type-area
+  :name string
   :width i64
   :gutter i64
   :column-count i64

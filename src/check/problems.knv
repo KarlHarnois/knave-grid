@@ -12,9 +12,10 @@
   (type-area-does-not-fit :layout string
                           :type-area type-area
                           :fitting-counts (vec i64))
-  (type-areas-out-of-order :width i64
-                           :margin i64
+  (type-area-name-repeated :name string)
+  (type-areas-out-of-order :name string
                            :min-width-em f64
+                           :previous-name string
                            :previous-em f64)
   (measure-columns-outside :layout string
                            :columns i64
@@ -34,19 +35,19 @@
   (match error
     (no-type-area (str "a grid spec needs at least one type area"))
     ((type-area-does-not-fit layout type-area fitting-counts)
-     (str layout ", " (fit-message type-area fitting-counts)))
-    ((type-areas-out-of-order width margin min-width-em
-                              previous-em)
-     (str "the type area of "
-          (squares (deref width))
-          " with margins of "
-          (squares (deref margin))
-          " needs " min-width-em
-          "em, no more than the one before it, which needs "
-          previous-em
+     (str "in " layout ", "
+          (fit-message type-area fitting-counts)))
+    ((type-area-name-repeated name)
+     (str "two type areas are named " name
+          "; give each its own name"))
+    ((type-areas-out-of-order name min-width-em
+                              previous-name previous-em)
+     (str "the " name " type area needs " min-width-em
+          "em, no more than the " previous-name
+          " type area before it, which needs " previous-em
           "em; list type areas from narrowest to widest"))
     ((measure-columns-outside layout columns column-count)
-     (str layout ", the measure spans "
+     (str "in " layout ", the measure spans "
           (column-count-text (deref columns))
           ", but the type area has columns 1 to "
           column-count))
@@ -88,11 +89,10 @@
     string))
 
 (defn fit-message (type-area fitting-counts)
-  (str "a type area of "
-       (squares (:width type-area))
+  (str (squares (:width type-area))
        " with a gutter of "
        (squares (:gutter type-area))
-       " does not fit "
+       " do not fit "
        (:column-count type-area)
        " columns; the column counts that fit are "
        (joined-counts fitting-counts)))
@@ -109,7 +109,7 @@
 (display grid-warning (warning)
   (match warning
     ((measure-out-of-range layout columns characters)
-     (str layout ", the measure spans "
+     (str "in " layout ", the measure spans "
           (column-count-text (deref columns))
           ", " characters " characters, outside "
           narrowest-measure-ch " to " widest-measure-ch))))

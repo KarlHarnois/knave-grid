@@ -13,10 +13,13 @@
   (str (unwrap-err (check-grid (spec-with type-areas)))))
 
 (defn narrow (column-count)
-  (->type-area :width 19 :column-count column-count))
+  (->type-area :name (str column-count "-column")
+               :width 19
+               :column-count column-count))
 
 (defn wide (column-count margin)
-  (->type-area :width 39
+  (->type-area :name (str "wide")
+               :width 39
                :column-count column-count
                :margin margin))
 
@@ -36,14 +39,20 @@
 
 (deftest rejects-a-wider-type-area-that-does-not-fit
   (assert (= (type-area-error (vec (narrow 1) (wide 7 1)))
-             "from 69.1875em, a type area of 39 squares with a gutter of 1 square does not fit 7 columns; the column counts that fit are 1, 2, 4, 5, 8, 10, 20")))
+             "in the wide type area, from 69.1875em, 39 squares with a gutter of 1 square do not fit 7 columns; the column counts that fit are 1, 2, 4, 5, 8, 10, 20")))
 
 (deftest rejects-type-areas-out-of-order
   (assert (= (type-area-error (vec (narrow 1) (wide 4 1) (narrow 2)))
-             "the type area of 19 squares with margins of 1 square needs 35.4375em, no more than the one before it, which needs 69.1875em; list type areas from narrowest to widest")))
+             "the 2-column type area needs 35.4375em, no more than the wide type area before it, which needs 69.1875em; list type areas from narrowest to widest")))
 
 (deftest rejects-a-page-margin-of-no-squares
-  (assert (= (type-area-error
-               (vec (narrow 1)
-                    (->type-area :width 39 :column-count 4 :foot 0)))
+  (assert (= (type-area-error (vec (narrow 1)
+                                   (->type-area :name (str "wide")
+                                                :width 39
+                                                :column-count 4
+                                                :foot 0)))
              "the foot margin is 0 squares, but a page edge needs at least one square to its nearest baseline")))
+
+(deftest rejects-two-type-areas-with-one-name
+  (assert (= (type-area-error (vec (narrow 1) (narrow 1)))
+             "two type areas are named 1-column; give each its own name")))

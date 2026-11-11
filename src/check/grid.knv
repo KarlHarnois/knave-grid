@@ -23,51 +23,60 @@
     (err grid-error/no-type-area)
     (let (all (layouts (ref spec)))
       (try (check-square (:body-type spec)))
-      (try (check-layouts (ref all) 0 0.0))
+      (try (check-layouts (ref all) 0))
       (try (check-measure (ref spec) (ref all)))
       (try (check-type-styles (ref spec) 0))
       (let (warnings (measure-warnings (ref spec) (ref all)))
         (ok (->checked-grid spec all warnings))))))
 
 (type check-layouts
-  (fn ((ref (vec layout)) usize f64)
+  (fn ((ref (vec layout)) usize)
     (result unit grid-error)))
 
-(defn check-layouts (all index previous-em)
+(defn check-layouts (all index)
   (if (>= index (len all))
     (ok (do))
-    (let (layout (at all index))
-      (try (check-layout layout previous-em))
-      (recur all (+ index 1) (start-of-next layout previous-em)))))
-
-(type start-of-next
-  (fn ((ref layout) f64) f64))
-
-(defn start-of-next (layout previous-em)
-  (if (:narrowest? layout) previous-em (:min-width-em layout)))
+    (do
+      (try (check-layout all index))
+      (recur all (+ index 1)))))
 
 (type check-layout
-  (fn ((ref layout) f64)
+  (fn ((ref (vec layout)) usize)
     (result unit grid-error)))
 
-(defn check-layout (layout previous-em)
-  (let (type-area (:type-area layout))
+(defn check-layout (all index)
+  (let (layout (at all index)
+        type-area (:type-area layout))
     (cond
       ((not (fits? type-area))
        (err (grid-error/type-area-does-not-fit (layout-label layout)
                                                (clone type-area)
                                                (fitting-column-counts
                                                  type-area))))
-      ((out-of-order? layout previous-em)
-       (err (grid-error/type-areas-out-of-order (:width type-area)
-                                                (:margin type-area)
-                                                (:min-width-em layout)
-                                                previous-em)))
+      ((name-taken? all index)
+       (err (grid-error/type-area-name-repeated (clone (:name type-area)))))
+      ((out-of-order? all index)
+       (let (previous (at all (- index 1)))
+         (err (grid-error/type-areas-out-of-order (clone (:name type-area))
+                                                  (:min-width-em layout)
+                                                  (clone (:name (:type-area
+                                                                  previous)))
+                                                  (:min-width-em previous)))))
       (else (check-page-margins type-area)))))
 
-(type out-of-order?
-  (fn ((ref layout) f64) bool))
+(type name-taken?
+  (fn ((ref (vec layout)) usize) bool))
 
-(defn out-of-order? (layout previous-em)
-  (and (not (:narrowest? layout))
-       (<= (:min-width-em layout) previous-em)))
+(defn name-taken? (all index)
+  (let (name (:name (:type-area (at all index))))
+    (any? (take (iter all) index)
+      (fn (earlier)
+        (= (:name (:type-area earlier)) name)))))
+
+(type out-of-order?
+  (fn ((ref (vec layout)) usize) bool))
+
+(defn out-of-order? (all index)
+  (and (>= index 2)
+       (<= (:min-width-em (at all index))
+           (:min-width-em (at all (- index 1))))))

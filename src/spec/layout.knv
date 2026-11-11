@@ -40,6 +40,7 @@
   (fn ((ref layout)) string))
 
 (defn layout-label (layout)
-  (if (:narrowest? layout)
-    (str "on narrow screens")
-    (str "from " (:min-width-em layout) "em")))
+  (let (name (str "the " (:name (:type-area layout)) " type area"))
+    (if (:narrowest? layout)
+      name
+      (str name ", from " (:min-width-em layout) "em"))))

@@ -4,6 +4,8 @@
 (defn type-style-error (style)
   (str (unwrap-err (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)
                                             :type-areas (vec (->type-area
+                                                               :name (str
+                                                                       "page")
                                                                :width 19
                                                                :column-count 1))
                                             :type-styles (vec style))))))

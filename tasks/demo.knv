@@ -64,10 +64,15 @@
 (defn demo-spec (wide-columns family)
   (->grid-spec
     :body-type (->body-type body-font-size-px body-line-height family)
-    :type-areas (vec (->type-area :width narrow-width :column-count 1 :head 1)
-                     (->type-area :width narrow-width
+    :type-areas (vec (->type-area :name (str "phone")
+                                  :width narrow-width
+                                  :column-count 1
+                                  :head 1)
+                     (->type-area :name (str "tablet")
+                                  :width narrow-width
                                   :column-count medium-column-count)
-                     (->type-area :width wide-width
+                     (->type-area :name (str "desktop")
+                                  :width wide-width
                                   :column-count wide-columns
                                   :margin 2
                                   :foot 3))
