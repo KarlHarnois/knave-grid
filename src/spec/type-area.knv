@@ -10,11 +10,15 @@
   :head i64
   :foot i64
   :measure-columns (option i64)
+  :field-lines (option i64)
+  :field-gap i64
   (defaults :gutter 1
             :margin 1
             :head 2
             :foot 2
-            :measure-columns none))
+            :measure-columns none
+            :field-lines none
+            :field-gap 1))
 
 (type span-width
   (fn ((ref type-area) i64) i64))

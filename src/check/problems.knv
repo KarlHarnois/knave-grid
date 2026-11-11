@@ -30,6 +30,7 @@
   (square-not-whole-characters :square-px f64 :ch-px f64)
   (type-style-without-lines :name string)
   (page-margin-too-small :edge string :squares i64)
+  (fields-too-small :layout string :lines i64 :gap i64)
   (baseline-line-outside-style :name string
                                :baseline-line i64
                                :lines i64)
@@ -73,6 +74,12 @@
           "px; choose a line-height that makes it a whole number"))
     ((type-style-without-lines name)
      (str "the type style " name " needs at least one line"))
+    ((fields-too-small layout lines gap)
+     (str "in " layout ", fields are "
+          (line-count-text (deref lines))
+          " with "
+          (line-count-text (deref gap))
+          " between them, but a field needs at least one line and a gap cannot be negative"))
     ((page-margin-too-small edge squares-count)
      (str
        "the " edge " margin is "
@@ -87,6 +94,11 @@
      (str "the type style " name " sets " font-size-px
           "px type, whose glyphs are " glyph-height-px
           "px tall, in " line-height-px "px of lines"))))
+
+(defn line-count-text (count)
+  (if (= count 1)
+    (str "1 line")
+    (str count " lines")))
 
 (defn column-count-text (count)
   (if (= count 1)

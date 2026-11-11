@@ -59,3 +59,10 @@
 (deftest rejects-two-type-areas-with-one-name
   (assert (= (type-area-error (vec (narrow 1) (narrow 1)))
              "two type areas are named 1-column; give each its own name")))
+
+(deftest rejects-a-field-without-lines
+  (assert (= (type-area-error (vec (->type-area :name (str "page")
+                                                :width 19
+                                                :column-count 1
+                                                :field-lines (some 0))))
+             "in the page type area, fields are 0 lines with 1 line between them, but a field needs at least one line and a gap cannot be negative")))

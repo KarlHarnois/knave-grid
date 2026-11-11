@@ -1,0 +1,20 @@
+(use check/problems grid-error)
+(use spec/layout layout layout-label)
+
+(export check-fields)
+
+(type check-fields
+  (fn ((ref layout))
+    (result unit grid-error)))
+
+(defn check-fields (layout)
+  (let (type-area (:type-area layout))
+    (match (:field-lines type-area)
+      ((some lines)
+       (if (or (< lines 1)
+               (< (:field-gap type-area) 0))
+         (err (grid-error/fields-too-small (layout-label layout)
+                                           lines
+                                           (:field-gap type-area)))
+         (ok (do))))
+      (none (ok (do))))))

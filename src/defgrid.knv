@@ -35,6 +35,17 @@
   (((field ...) key value rest ...)
    (body-type-of (field ... key value) rest ...)))
 
+(defrule type-area-of
+  (((field ...)) (->type-area field ...))
+  (((field ...) (quote :measure-columns) value rest ...)
+   (type-area-of (field ... :measure-columns (some value))
+                 rest ...))
+  (((field ...) (quote :field-lines) value rest ...)
+   (type-area-of (field ... :field-lines (some value))
+                 rest ...))
+  (((field ...) key value rest ...)
+   (type-area-of (field ... key value) rest ...)))
+
 (defrule type-style-of
   (((field ...)) (->type-style field ...))
   (((field ...) (quote :weight) weight-name rest ...)
@@ -66,8 +77,8 @@
        (check-grid
          (->grid-spec
            :body-type (body-type-of (:font-family family) body-field ...)
-           :type-areas (vec (->type-area :name (str (name-text area-name))
-                                         area-field ...)
+           :type-areas (vec (type-area-of (:name (str (name-text area-name)))
+                                          area-field ...)
                             ...)
            :type-styles (vec (type-style-of (:name (str (name-text style-name)))
                                             style-field ...)
