@@ -28,7 +28,7 @@
 
 <section>
   <h2>The spec</h2>
-  <p>The page's grid is plain Knave data. The demo task reads the font metrics from the font file, checks the spec, and writes the CSS. This is the spec it built, as Knave prints it, without the fields left at <code>none</code> and laid out by <code>knave fmt</code>:</p>
+  <p>The page's grid is one <code>defgrid</code> form. It defines <code>demo-grid</code>, a function of the body font family that builds the spec and checks it. The demo task reads the font from its file, calls <code>demo-grid</code>, and writes the CSS. This is the form, from <code>tasks/demo/grid.knv</code>:</p>
   <pre><code>{{spec}}</code></pre>
 </section>
 
@@ -91,7 +91,7 @@
 <section>
   <h2>What the check says</h2>
   <p>This spec passes. {{warnings}}</p>
-  <p>A spec whose type area does not fit its columns is an error. The same spec with the widest type area split into seven columns gives:</p>
+  <p>A spec whose type area does not fit its columns is an error. The same grid with the wide type area split into seven columns gives:</p>
   <pre><code>{{broken-error}}</code></pre>
 </section>
 

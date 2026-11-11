@@ -4,14 +4,12 @@
 
 (use demo/fonts demo-font-family)
 (use demo/page demo-page)
-(use demo/pretty pretty-printed)
+(use demo/grid demo-grid)
 
 (use lib checked-grid defgrid font-family grid-css
          overlay-css overlay-javascript)
 
-(def wide-column-count 4)
-
-(def column-count-that-does-not-fit 7)
+(def grid-source-path "tasks/demo/grid.knv")
 
 (def page-files (vec "style.css" "font-toggle.js"))
 
@@ -34,8 +32,7 @@
     (write-output "index.html"
                   (as-str (demo-page (as-str template)
                                      (ref monospace-grid)
-                                     (as-str (try (pretty-printed
-                                                    (as-str (pr-str (:spec monospace-grid))))))
+                                     (as-str (try (demo-grid-source)))
                                      (as-str (broken-spec-error monospace)))))))
 
 (defn copy-page-files (index)
@@ -50,22 +47,23 @@
   (fn (font-family) (result checked-grid string)))
 
 (defn checked-demo-grid (family)
-  (map-err (demo-grid family wide-column-count) error-text))
+  (map-err (demo-grid family) error-text))
 
-(defgrid demo-grid
-         (family wide-columns)
+(defgrid seven-column-grid
+         (family)
          (body family :size 18 :line-height 1.5)
-         (type-areas (narrow :width 19 :column-count 1 :head 1)
-                     (medium :width 19 :column-count 2)
-                     (wide :width 39
-                           :column-count wide-columns
-                           :margin 2
-                           :foot 3))
-         (type-styles (display :lines 2)
-                      (headline :lines 3)
-                      (title :lines 4)))
+         (type-areas (narrow :width 19 :column-count 1)
+                     (wide :width 39 :column-count 7 :margin 2)))
+
+(defn demo-grid-source ()
+  (let (source (try (map-err (slurp grid-source-path) error-text)))
+    (ok (from-defgrid (as-str source)))))
+
+(def from-defgrid
+  (rust "{0}[{0}.find(\"(defgrid\").unwrap_or(0)..].trim_end().to_string()"
+    (fn ((ref str)) string)))
 
 (defn broken-spec-error (family)
-  (match (demo-grid family column-count-that-does-not-fit)
+  (match (seven-column-grid family)
     ((ok _) (str "no error"))
     ((err error) (str error))))
