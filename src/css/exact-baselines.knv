@@ -1,0 +1,48 @@
+(use css/baseline baseline-offset-css)
+(use css/declaration declaration indented)
+(use spec/body-type body-type)
+(use spec/grid-spec grid-spec)
+(use spec/type-style style-metrics type-style)
+
+(export exact-baseline-rules)
+
+(def round-support-query "@supports (top: round(1px, 1px))")
+
+(type exact-baseline-rules
+  (fn ((ref grid-spec)) string))
+
+(defn exact-baseline-rules (spec)
+  (let (body (:body-type spec)
+        root (str ":root {\n"
+                  (declaration
+                    "--baseline-offset"
+                    (baseline-offset-css (:metrics body) "1rem" "1rlh"))
+                  "}\n")
+        rules (reduce (map (iter (:type-styles spec))
+                        (fn (style) (exact-shift-rule style body)))
+                      root
+                      (fn (all rule) (str all "\n" rule))))
+    (str "\n" round-support-query " {\n"
+         (indented (as-str rules))
+         "}\n")))
+
+(type exact-shift-rule
+  (fn ((ref type-style) (ref body-type))
+    string))
+
+(defn exact-shift-rule (style body)
+  (let (lines (:lines style)
+        offset (baseline-offset-css (ref (style-metrics style body))
+                                    "1em"
+                                    (as-str (str lines "rlh"))))
+    (str ".type-"
+         (:name style)
+         " {\n"
+         (declaration
+           "top"
+           (str "calc(clamp(0px, round(nearest, " offset
+                " - var(--baseline-offset), 1rlh), "
+                (- lines 1)
+                "rlh)" " + var(--baseline-offset) - " offset
+                ")"))
+         "}\n")))

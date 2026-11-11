@@ -22,18 +22,27 @@
     string))
 
 (defn type-style-rule (style body)
-  (let (shift (style-shift-px style body))
-    (str "."
-         (class-name (as-str (:name style)))
-         " {\n"
-         (declaration "font-size"
-                      (relative-to-body (style-font-size-px style body) body))
-         (declaration "line-height" (str (:lines style) "rlh"))
-         (if (= shift 0.0)
-           (str)
-           (str (declaration "position" "relative")
-                (declaration "top" (relative-to-body shift body))))
-         "}\n")))
+  (str "."
+       (class-name (as-str (:name style)))
+       " {\n"
+       (face-declarations style)
+       (declaration "font-size"
+                    (relative-to-body (style-font-size-px style body) body))
+       (declaration "line-height" (str (:lines style) "rlh"))
+       (declaration "position" "relative")
+       (declaration "top"
+                    (relative-to-body (style-shift-px style body) body))
+       "}\n"))
+
+(type face-declarations
+  (fn ((ref type-style)) string))
+
+(defn face-declarations (style)
+  (match (:face style)
+    ((some face)
+     (str (declaration "font-family" (str "\"" (:family face) "\""))
+          (declaration "font-weight" (str (:weight face)))))
+    (none (str))))
 
 (defn class-name (style-name) (str "type-" style-name))
 
