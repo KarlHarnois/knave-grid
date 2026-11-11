@@ -1,46 +1,87 @@
 (use check/problems grid-error grid-warning
                     narrowest-measure-ch widest-measure-ch)
 
-(use spec/body-type ch-px leading-px)
 (use spec/grid-spec grid-spec)
+(use spec/measure measure-characters measure-columns)
+(use spec/type-area type-area)
 
 (export check-measure measure-warnings)
 
-(def float-of
-  (rust "{0} as f64" (fn (i64) f64)))
+(defstruct layout
+  :label string
+  :type-area type-area)
+
+(type layouts
+  (fn ((ref grid-spec)) (vec layout)))
+
+(defn layouts (spec)
+  (let (all (vec (->layout (str "on narrow screens") (:type-area spec))))
+    (for-each (iter (:breakpoints spec))
+      (fn (breakpoint)
+        (push! all
+               (->layout (str "from " (:min-width-em breakpoint) "em")
+                         (:type-area breakpoint)))))
+    all))
 
 (type check-measure
   (fn ((ref grid-spec))
     (result unit grid-error)))
 
 (defn check-measure (spec)
-  (let (body (:body-type spec)
-        measure-ch (:measure-ch spec)
-        widest (widest-type-area spec)
-        widest-px (* (float-of widest) (leading-px body))
-        ch (ch-px body))
-    (if (> (* (float-of measure-ch) ch) widest-px)
-      (err (grid-error/measure-wider-than-type-area measure-ch
-                                                    widest
-                                                    (/ widest-px ch)))
-      (ok (do)))))
+  (check-layout-measures spec (layouts spec) 0))
 
-(type widest-type-area
-  (fn ((ref grid-spec)) i64))
+(type check-layout-measures
+  (fn ((ref grid-spec) (vec layout) usize)
+    (result unit grid-error)))
 
-(defn widest-type-area (spec)
-  (reduce (map (iter (:breakpoints spec))
-            (fn (breakpoint)
-              (:width (:type-area breakpoint))))
-          (:width (:type-area spec))
-          (fn (widest width)
-            (if (> width widest) width widest))))
+(defn check-layout-measures (spec all index)
+  (if (>= index (len all))
+    (ok (do))
+    (let (layout (at all index)
+          type-area (:type-area layout)
+          columns (measure-columns type-area
+                                   (:body-type spec)
+                                   (:measure-ch spec)))
+      (if (or (< columns 1)
+              (> columns (:column-count type-area)))
+        (err (grid-error/measure-columns-outside (clone (:label layout))
+                                                 columns
+                                                 (:column-count type-area)))
+        (recur spec all (+ index 1))))))
 
-(defn measure-warnings (measure-ch)
-  (if (readable-measure? measure-ch)
-    (vec)
-    (vec (grid-warning/measure-out-of-range measure-ch))))
+(type measure-warnings
+  (fn ((ref grid-spec))
+    (vec grid-warning)))
 
-(defn readable-measure? (measure-ch)
-  (and (>= measure-ch narrowest-measure-ch)
-       (<= measure-ch widest-measure-ch)))
+(defn measure-warnings (spec)
+  (collect (map (filter (iter (layouts spec))
+                  (fn (layout)
+                    (not (readable-layout? spec layout))))
+                (fn (layout) (measure-warning spec layout)))))
+
+(type readable-layout?
+  (fn ((ref grid-spec) (ref layout)) bool))
+
+(defn readable-layout? (spec layout)
+  (let (characters (layout-characters spec layout))
+    (and (>= characters narrowest-measure-ch)
+         (<= characters widest-measure-ch))))
+
+(type measure-warning
+  (fn ((ref grid-spec) (ref layout))
+    grid-warning))
+
+(defn measure-warning (spec layout)
+  (grid-warning/measure-out-of-range (clone (:label layout))
+                                     (measure-columns (:type-area layout)
+                                                      (:body-type spec)
+                                                      (:measure-ch spec))
+                                     (layout-characters spec layout)))
+
+(type layout-characters
+  (fn ((ref grid-spec) (ref layout)) f64))
+
+(defn layout-characters (spec layout)
+  (measure-characters (:type-area layout)
+                      (:body-type spec)
+                      (:measure-ch spec)))

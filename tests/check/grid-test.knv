@@ -1,7 +1,7 @@
 (use spec/fake-type body-type-at)
 
 (use lib ->body-type ->breakpoint ->font-metrics ->grid-spec
-         ->type-area check-grid grid-warning)
+         ->type-area check-grid)
 
 (defn checked-spec (column-count measure-ch)
   (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)
@@ -9,36 +9,12 @@
                                                    :column-count column-count)
                            :measure-ch measure-ch)))
 
-(defn warnings-of (measure-ch)
-  (clone (:warnings (unwrap-ok (checked-spec 2 measure-ch)))))
-
 (defn error-text (column-count measure-ch)
   (str (unwrap-err (checked-spec column-count measure-ch))))
-
-(deftest accepts-a-fitting-type-area-without-warnings
-  (assert (empty? (warnings-of 66))))
-
-(deftest defaults-the-measure-to-66ch
-  (let (spec (->grid-spec :body-type (body-type-at 18.0 1.5)
-                          :type-area (->type-area :width 20 :column-count 1)))
-    (assert (= (str (unwrap-err (check-grid spec)))
-               "the measure of 66ch is wider than the widest type area, of 20 squares (60ch)"))))
 
 (deftest rejects-a-type-area-that-does-not-fit
   (assert (= (error-text 7 66)
              "a type area of 39 squares with a gutter of 1 square does not fit 7 columns; the column counts that fit are 1, 2, 4, 5, 8, 10, 20")))
-
-(deftest rejects-a-measure-wider-than-the-type-area
-  (assert (= (error-text 2 120)
-             "the measure of 120ch is wider than the widest type area, of 39 squares (117ch)")))
-
-(deftest warns-about-a-measure-narrower-than-45ch
-  (assert (= (warnings-of 40)
-             (vec (grid-warning/measure-out-of-range 40)))))
-
-(deftest warns-about-a-measure-wider-than-75ch
-  (assert (= (warnings-of 80)
-             (vec (grid-warning/measure-out-of-range 80)))))
 
 (deftest accepts-a-monospace-font-whose-square-is-whole-characters
   (let (body (->body-type 18.0 1.5

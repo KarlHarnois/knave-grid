@@ -33,7 +33,7 @@ Root type is set in `rem` so the grid scales with the reader's font size. The de
 
 The sub-unit is one third of the leading, 9px, because half the leading is not a whole pixel.
 
-The grid's unit is the square: one leading tall and one leading wide, so the font size sets the leading and the leading sets every other measure. The type area's width, gutter, side margins, and head and foot margins are whole squares, and `grid-css` writes them in `rlh`. The measure stays in ch, because it counts characters. When the body font is monospace, as its `post` table says, a square must also be a whole number of characters wide, so every column holds whole characters. The default gutter and side margin are one square, and the default head and foot margins are two. The square follows Karl Gerstner's unit for *Capital*, one line of body type used in both directions. It is not Müller-Brockmann's module, which is one field, a column wide and a whole number of lines tall.
+The grid's unit is the square: one leading tall and one leading wide, so the font size sets the leading and the leading sets every other measure. The type area's width, gutter, side margins, and head and foot margins are whole squares, and `grid-css` writes them in `rlh`. The measure is a whole number of columns, and only its target stays in ch, because it counts characters. When the body font is monospace, as its `post` table says, a square must also be a whole number of characters wide, so every column holds whole characters. The default gutter and side margin are one square, and the default head and foot margins are two. The square follows Karl Gerstner's unit for *Capital*, one line of body type used in both directions. It is not Müller-Brockmann's module, which is one field, a column wide and a whole number of lines tall.
 
 Each type area sets its side margin in squares, and `grid-css` writes it as `--margin`. The generated `.type-area` rule makes an element as wide as the type area and centers it, with at least the margin on each side when the screen is narrower. A page puts its content in that element, and the overlay draws its layer with the same width, so the overlay's columns sit on the page's.
 
@@ -41,7 +41,7 @@ The page's top and bottom edges are baselines too. Each type area's head margin 
 
 A type area N squares wide with a gutter of g squares fits k equal columns when k divides N + g. The defaults use N + g = 40 squares on wide screens and N + g = 20 on medium screens.
 
-The measure defaults to `66ch`. The library warns when the measure is outside `45ch` to `75ch`, and a measure wider than the widest type area is an error. The library checks no column width, because a column can hold more than one line of text, such as a code pane or an image.
+Each type area sets its measure as a number of its columns, gutters included, with `:measure-columns`, so a paragraph ends on a column edge, as a picture or a heading does. When a type area leaves it out, the library picks the widest span within the spec's target, `66ch` by default, and at least one column. `grid-css` writes the span's width as `--measure` for each breakpoint. The library warns, naming the breakpoint, when a span holds fewer than 45 or more than 75 characters, and a span wider than the type area's columns is an error. The library checks no column width, because a column can hold more than one line of text, such as a code pane or an image.
 
 ## Type styles
 
@@ -71,9 +71,9 @@ The generated CSS uses `text-box-trim` behind `@supports`, with margins computed
 
 A placement matches elements with a CSS selector and gives them a spatial zone: `:span n` columns, a column range `:columns (first last)`, or a subgrid.
 
-Breakpoints are written in `em`, from narrowest to widest, and each one overrides the type area: its width, gutter, column count and margin. The spec's own type area applies below the first breakpoint. `grid-css` writes a media query per breakpoint that redefines `--gutter`, `--columns`, `--column`, `--grid-width` and `--margin`, so the `.grid` rule and the overlay follow without media queries of their own.
+Breakpoints are written in `em`, from narrowest to widest, and each one overrides the type area: its width, gutter, column count and margin. The spec's own type area applies below the first breakpoint. `grid-css` writes a media query per breakpoint that redefines `--gutter`, `--columns`, `--column`, `--grid-width`, `--margin` and `--measure`, so the `.grid` rule and the overlay follow without media queries of their own.
 
-The check fails when a breakpoint's type area does not fit its columns, when breakpoints are out of order, and when a breakpoint is narrower than its type area plus its margin on each side. It converts squares to em with the leading and the 16px default font size that media queries use, and compares the measure, in ch, with the widest type area through the width of the font's "0" glyph, which is what `1ch` measures.
+The check fails when a breakpoint's type area does not fit its columns, when breakpoints are out of order, and when a breakpoint is narrower than its type area plus its margin on each side. It converts squares to em with the leading and the 16px default font size that media queries use,. It counts a span's characters through the width of the font's "0" glyph, which is what `1ch` measures.
 
 The `.grid` columns are `minmax(0, var(--column))`, so on a screen narrower than the first type area the columns shrink instead of overflowing.
 
