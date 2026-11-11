@@ -1,4 +1,4 @@
-(export form read-text)
+(export form paren? read-text token-end whitespace?)
 
 (defenum form
   (atom :text string)

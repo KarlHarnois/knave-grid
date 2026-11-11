@@ -66,6 +66,10 @@ pre {
   color: var(--muted);
 }
 
+.code-name { color: var(--ink); }
+
+.code-string, .code-number, .code-constant { color: var(--link); }
+
 .grid .cell {
   padding-inline: 1ch;
   background: var(--cell);
