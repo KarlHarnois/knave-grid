@@ -25,7 +25,7 @@ A site writes its grid with the `defgrid` macro, the one way into the library:
 
 ```lisp
 (defgrid site ()
-  (fonts :from "static/fonts" :at "/fonts"
+  (fonts :from "static/fonts"
     (iosevka "Iosevka" (regular "iosevka-regular.woff2") (bold "iosevka-bold.woff2")))
   (body iosevka :size 18 :line-height 1.5)
   (type-areas (narrow :width 19 :column-count 1)
@@ -33,7 +33,7 @@ A site writes its grid with the `defgrid` macro, the one way into the library:
   (type-styles (headline :lines 3 :weight bold)))
 ```
 
-`site` is a function that reads the fonts, builds the spec and checks it, and returns the checked grid, a font error or the check error, so a site cannot skip the check. A site passes the checked grid to `grid-css`. Each font names its weights, `light`, `regular`, `medium` or `bold`, and their files: the build reads each file from `:from`, and the page loads it from `:at`. Each clause in `type-areas` and `type-styles` starts with the part's name, and the rest are the struct's own fields, so the constructor reports a missing or unknown field. The `defgrid` function takes parameters, which its clauses can use, as the demo does to build the same grid with two body fonts. The library exports `defgrid`, `grid-css`, the overlay assets, the checked grid and the error and warning types, and nothing else.
+`site` is a function that reads the fonts, builds the spec and checks it, and returns the checked grid, a font error or the check error, so a site cannot skip the check. A site passes the checked grid to `write-grid` with the path of the stylesheet to write, such as `(write-grid (ref grid) "public/grid.css")`, and `write-grid` copies each font file the grid uses into a `fonts` folder beside it. The stylesheet loads them by relative URL, so a site never states where its fonts are served and only has to publish the stylesheet's folder whole. Each font names its weights, `light`, `regular`, `medium` or `bold`, and their files, which the build reads from `:from`. Each clause in `type-areas` and `type-styles` starts with the part's name, and the rest are the struct's own fields, so the constructor reports a missing or unknown field. The `defgrid` function takes parameters, which its clauses can use, as the demo does to build the same grid with two body fonts. The library exports `defgrid`, `write-grid`, the overlay assets, the checked grid and the error and warning types, and nothing else.
 
 Vertical spacing in type styles and placements takes only `lines`, so a spec cannot break the baseline grid by construction. A field for vertical spacing takes a count of lines, not a length, so an absolute unit there is a type error.
 

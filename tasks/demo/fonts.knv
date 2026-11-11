@@ -1,27 +1,25 @@
 (use demo/files copy-file create-directories output-path
                 source-path)
 
-(export copy-demo-fonts)
+(export copy-font-licenses)
 
-(def font-files
-  (vec "iosevka-regular.woff2" "iosevka-bold.woff2"
-       "iosevka-license.txt" "noto-sans-regular.woff2"
-       "noto-sans-bold.woff2" "noto-sans-license.txt"))
+(def license-files
+  (vec "iosevka-license.txt" "noto-sans-license.txt"))
 
-(type copy-demo-fonts
+(type copy-font-licenses
   (fn () (result unit string)))
 
-(defn copy-demo-fonts ()
+(defn copy-font-licenses ()
   (try (create-directories (as-str (output-path "fonts"))))
-  (copy-font-files 0))
+  (copy-license-files 0))
 
-(type copy-font-files
+(type copy-license-files
   (fn (usize) (result unit string)))
 
-(defn copy-font-files (index)
-  (if (>= index (len font-files))
+(defn copy-license-files (index)
+  (if (>= index (len license-files))
     (ok (do))
-    (let (file-name (at font-files index))
+    (let (file-name (at license-files index))
       (try (copy-file (as-str (source-path (as-str (str "fonts/" file-name))))
                       (as-str (output-path (as-str (str "fonts/" file-name))))))
       (recur (+ index 1)))))

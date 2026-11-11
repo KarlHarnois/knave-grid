@@ -1,7 +1,8 @@
 (use check/grid checked-grid grid-error grid-warning)
-(use css/grid grid-css)
 (use defgrid defgrid)
+(use output write-error write-grid)
 (use overlay overlay-css overlay-javascript)
 
-(export checked-grid defgrid grid-css grid-error
-        grid-warning overlay-css overlay-javascript)
+(export checked-grid defgrid grid-error grid-warning
+        overlay-css overlay-javascript write-error
+        write-grid)

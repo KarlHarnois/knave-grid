@@ -14,19 +14,18 @@
   (string (symbol-name name)))
 
 (defrule with-fonts
-  ((directory url-prefix () body) body)
-  ((directory url-prefix
-              ((font-name family-name (weight-name file-name) ...)
+  ((directory () body) body)
+  ((directory ((font-name family-name (weight-name file-name) ...)
                font ...)
               body)
    (let (font-name (try (map-err
                           (read-declared-family
-                            directory url-prefix family-name
+                            directory family-name
                             (vec (->declared-file (str (name-text weight-name))
                                                   (str file-name))
                                  ...))
                           (fn (error) (grid-error/unusable-font error)))))
-     (with-fonts directory url-prefix (font ...) body))))
+     (with-fonts directory (font ...) body))))
 
 (defrule body-type-of
   (((field ...)) (->body-type field ...))
@@ -56,17 +55,13 @@
 (defrule defgrid
   "Defines a function that reads a grid's fonts, builds its spec and checks it."
   ((grid-name (parameter ...)
-              ((quote fonts)
-               (quote :from)
-               directory
-               (quote :at)
-               url-prefix font ...)
+              ((quote fonts) (quote :from) directory font ...)
               ((quote body) family body-field ...)
               ((quote type-areas) (area-name area-field ...) ...)
               ((quote type-styles) (style-name style-field ...) ...))
    (defn grid-name (parameter ...)
      (with-fonts
-       directory url-prefix
+       directory
        (font ...)
        (check-grid
          (->grid-spec

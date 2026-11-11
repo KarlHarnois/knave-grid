@@ -3,7 +3,9 @@
 (use font/metrics font-metrics)
 (use spec/grid-spec grid-spec)
 
-(export font-face-css)
+(export font-face-css font-folder spec-families)
+
+(def font-folder "fonts")
 
 (def joined-rules
   (rust "{0}.join(\"\\n\")"
@@ -50,7 +52,8 @@
   (let (metrics (:metrics face))
     (str "@font-face {\n"
          (declaration "font-family" (str "\"" (:name family) "\""))
-         (declaration "src" (str "url(\"" (:url face) "\")"))
+         (declaration "src"
+                      (str "url(\"" font-folder "/" (:file-name face) "\")"))
          (declaration "font-weight" (str (:weight face)))
          (declaration "font-display" "swap")
          (declaration "ascent-override"

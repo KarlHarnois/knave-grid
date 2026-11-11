@@ -5,9 +5,7 @@
                           write-fake-font-files)
 
 (defn family-error (files)
-  (str (unwrap-err (read-declared-family
-                     "tests/fixtures" "/fonts" "Fake Sans"
-                     files))))
+  (str (unwrap-err (read-declared-family "tests/fixtures" "Fake Sans" files))))
 
 (deftest rejects-a-family-without-files
   (assert (= (family-error (vec))
@@ -23,15 +21,15 @@
                                                  (str "missing.woff2"))))
              "the font family Fake Sans names the weight heavy, but font weights are light, regular, medium or bold")))
 
-(deftest serves-each-file-under-the-url-prefix
+(deftest reads-each-file-from-the-directory
   (write-fake-font-files)
-  (let (family (unwrap-ok
-                 (read-declared-family fake-font-directory
-                                       "/fonts" "Fake Sans"
-                                       (vec (->declared-file (str "bold")
-                                                             (str "fake-sans-bold.ttf"))))))
-    (assert (= (:url (at (:faces family) 0))
-               "/fonts/fake-sans-bold.ttf"))
+  (let (family (unwrap-ok (read-declared-family fake-font-directory
+                                                "Fake Sans"
+                                                (vec (->declared-file (str
+                                                                        "bold")
+                                                                      (str "fake-sans-bold.ttf"))))))
+    (assert (= (:path (at (:faces family) 0))
+               "target/fake-fonts/fake-sans-bold.ttf"))
     (assert (= (:weight (at (:faces family) 0)) 700))))
 
 (deftest prints-a-family-by-its-name

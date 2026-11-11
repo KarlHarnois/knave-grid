@@ -8,7 +8,7 @@
 (use spec/type-style ->type-style)
 
 (defn fake-serif-family ()
-  (fake-family "Fake Serif" "/fake-serif.woff2"
+  (fake-family "Fake Serif" "fake-serif.woff2"
                (->font-metrics 1000 700 300 500 700 false)))
 
 (defn type-styles ()

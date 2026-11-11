@@ -1,11 +1,11 @@
 (use font/fake-font-files write-fake-font-files)
-(use lib defgrid grid-css)
+(use css/grid grid-css)
+(use lib defgrid write-grid)
 (use strings contains?)
 
 (defgrid site-grid
          ()
          (fonts :from "target/fake-fonts"
-                :at "/fonts"
                 (fake-sans "Fake Sans"
                            (regular "fake-sans-regular.ttf")
                            (bold "fake-sans-bold.ttf")))
@@ -17,7 +17,6 @@
 (defgrid plain-grid
          ()
          (fonts :from "target/fake-fonts"
-                :at "/fonts"
                 (fake-sans "Fake Sans" (regular "fake-sans-regular.ttf")))
          (body fake-sans :size 18 :line-height 1.5)
          (type-areas (page :width 19 :column-count 1)))
@@ -25,7 +24,6 @@
 (defgrid light-grid
          ()
          (fonts :from "target/fake-fonts"
-                :at "/fonts"
                 (fake-sans "Fake Sans" (regular "fake-sans-regular.ttf")))
          (body fake-sans :size 18 :line-height 1.5 :weight light)
          (type-areas (page :width 19 :column-count 1)))
@@ -33,7 +31,6 @@
 (defgrid missing-font-grid
          ()
          (fonts :from "target/fake-fonts"
-                :at "/fonts"
                 (fake-sans "Fake Sans" (regular "missing.ttf")))
          (body fake-sans :size 18 :line-height 1.5)
          (type-areas (page :width 19 :column-count 1)))
@@ -41,7 +38,6 @@
 (defgrid broken-grid
          ()
          (fonts :from "target/fake-fonts"
-                :at "/fonts"
                 (fake-sans "Fake Sans" (regular "fake-sans-regular.ttf")))
          (body fake-sans :size 18 :line-height 1.5)
          (type-areas (narrow :width 19 :column-count 1)
@@ -79,6 +75,18 @@
   (let (css (grid-css (ref (unwrap-ok (site-grid)))))
     (assert (contains?
               (as-str css)
-              "url(\"/fonts/fake-sans-bold.ttf\");\n  font-weight: 700;"))
+              "url(\"fonts/fake-sans-bold.ttf\");\n  font-weight: 700;"))
     (assert (contains? (as-str css)
                        ".type-headline {\n  font-weight: 700;"))))
+
+(def file-exists?
+  (rust "std::path::Path::new({0}).is_file()"
+    (fn ((ref str)) bool)))
+
+(deftest writes-the-stylesheet-with-its-fonts-beside-it
+  (write-fake-font-files)
+  (assert (ok? (write-grid (ref (unwrap-ok (site-grid)))
+                           "target/written-grid/grid.css")))
+  (assert (file-exists? "target/written-grid/grid.css"))
+  (assert (file-exists? "target/written-grid/fonts/fake-sans-regular.ttf"))
+  (assert (file-exists? "target/written-grid/fonts/fake-sans-bold.ttf")))

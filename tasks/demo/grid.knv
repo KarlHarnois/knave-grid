@@ -5,7 +5,6 @@
 (defgrid demo-grid
          (proportional?)
          (fonts :from "demo/fonts"
-                :at "/fonts"
                 (iosevka "Iosevka"
                          (regular "iosevka-regular.woff2")
                          (bold "iosevka-bold.woff2"))
