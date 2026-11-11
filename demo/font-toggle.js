@@ -20,8 +20,7 @@ class FontToggle {
     document.getElementById("grid-monospace").disabled = proportional;
     document.getElementById("grid-proportional").disabled = !proportional;
     document.querySelectorAll(FontToggle.#BUTTONS).forEach((button) => {
-      button.setAttribute("aria-pressed", String(proportional));
-      button.textContent = proportional ? "Font: Noto Sans" : "Font: Iosevka";
+      button.querySelector(".toggle-value").textContent = proportional ? "Noto Sans" : "Iosevka";
     });
   }
 }
