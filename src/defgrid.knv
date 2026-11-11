@@ -86,4 +86,4 @@
      (type-areas area ...)
      (type-styles))))
 
-(header-shape (defgrid name))
+(header-shape (defgrid name parameters))
