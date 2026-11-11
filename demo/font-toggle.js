@@ -2,6 +2,8 @@ class FontToggle {
   static #CLASS_NAME = "font-proportional";
   static #QUERY_PARAMETER = "proportional";
   static #BUTTONS = "[data-font-toggle]";
+  static #ACTIVE_MEDIA = "all";
+  static #INACTIVE_MEDIA = "not all";
 
   static start() {
     if (new URLSearchParams(location.search).has(FontToggle.#QUERY_PARAMETER)) FontToggle.#apply(true);
@@ -17,12 +19,15 @@ class FontToggle {
 
   static #apply(proportional) {
     document.documentElement.classList.toggle(FontToggle.#CLASS_NAME, proportional);
-    document.getElementById("grid-monospace").disabled = proportional;
-    document.getElementById("grid-proportional").disabled = !proportional;
+    FontToggle.#activate("grid-monospace", !proportional);
+    FontToggle.#activate("grid-proportional", proportional);
     document.querySelectorAll(FontToggle.#BUTTONS).forEach((button) => {
-      button.setAttribute("aria-pressed", String(proportional));
-      button.textContent = proportional ? "Font: Noto Sans" : "Font: Iosevka";
+      button.querySelector(".toggle-value").textContent = proportional ? "Noto Sans" : "Iosevka";
     });
+  }
+
+  static #activate(stylesheetId, active) {
+    document.getElementById(stylesheetId).media = active ? FontToggle.#ACTIVE_MEDIA : FontToggle.#INACTIVE_MEDIA;
   }
 }
 
