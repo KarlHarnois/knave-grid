@@ -51,7 +51,7 @@
 (defgrid seven-column-grid
          ()
          (fonts :from "demo/fonts"
-                :at "."
+                :at "/fonts"
                 (iosevka "Iosevka" (regular "iosevka-regular.woff2")))
          (body iosevka :size 18 :line-height 1.5)
          (type-areas (narrow :width 19 :column-count 1)
