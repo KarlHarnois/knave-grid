@@ -50,14 +50,14 @@
   (map-err (demo-grid family wide-column-count) error-text))
 
 (defgrid demo-grid
-         (family desktop-columns)
+         (family wide-columns)
          (body family :size 18 :line-height 1.5)
-         (type-areas (phone :width 19 :column-count 1 :head 1)
-                     (tablet :width 19 :column-count 2)
-                     (desktop :width 39
-                              :column-count desktop-columns
-                              :margin 2
-                              :foot 3))
+         (type-areas (narrow :width 19 :column-count 1 :head 1)
+                     (medium :width 19 :column-count 2)
+                     (wide :width 39
+                           :column-count wide-columns
+                           :margin 2
+                           :foot 3))
          (type-styles (display :lines 2)
                       (headline :lines 3)
                       (title :lines 4)))

@@ -9,8 +9,8 @@
 (defgrid site-grid
          (family)
          (body family :size 18.0 :line-height 1.5)
-         (type-areas (phone :width 19 :column-count 1 :head 1)
-                     (desktop :width 39 :column-count 4 :margin 2))
+         (type-areas (narrow :width 19 :column-count 1 :head 1)
+                     (wide :width 39 :column-count 4 :margin 2))
          (type-styles (headline :lines 3)))
 
 (defgrid plain-grid
@@ -21,17 +21,17 @@
 (defgrid broken-grid
          (family)
          (body family :size 18.0 :line-height 1.5)
-         (type-areas (phone :width 19 :column-count 1)
-                     (desktop :width 39 :column-count 7)))
+         (type-areas (narrow :width 19 :column-count 1)
+                     (wide :width 39 :column-count 7)))
 
 (deftest builds-and-checks-a-grid-from-its-parts
   (let (checked (unwrap-ok (site-grid (fake-sans))))
     (assert (= (pr-str (:spec checked))
-               "(->grid-spec :body-type (->body-type :size 18.0 :line-height 1.5 :font-family (font-family \"Fake Sans\")) :type-areas (vec (->type-area :name \"phone\" :width 19 :gutter 1 :column-count 1 :margin 1 :head 1 :foot 2 :measure-columns none) (->type-area :name \"desktop\" :width 39 :gutter 1 :column-count 4 :margin 2 :head 2 :foot 2 :measure-columns none)) :type-styles (vec (->type-style :name \"headline\" :lines 3 :size none :font-family none :baseline-line none)))"))))
+               "(->grid-spec :body-type (->body-type :size 18.0 :line-height 1.5 :font-family (font-family \"Fake Sans\")) :type-areas (vec (->type-area :name \"narrow\" :width 19 :gutter 1 :column-count 1 :margin 1 :head 1 :foot 2 :measure-columns none) (->type-area :name \"wide\" :width 39 :gutter 1 :column-count 4 :margin 2 :head 2 :foot 2 :measure-columns none)) :type-styles (vec (->type-style :name \"headline\" :lines 3 :size none :font-family none :baseline-line none)))"))))
 
 (deftest leaves-out-the-type-styles
   (assert (ok? (plain-grid (fake-sans)))))
 
 (deftest returns-the-check-error
   (assert (= (str (unwrap-err (broken-grid (fake-sans))))
-             "in the desktop type area, from 69.1875em, 39 squares with a gutter of 1 square do not fit 7 columns; the column counts that fit are 1, 2, 4, 5, 8, 10, 20")))
+             "in the wide type area, from 69.1875em, 39 squares with a gutter of 1 square do not fit 7 columns; the column counts that fit are 1, 2, 4, 5, 8, 10, 20")))
