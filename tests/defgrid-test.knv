@@ -73,9 +73,8 @@
 (deftest writes-each-weight-the-grid-uses
   (write-fake-font-files)
   (let (css (grid-css (ref (unwrap-ok (site-grid)))))
-    (assert (contains?
-              (as-str css)
-              "url(\"fonts/fake-sans-bold.ttf\");\n  font-weight: 700;"))
+    (assert (contains? (as-str css)
+                       "url(\"fake-sans-bold.ttf\");\n  font-weight: 700;"))
     (assert (contains? (as-str css)
                        ".type-headline {\n  font-weight: 700;"))))
 
@@ -88,5 +87,5 @@
   (assert (ok? (write-grid (ref (unwrap-ok (site-grid)))
                            "target/written-grid/grid.css")))
   (assert (file-exists? "target/written-grid/grid.css"))
-  (assert (file-exists? "target/written-grid/fonts/fake-sans-regular.ttf"))
-  (assert (file-exists? "target/written-grid/fonts/fake-sans-bold.ttf")))
+  (assert (file-exists? "target/written-grid/fake-sans-regular.ttf"))
+  (assert (file-exists? "target/written-grid/fake-sans-bold.ttf")))

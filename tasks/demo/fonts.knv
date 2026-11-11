@@ -1,5 +1,4 @@
-(use demo/files copy-file create-directories output-path
-                source-path)
+(use demo/files copy-file output-path source-path)
 
 (export copy-font-licenses)
 
@@ -9,9 +8,7 @@
 (type copy-font-licenses
   (fn () (result unit string)))
 
-(defn copy-font-licenses ()
-  (try (create-directories (as-str (output-path "fonts"))))
-  (copy-license-files 0))
+(defn copy-font-licenses () (copy-license-files 0))
 
 (type copy-license-files
   (fn (usize) (result unit string)))
@@ -21,5 +18,5 @@
     (ok (do))
     (let (file-name (at license-files index))
       (try (copy-file (as-str (source-path (as-str (str "fonts/" file-name))))
-                      (as-str (output-path (as-str (str "fonts/" file-name))))))
+                      (as-str (output-path file-name))))
       (recur (+ index 1)))))
