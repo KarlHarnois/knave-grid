@@ -31,9 +31,29 @@
     (cond
       ((< lines 1)
        (err (grid-error/type-style-without-lines (clone (:name style)))))
+      ((hanging? style) (check-hanging style baseline-line lines))
       (else (do
               (try (check-type-style-size style body))
               (check-baseline-line style baseline-line lines))))))
+
+(type hanging?
+  (fn ((ref type-style)) bool))
+
+(defn hanging? (style)
+  (match (:baseline-line style)
+    ((some _) false)
+    (none true)))
+
+(type check-hanging
+  (fn ((ref type-style) i64 i64)
+    (result unit grid-error)))
+
+(defn check-hanging (style hanging-line lines)
+  (if (> hanging-line lines)
+    (err (grid-error/capitals-taller-than-style (clone (:name style))
+                                                hanging-line
+                                                lines))
+    (ok (do))))
 
 (type check-baseline-line
   (fn ((ref type-style) i64 i64)

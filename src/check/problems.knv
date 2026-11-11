@@ -31,6 +31,9 @@
   (type-style-without-lines :name string)
   (page-margin-too-small :edge string :squares i64)
   (fields-too-small :layout string :lines i64 :gap i64)
+  (capitals-taller-than-style :name string
+                              :needed-lines i64
+                              :lines i64)
   (baseline-line-outside-style :name string
                                :baseline-line i64
                                :lines i64)
@@ -85,6 +88,11 @@
        "the " edge " margin is "
        (squares (deref squares-count))
        ", but a page edge needs at least one square to its nearest baseline"))
+    ((capitals-taller-than-style name needed-lines lines)
+     (str "the capitals of the type style " name " need "
+          (line-count-text (deref needed-lines))
+          " to hang from the top of its block, but it has "
+          (line-count-text (deref lines))))
     ((baseline-line-outside-style name baseline-line lines)
      (str "the type style " name
           " puts its baseline on line " baseline-line
