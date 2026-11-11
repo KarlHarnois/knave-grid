@@ -17,7 +17,7 @@
   (let (body (:body-type spec)
         root (str ":root {\n"
                   (declaration
-                    "--baseline-offset"
+                    "--_grid-baseline-offset"
                     (baseline-offset-css (body-metrics body) "1rem" "1rlh"))
                   "}\n")
         rules (reduce (map (iter (:type-styles spec))
@@ -43,6 +43,6 @@
          (declaration "top"
                       (str "calc("
                            (- (style-baseline-line style) 1)
-                           "rlh + var(--baseline-offset) - "
+                           "rlh + var(--_grid-baseline-offset) - "
                            offset ")"))
          "}\n")))

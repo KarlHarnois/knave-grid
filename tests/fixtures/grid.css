@@ -23,16 +23,16 @@
   font-family: "Fake Sans";
   line-height: 1.4;
   --leading: 1rlh;
-  --baseline-offset: calc(20rem / 20);
-  --cap-top: calc(var(--baseline-offset) - 0.7 * 1rem);
-  --descender-bottom: calc(var(--baseline-offset) + 0.2 * 1rem);
+  --_grid-baseline-offset: calc(20rem / 20);
+  --_grid-cap-top: calc(var(--_grid-baseline-offset) - 0.7 * 1rem);
+  --_grid-descender-bottom: calc(var(--_grid-baseline-offset) + 0.2 * 1rem);
   --gutter: 1rlh;
   --columns: 4;
   --column: 5rlh;
-  --grid-width: 23rlh;
-  --margin: 2rlh;
-  --head: 3;
-  --foot: 2;
+  --_grid-grid-width: 23rlh;
+  --_grid-margin: 2rlh;
+  --_grid-head: 3;
+  --_grid-foot: 2;
   --measure: 23rlh;
 }
 
@@ -41,18 +41,18 @@
     --gutter: 1rlh;
     --columns: 4;
     --column: 8rlh;
-    --grid-width: 35rlh;
-    --margin: 3rlh;
-    --head: 4;
-    --foot: 3;
+    --_grid-grid-width: 35rlh;
+    --_grid-margin: 3rlh;
+    --_grid-head: 4;
+    --_grid-foot: 3;
     --measure: 17rlh;
   }
 }
 
 .type-area {
-  width: min(100% - 2 * var(--margin), var(--grid-width));
+  width: min(100% - 2 * var(--_grid-margin), var(--_grid-grid-width));
   margin-inline: auto;
-  padding-block: calc(var(--head) * var(--leading) - var(--baseline-offset)) calc((var(--foot) - 1) * var(--leading) + var(--baseline-offset));
+  padding-block: calc(var(--_grid-head) * var(--leading) - var(--_grid-baseline-offset)) calc((var(--_grid-foot) - 1) * var(--leading) + var(--_grid-baseline-offset));
 }
 
 .grid {
@@ -64,7 +64,7 @@
 .field {
   box-sizing: border-box;
   height: calc(var(--field-lines, 1) * var(--leading));
-  padding-block: var(--cap-top) calc(var(--leading) - var(--descender-bottom));
+  padding-block: var(--_grid-cap-top) calc(var(--leading) - var(--_grid-descender-bottom));
   background-clip: content-box;
   object-fit: cover;
 }
@@ -93,18 +93,18 @@
 
 @supports (top: round(1px, 1px)) {
   :root {
-    --baseline-offset: calc(round(down, (1rlh - round(0.8 * 1rem, 1px) - round(0.2 * 1rem, 1px)) / 2, 1px) + round(0.8 * 1rem, 1px));
+    --_grid-baseline-offset: calc(round(down, (1rlh - round(0.8 * 1rem, 1px) - round(0.2 * 1rem, 1px)) / 2, 1px) + round(0.8 * 1rem, 1px));
   }
 
   .type-title {
-    top: calc(2rlh + var(--baseline-offset) - calc(round(down, (3rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)));
+    top: calc(2rlh + var(--_grid-baseline-offset) - calc(round(down, (3rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)));
   }
 
   .type-lead {
-    top: calc(1rlh + var(--baseline-offset) - calc(round(down, (2rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)));
+    top: calc(1rlh + var(--_grid-baseline-offset) - calc(round(down, (2rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)));
   }
 
   .type-quote {
-    top: calc(1rlh + var(--baseline-offset) - calc(round(down, (2rlh - round(0.7 * 1em, 1px) - round(0.3 * 1em, 1px)) / 2, 1px) + round(0.7 * 1em, 1px)));
+    top: calc(1rlh + var(--_grid-baseline-offset) - calc(round(down, (2rlh - round(0.7 * 1em, 1px) - round(0.3 * 1em, 1px)) / 2, 1px) + round(0.7 * 1em, 1px)));
   }
 }
