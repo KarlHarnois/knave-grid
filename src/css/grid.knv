@@ -110,9 +110,7 @@
 
 (defn measure-css (type-area spec)
   (squares-css (span-width type-area
-                           (measure-columns type-area
-                                            (:body-type spec)
-                                            (:measure-ch spec)))))
+                           (measure-columns type-area (:body-type spec)))))
 
 (defn squares-css (count)
   (length-css (ref (length/lines count))))

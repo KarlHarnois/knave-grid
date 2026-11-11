@@ -23,8 +23,6 @@
 
 (def column-count-that-does-not-fit 7)
 
-(def measure-ch 66)
-
 (def page-files (vec "style.css" "font-toggle.js"))
 
 (deftask demo ()
@@ -73,7 +71,6 @@
                                   :column-count wide-columns
                                   :margin 2
                                   :foot 3))
-    :measure-ch measure-ch
     :type-styles (vec (->type-style :name (str "display") :lines 2)
                       (->type-style :name (str "headline") :lines 3)
                       (->type-style :name (str "title") :lines 4))))

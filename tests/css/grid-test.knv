@@ -30,7 +30,6 @@
                                                                  :margin 3
                                                                  :head 4
                                                                  :foot 3))
-                                      :measure-ch 60
                                       :type-styles (type-styles)))))
 
 (deftest writes-the-root-media-grid-and-type-style-rules-of-a-spec

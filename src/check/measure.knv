@@ -61,14 +61,10 @@
   (fn ((ref grid-spec) (ref layout)) i64))
 
 (defn layout-columns (spec layout)
-  (measure-columns (:type-area layout)
-                   (:body-type spec)
-                   (:measure-ch spec)))
+  (measure-columns (:type-area layout) (:body-type spec)))
 
 (type layout-characters
   (fn ((ref grid-spec) (ref layout)) f64))
 
 (defn layout-characters (spec layout)
-  (measure-characters (:type-area layout)
-                      (:body-type spec)
-                      (:measure-ch spec)))
+  (measure-characters (:type-area layout) (:body-type spec)))

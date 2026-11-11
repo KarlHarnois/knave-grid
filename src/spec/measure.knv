@@ -3,38 +3,39 @@
 
 (export measure-characters measure-columns)
 
+(def target-characters 66.0)
+
 (def float-of
   (rust "{0} as f64" (fn (i64) f64)))
 
 (type measure-columns
-  (fn ((ref type-area) (ref body-type) i64)
+  (fn ((ref type-area) (ref body-type))
     i64))
 
-(defn measure-columns (type-area body measure-ch)
+(defn measure-columns (type-area body)
   (match (:measure-columns type-area)
     ((some columns) columns)
-    (none (widest-span-within type-area body measure-ch
+    (none (widest-span-within type-area body
                               (:column-count type-area)))))
 
 (type widest-span-within
-  (fn ((ref type-area) (ref body-type) i64 i64)
+  (fn ((ref type-area) (ref body-type) i64)
     i64))
 
-(defn widest-span-within (type-area body measure-ch columns)
+(defn widest-span-within (type-area body columns)
   (cond
     ((<= columns 1) 1)
     ((<= (span-px type-area body columns)
-         (* (float-of measure-ch) (ch-px body)))
+         (* target-characters (ch-px body)))
      columns)
-    (else (recur type-area body measure-ch (- columns 1)))))
+    (else (recur type-area body (- columns 1)))))
 
 (type measure-characters
-  (fn ((ref type-area) (ref body-type) i64)
+  (fn ((ref type-area) (ref body-type))
     f64))
 
-(defn measure-characters (type-area body measure-ch)
-  (/ (span-px type-area body
-              (measure-columns type-area body measure-ch))
+(defn measure-characters (type-area body)
+  (/ (span-px type-area body (measure-columns type-area body))
      (ch-px body)))
 
 (type span-px

@@ -6,7 +6,6 @@
                                             :type-areas (vec (->type-area
                                                                :width 19
                                                                :column-count 1))
-                                            :measure-ch 50
                                             :type-styles (vec style))))))
 
 (deftest rejects-a-type-style-without-lines

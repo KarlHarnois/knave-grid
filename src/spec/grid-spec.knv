@@ -7,6 +7,5 @@
 (defstruct grid-spec
   :body-type body-type
   :type-areas (vec type-area)
-  :measure-ch i64
   :type-styles (vec type-style)
-  (defaults :measure-ch 66 :type-styles (vec)))
+  (defaults :type-styles (vec)))

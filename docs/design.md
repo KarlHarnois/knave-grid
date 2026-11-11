@@ -41,7 +41,7 @@ The page's top and bottom edges are baselines too. Each type area's head margin 
 
 A type area N squares wide with a gutter of g squares fits k equal columns when k divides N + g. The defaults use N + g = 40 squares on wide screens and N + g = 20 on medium screens.
 
-Each type area sets its measure as a number of its columns, gutters included, with `:measure-columns`, so a paragraph ends on a column edge, as a picture or a heading does. When a type area leaves it out, the library picks the widest span within the spec's target, `66ch` by default, and at least one column. `grid-css` writes the span's width as `--measure` for each type area. The library warns, naming the screen width, when a span holds fewer than 45 or more than 75 characters, and a span wider than the type area's columns is an error. The library checks no column width, because a column can hold more than one line of text, such as a code pane or an image.
+Each type area sets its measure as a number of its columns, gutters included, with `:measure-columns`, so a paragraph ends on a column edge, as a picture or a heading does. When a type area leaves it out, the library picks the widest span that holds at most 66 characters, and at least one column. The target is fixed: a type area that needs another span names it. `grid-css` writes the span's width as `--measure` for each type area. The library warns, naming the screen width, when a span holds fewer than 45 or more than 75 characters, and a span wider than the type area's columns is an error. The library checks no column width, because a column can hold more than one line of text, such as a code pane or an image.
 
 ## Type styles
 

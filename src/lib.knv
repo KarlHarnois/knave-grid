@@ -11,7 +11,6 @@
 
 (use font/tables font-error)
 (use spec/length length length-css)
-(use spec/measure measure-columns)
 (use overlay overlay-css overlay-javascript)
 (use spec/grid-spec ->grid-spec)
 (use spec/layout layout-label)
@@ -25,6 +24,6 @@
         ->type-style baseline-offset-px check-grid
         checked-grid font-error font-family font-file
         grid-css grid-error grid-warning layout-label
-        leading-px length length-css measure-columns
-        overlay-css overlay-javascript read-font-family
+        leading-px length length-css overlay-css
+        overlay-javascript read-font-family
         style-font-size-px style-shift-px type-style)
