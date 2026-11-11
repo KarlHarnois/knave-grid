@@ -1,0 +1,48 @@
+(use spec/fake-type body-type-at)
+(use lib ->breakpoint ->grid-spec ->type-area check-grid)
+
+(defn spec-with-breakpoints (breakpoints)
+  (->grid-spec :body-type (body-type-at 18.0 1.5)
+               :type-area (->type-area :width 19 :column-count 1)
+               :measure-ch 50
+               :breakpoints breakpoints))
+
+(defn breakpoint-error (breakpoints)
+  (str (unwrap-err (check-grid (spec-with-breakpoints breakpoints)))))
+
+(defn wide-type-area (column-count margin)
+  (->type-area :width 39
+               :column-count column-count
+               :margin margin))
+
+(deftest accepts-breakpoints-that-fit-and-are-wide-enough
+  (let (spec (spec-with-breakpoints
+               (vec (->breakpoint 36.0 (->type-area :width 19 :column-count 2))
+                    (->breakpoint 70.0 (wide-type-area 4 1)))))
+    (assert (empty? (:warnings (unwrap-ok (check-grid spec)))))))
+
+(deftest rejects-a-breakpoint-whose-type-area-does-not-fit
+  (assert (= (breakpoint-error (vec (->breakpoint 70.0 (wide-type-area 7 1))))
+             "at 70em, a type area of 39 squares with a gutter of 1 square does not fit 7 columns; the column counts that fit are 1, 2, 4, 5, 8, 10, 20")))
+
+(deftest rejects-a-breakpoint-narrower-than-its-type-area-and-margins
+  (assert (= (breakpoint-error (vec (->breakpoint 64.0 (wide-type-area 4 1))))
+             "the type area of 39 squares with margins of 1 square needs 69.1875em, but its breakpoint starts at 64em")))
+
+(deftest counts-the-type-area-margins-not-its-gutters
+  (assert (= (breakpoint-error (vec (->breakpoint 70.0 (wide-type-area 4 2))))
+             "the type area of 39 squares with margins of 2 squares needs 72.5625em, but its breakpoint starts at 70em")))
+
+(deftest rejects-breakpoints-out-of-order
+  (assert (= (breakpoint-error (vec (->breakpoint 70.0 (wide-type-area 4 1))
+                                    (->breakpoint
+                                      36.0
+                                      (->type-area :width 19 :column-count 2))))
+             "the breakpoint at 36em must start after the one before it, at 70em")))
+
+(deftest rejects-a-page-margin-of-no-squares
+  (assert (= (breakpoint-error (vec (->breakpoint 70.0
+                                                  (->type-area :width 39
+                                                               :column-count 4
+                                                               :foot 0))))
+             "the foot margin is 0 squares, but a page edge needs at least one square to its nearest baseline")))

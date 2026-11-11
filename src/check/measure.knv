@@ -1,0 +1,46 @@
+(use check/problems grid-error grid-warning
+                    narrowest-measure-ch widest-measure-ch)
+
+(use spec/body-type ch-px leading-px)
+(use spec/grid-spec grid-spec)
+
+(export check-measure measure-warnings)
+
+(def float-of
+  (rust "{0} as f64" (fn (i64) f64)))
+
+(type check-measure
+  (fn ((ref grid-spec))
+    (result unit grid-error)))
+
+(defn check-measure (spec)
+  (let (body (:body-type spec)
+        measure-ch (:measure-ch spec)
+        widest (widest-type-area spec)
+        widest-px (* (float-of widest) (leading-px body))
+        ch (ch-px body))
+    (if (> (* (float-of measure-ch) ch) widest-px)
+      (err (grid-error/measure-wider-than-type-area measure-ch
+                                                    widest
+                                                    (/ widest-px ch)))
+      (ok (do)))))
+
+(type widest-type-area
+  (fn ((ref grid-spec)) i64))
+
+(defn widest-type-area (spec)
+  (reduce (map (iter (:breakpoints spec))
+            (fn (breakpoint)
+              (:width (:type-area breakpoint))))
+          (:width (:type-area spec))
+          (fn (widest width)
+            (if (> width widest) width widest))))
+
+(defn measure-warnings (measure-ch)
+  (if (readable-measure? measure-ch)
+    (vec)
+    (vec (grid-warning/measure-out-of-range measure-ch))))
+
+(defn readable-measure? (measure-ch)
+  (and (>= measure-ch narrowest-measure-ch)
+       (<= measure-ch widest-measure-ch)))

@@ -7,7 +7,7 @@
 (use css/type-styles type-style-rules)
 (use spec/length length length-css)
 (use spec/grid-spec breakpoint grid-spec)
-(use spec/type-area span-width-ch type-area)
+(use spec/type-area span-width type-area)
 
 (export grid-css)
 
@@ -15,7 +15,7 @@
   ".type-area {
   width: min(100% - 2 * var(--margin), var(--grid-width));
   margin-inline: auto;
-  padding-block: calc(var(--head-lines) * var(--leading) - var(--baseline-offset)) calc((var(--foot-lines) - 1) * var(--leading) + var(--baseline-offset));
+  padding-block: calc(var(--head) * var(--leading) - var(--baseline-offset)) calc((var(--foot) - 1) * var(--leading) + var(--baseline-offset));
 }
 ")
 
@@ -52,8 +52,6 @@
          (declaration "--baseline-offset" (baseline-offset-rem type))
          (field-declarations type)
          (declaration "--measure" (str (:measure-ch spec) "ch"))
-         (declaration "--head-lines" (str (:head-lines spec)))
-         (declaration "--foot-lines" (str (:foot-lines spec)))
          (type-area-declarations (:type-area spec))
          "}\n")))
 
@@ -81,13 +79,18 @@
   (fn ((ref type-area)) string))
 
 (defn type-area-declarations (type-area)
-  (str (declaration "--gutter" (str (:gutter-ch type-area) "ch"))
+  (str (declaration "--gutter" (squares-css (:gutter type-area)))
        (declaration "--columns" (str (:column-count type-area)))
        (declaration "--column"
-                    (str (span-width-ch type-area 1) "ch"))
+                    (squares-css (span-width type-area 1)))
        (declaration "--grid-width"
-                    (str (:width-ch type-area) "ch"))
-       (declaration "--margin" (str (:margin-ch type-area) "ch"))))
+                    (squares-css (:width type-area)))
+       (declaration "--margin" (squares-css (:margin type-area)))
+       (declaration "--head" (str (:head type-area)))
+       (declaration "--foot" (str (:foot type-area)))))
+
+(defn squares-css (count)
+  (length-css (ref (length/lines count))))
 
 (type baseline-offset-rem
   (fn ((ref body-type)) string))

@@ -1,31 +1,27 @@
-(export ->type-area fits? fitting-column-counts
-        span-width-ch type-area)
+(export ->type-area fits? fitting-column-counts span-width
+        type-area)
 
 (defstruct type-area
-  :width-ch i64
-  :gutter-ch i64
+  :width i64
+  :gutter i64
   :column-count i64
-  :margin-ch i64)
+  :margin i64
+  :head i64
+  :foot i64
+  (defaults :gutter 1 :margin 1 :head 2 :foot 2))
 
-(type column-width-ch
-  (fn ((ref type-area)) i64))
-
-(defn column-width-ch (type-area)
-  (span-width-ch type-area 1))
-
-(type span-width-ch
+(type span-width
   (fn ((ref type-area) i64) i64))
 
-(defn span-width-ch (type-area column-count)
-  (- (* column-count (track-width-ch type-area))
-     (:gutter-ch type-area)))
+(defn span-width (type-area column-count)
+  (- (* column-count (track-width type-area))
+     (:gutter type-area)))
 
-(type track-width-ch
+(type track-width
   (fn ((ref type-area)) i64))
 
-(defn track-width-ch (type-area)
-  (/ (width-with-gutter-ch type-area)
-     (:column-count type-area)))
+(defn track-width (type-area)
+  (/ (width-with-gutter type-area) (:column-count type-area)))
 
 (type fits? (fn ((ref type-area)) bool))
 
@@ -36,7 +32,7 @@
   (fn ((ref type-area)) (vec i64)))
 
 (defn fitting-column-counts (type-area)
-  (collect (filter (range 1 (+ (width-with-gutter-ch type-area) 1))
+  (collect (filter (range 1 (+ (width-with-gutter type-area) 1))
              (fn (column-count)
                (fits-column-count? type-area (deref column-count))))))
 
@@ -45,15 +41,15 @@
 
 (defn fits-column-count? (type-area column-count)
   (and (> column-count 0)
-       (divides? column-count (width-with-gutter-ch type-area))
-       (> (/ (width-with-gutter-ch type-area) column-count)
-          (:gutter-ch type-area))))
+       (divides? column-count (width-with-gutter type-area))
+       (> (/ (width-with-gutter type-area) column-count)
+          (:gutter type-area))))
 
 (defn divides? (divisor total)
   (= (rem total divisor) 0))
 
-(type width-with-gutter-ch
+(type width-with-gutter
   (fn ((ref type-area)) i64))
 
-(defn width-with-gutter-ch (type-area)
-  (+ (:width-ch type-area) (:gutter-ch type-area)))
+(defn width-with-gutter (type-area)
+  (+ (:width type-area) (:gutter type-area)))

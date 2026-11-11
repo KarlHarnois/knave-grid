@@ -19,13 +19,19 @@
                      :face (some (fake-serif-face)))))
 
 (defn four-column-grid ()
-  (unwrap-ok (check-grid
-               (->grid-spec
-                 :body-type (body-type-at 20.0 1.4)
-                 :type-area (->type-area 100 4 4 6)
-                 :measure-ch 60
-                 :breakpoints (vec (->breakpoint 100.0 (->type-area 136 4 4 8)))
-                 :type-styles (type-styles)))))
+  (unwrap-ok
+    (check-grid
+      (->grid-spec
+        :body-type (body-type-at 20.0 1.4)
+        :type-area (->type-area :width 23 :column-count 4 :margin 2 :head 3)
+        :measure-ch 60
+        :breakpoints (vec (->breakpoint 100.0
+                                        (->type-area :width 35
+                                                     :column-count 4
+                                                     :margin 3
+                                                     :head 4
+                                                     :foot 3)))
+        :type-styles (type-styles)))))
 
 (deftest writes-the-root-breakpoint-grid-and-type-style-rules-of-a-spec
   (assert (= (grid-css (ref (four-column-grid)))

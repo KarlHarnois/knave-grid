@@ -6,29 +6,31 @@
   --cap-top: calc(var(--baseline-offset) - 0.7 * 1rem);
   --descender-bottom: calc(var(--baseline-offset) + 0.2 * 1rem);
   --measure: 60ch;
-  --head-lines: 2;
-  --foot-lines: 2;
-  --gutter: 4ch;
+  --gutter: 1rlh;
   --columns: 4;
-  --column: 22ch;
-  --grid-width: 100ch;
-  --margin: 6ch;
+  --column: 5rlh;
+  --grid-width: 23rlh;
+  --margin: 2rlh;
+  --head: 3;
+  --foot: 2;
 }
 
 @media (min-width: 100em) {
   :root {
-    --gutter: 4ch;
+    --gutter: 1rlh;
     --columns: 4;
-    --column: 31ch;
-    --grid-width: 136ch;
-    --margin: 8ch;
+    --column: 8rlh;
+    --grid-width: 35rlh;
+    --margin: 3rlh;
+    --head: 4;
+    --foot: 3;
   }
 }
 
 .type-area {
   width: min(100% - 2 * var(--margin), var(--grid-width));
   margin-inline: auto;
-  padding-block: calc(var(--head-lines) * var(--leading) - var(--baseline-offset)) calc((var(--foot-lines) - 1) * var(--leading) + var(--baseline-offset));
+  padding-block: calc(var(--head) * var(--leading) - var(--baseline-offset)) calc((var(--foot) - 1) * var(--leading) + var(--baseline-offset));
 }
 
 .grid {

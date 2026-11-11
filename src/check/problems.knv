@@ -1,6 +1,6 @@
 (use spec/type-area type-area)
 
-(export grid-error grid-warning narrowest-measure-ch
+(export grid-error grid-warning narrowest-measure-ch squares
         widest-measure-ch)
 
 (def narrowest-measure-ch 45)
@@ -14,13 +14,16 @@
                            :type-area type-area
                            :fitting-counts (vec i64))
   (breakpoint-too-narrow :min-width-em f64
-                         :width-ch i64
-                         :margin-ch i64
+                         :width i64
+                         :margin i64
                          :needed-em f64)
   (breakpoint-out-of-order :min-width-em f64 :previous-em f64)
-  (measure-wider-than-type-area :measure-ch i64 :width-ch i64)
+  (measure-wider-than-type-area :measure-ch i64
+                                :width i64
+                                :width-ch f64)
+  (square-not-whole-characters :square-px f64 :ch-px f64)
   (type-style-without-lines :name string)
-  (page-margin-too-small :edge string :lines i64)
+  (page-margin-too-small :edge string :squares i64)
   (baseline-line-outside-style :name string
                                :baseline-line i64
                                :lines i64)
@@ -37,25 +40,36 @@
                               fitting-counts)
      (str "at " min-width-em "em, "
           (fit-message type-area fitting-counts)))
-    ((breakpoint-too-narrow min-width-em width-ch margin-ch
-                            needed-em)
-     (str "the type area of " width-ch "ch with " margin-ch
-          "ch margins needs " needed-em
+    ((breakpoint-too-narrow min-width-em width margin needed-em)
+     (str "the type area of "
+          (squares (deref width))
+          " with margins of "
+          (squares (deref margin))
+          " needs " needed-em
           "em, but its breakpoint starts at " min-width-em
           "em"))
     ((breakpoint-out-of-order min-width-em previous-em)
      (str "the breakpoint at " min-width-em
           "em must start after the one before it, at "
           previous-em "em"))
-    ((measure-wider-than-type-area measure-ch width-ch)
+    ((measure-wider-than-type-area measure-ch width width-ch)
      (str "the measure of " measure-ch
           "ch is wider than the widest type area, of "
-          width-ch "ch"))
+          (squares (deref width))
+          " (" width-ch "ch)"))
+    ((square-not-whole-characters square-px ch-px)
+     (str "the body font is monospace, but a square of "
+          square-px "px is "
+          (/ square-px ch-px)
+          " characters of " ch-px
+          "px; choose a line-height that makes it a whole number"))
     ((type-style-without-lines name)
      (str "the type style " name " needs at least one line"))
-    ((page-margin-too-small edge lines)
-     (str "the " edge " margin is " lines
-          " lines, but a page edge needs at least one line to its nearest baseline"))
+    ((page-margin-too-small edge squares-count)
+     (str
+       "the " edge " margin is "
+       (squares (deref squares-count))
+       ", but a page edge needs at least one square to its nearest baseline"))
     ((baseline-line-outside-style name baseline-line lines)
      (str "the type style " name
           " puts its baseline on line " baseline-line
@@ -66,16 +80,21 @@
           "px type, whose glyphs are " glyph-height-px
           "px tall, in " line-height-px "px of lines"))))
 
+(defn squares (count)
+  (if (= count 1)
+    (str "1 square")
+    (str count " squares")))
+
 (type fit-message
   (fn ((ref type-area) (ref (vec i64)))
     string))
 
 (defn fit-message (type-area fitting-counts)
   (str "a type area of "
-       (:width-ch type-area)
-       "ch with a gutter of "
-       (:gutter-ch type-area)
-       "ch does not fit "
+       (squares (:width type-area))
+       " with a gutter of "
+       (squares (:gutter type-area))
+       " does not fit "
        (:column-count type-area)
        " columns; the column counts that fit are "
        (joined-counts fitting-counts)))

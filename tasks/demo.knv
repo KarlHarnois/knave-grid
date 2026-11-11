@@ -13,29 +13,21 @@
 
 (def body-line-height 1.5)
 
-(def gutter-ch 3)
-
-(def margin-ch 3)
-
-(def narrow-width-ch 57)
+(def narrow-width 19)
 
 (def medium-min-width-em 36.0)
 
 (def medium-column-count 2)
 
-(def wide-min-width-em 70.0)
+(def wide-min-width-em 73.0)
 
-(def wide-width-ch 117)
+(def wide-width 39)
 
 (def wide-column-count 4)
 
 (def column-count-that-does-not-fit 7)
 
 (def measure-ch 66)
-
-(def head-lines 1)
-
-(def foot-lines 2)
 
 (def create-directories
   (rust "std::fs::create_dir_all({0}).map_err(|error| error.to_string())"
@@ -93,20 +85,17 @@
 (defn demo-spec (wide-columns metrics)
   (->grid-spec
     :body-type (->body-type body-font-size-px body-line-height metrics)
-    :type-area (->type-area narrow-width-ch gutter-ch 1 margin-ch)
+    :type-area (->type-area :width narrow-width :column-count 1 :head 1)
     :measure-ch measure-ch
-    :head-lines head-lines
-    :foot-lines foot-lines
     :breakpoints (vec (->breakpoint medium-min-width-em
-                                    (->type-area narrow-width-ch
-                                                 gutter-ch
-                                                 medium-column-count
-                                                 margin-ch))
+                                    (->type-area
+                                      :width narrow-width
+                                      :column-count medium-column-count))
                       (->breakpoint wide-min-width-em
-                                    (->type-area wide-width-ch
-                                                 gutter-ch
-                                                 wide-columns
-                                                 margin-ch)))
+                                    (->type-area :width wide-width
+                                                 :column-count wide-columns
+                                                 :margin 2
+                                                 :foot 3)))
     :type-styles (vec (->type-style :name (str "display") :lines 2)
                       (->type-style :name (str "headline") :lines 3)
                       (->type-style :name (str "title") :lines 4))))

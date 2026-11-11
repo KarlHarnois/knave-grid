@@ -3,7 +3,9 @@
 
 (defn type-style-error (style)
   (str (unwrap-err (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)
-                                            :type-area (->type-area 57 3 1 3)
+                                            :type-area (->type-area
+                                                         :width 19
+                                                         :column-count 1)
                                             :measure-ch 50
                                             :type-styles (vec style))))))
 

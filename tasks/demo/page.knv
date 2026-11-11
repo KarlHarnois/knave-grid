@@ -63,9 +63,15 @@
 
 (defn layout-row (screen type-area)
   (str "      <tr><td>" screen "</td><td>"
-       (:width-ch type-area)
-       "ch</td><td>"
+       (:width type-area)
+       "</td><td>"
        (:column-count type-area)
+       "</td><td>"
+       (:margin type-area)
+       "</td><td>"
+       (:head type-area)
+       " / "
+       (:foot type-area)
        "</td></tr>\n"))
 
 (defn length-rows ()

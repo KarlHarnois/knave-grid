@@ -17,6 +17,7 @@ The library names its parts with the terms of the Swiss grid tradition, as Josef
 - A **module** (Müller-Brockmann's *field*) is one cell where a column crosses a row. A row's height is a whole number of leadings.
 - A **spatial zone** is a group of adjacent modules that one element fills.
 - The **measure** is the length of a line of text.
+- A **square** is the grid's unit: one leading tall and one leading wide.
 
 ## Spec
 
@@ -32,13 +33,13 @@ Root type is set in `rem` so the grid scales with the reader's font size. The de
 
 The sub-unit is one third of the leading, 9px, because half the leading is not a whole pixel.
 
-The horizontal unit is `1ch`. The default gutter is `3ch`, and the default margin is one gutter.
+The grid's unit is the square: one leading tall and one leading wide, so the font size sets the leading and the leading sets every other measure. The type area's width, gutter, side margins, and head and foot margins are whole squares, and `grid-css` writes them in `rlh`. The measure stays in ch, because it counts characters. When the body font is monospace, as its `post` table says, a square must also be a whole number of characters wide, so every column holds whole characters. The default gutter and side margin are one square, and the default head and foot margins are two. The square follows Karl Gerstner's unit for *Capital*, one line of body type used in both directions. It is not Müller-Brockmann's module, which is one field, a column wide and a whole number of lines tall.
 
-Each type area sets its margin in ch, and `grid-css` writes it as `--margin`. The generated `.type-area` rule makes an element as wide as the type area and centers it, with at least the margin on each side when the screen is narrower. A page puts its content in that element, and the overlay draws its layer with the same width, so the overlay's columns sit on the page's.
+Each type area sets its side margin in squares, and `grid-css` writes it as `--margin`. The generated `.type-area` rule makes an element as wide as the type area and centers it, with at least the margin on each side when the screen is narrower. A page puts its content in that element, and the overlay draws its layer with the same width, so the overlay's columns sit on the page's.
 
-The page's top and bottom edges are baselines too. The spec's head margin is the number of lines from the top edge to the first baseline, and its foot margin the number of lines from the last baseline to the bottom edge, both at least one and two by default. The generated `.type-area` rule pads its content by those amounts less the space a line box keeps above and below its baseline, so a page built in it is a whole number of lines tall and ends flush on a baseline. The overlay counts its baselines from the top edge and marks the bottom edge.
+The page's top and bottom edges are baselines too. Each type area's head margin is the number of squares from the top edge to the first baseline, and its foot margin the number of squares from the last baseline to the bottom edge, both at least one, so breakpoints can change them. The generated `.type-area` rule pads its content by those amounts less the space a line box keeps above and below its baseline, so a page built in it is a whole number of lines tall and ends flush on a baseline. The overlay counts its baselines from the top edge and marks the bottom edge.
 
-A type area N units wide with a gutter of g units fits k equal columns when k divides N + g. The defaults use N + g = 120 on wide screens and N + g = 60 on medium screens.
+A type area N squares wide with a gutter of g squares fits k equal columns when k divides N + g. The defaults use N + g = 40 squares on wide screens and N + g = 20 on medium screens.
 
 The measure defaults to `66ch`. The library warns when the measure is outside `45ch` to `75ch`, and a measure wider than the widest type area is an error. The library checks no column width, because a column can hold more than one line of text, such as a code pane or an image.
 
@@ -72,7 +73,7 @@ A placement matches elements with a CSS selector and gives them a spatial zone: 
 
 Breakpoints are written in `em`, from narrowest to widest, and each one overrides the type area: its width, gutter, column count and margin. The spec's own type area applies below the first breakpoint. `grid-css` writes a media query per breakpoint that redefines `--gutter`, `--columns`, `--column`, `--grid-width` and `--margin`, so the `.grid` rule and the overlay follow without media queries of their own.
 
-The check fails when a breakpoint's type area does not fit its columns, when breakpoints are out of order, and when a breakpoint is narrower than its type area plus its margin on each side. It converts ch to em with the width of the font's "0" glyph, which is what `1ch` measures, and with the 16px default font size that media queries use.
+The check fails when a breakpoint's type area does not fit its columns, when breakpoints are out of order, and when a breakpoint is narrower than its type area plus its margin on each side. It converts squares to em with the leading and the 16px default font size that media queries use, and compares the measure, in ch, with the widest type area through the width of the font's "0" glyph, which is what `1ch` measures.
 
 The `.grid` columns are `minmax(0, var(--column))`, so on a screen narrower than the first type area the columns shrink instead of overflowing.
 

@@ -72,7 +72,7 @@ pre {
 
 .grid .cell p { margin: 0; }
 
-table { border-collapse: collapse; }
+table { display: block; max-width: 100%; overflow-x: auto; border-collapse: collapse; }
 
 th { text-align: left; }
 
