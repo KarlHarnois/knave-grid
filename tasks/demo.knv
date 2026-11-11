@@ -2,12 +2,12 @@
                 output-directory output-path source-path
                 write-output)
 
-(use demo/fonts demo-font-family)
+(use demo/fonts copy-demo-fonts)
 (use demo/page demo-page)
 (use demo/grid demo-grid)
 
-(use lib checked-grid defgrid font-family grid-css
-         overlay-css overlay-javascript)
+(use lib checked-grid defgrid grid-css overlay-css
+         overlay-javascript)
 
 (def grid-source-path "tasks/demo/grid.knv")
 
@@ -16,10 +16,9 @@
 (deftask demo ()
   "Builds a page that shows the grid into target/demo/."
   (try (create-directories output-directory))
-  (let (monospace (try (demo-font-family "Iosevka" "iosevka"))
-        proportional (try (demo-font-family "Noto Sans" "noto-sans"))
-        monospace-grid (try (checked-demo-grid (clone monospace)))
-        proportional-grid (try (checked-demo-grid proportional))
+  (try (copy-demo-fonts))
+  (let (monospace-grid (try (checked-demo-grid false))
+        proportional-grid (try (checked-demo-grid true))
         template (try (map-err (slurp (as-str (source-path "index.html")))
                                error-text)))
     (try (write-output "grid-monospace.css"
@@ -33,7 +32,7 @@
                   (as-str (demo-page (as-str template)
                                      (ref monospace-grid)
                                      (as-str (try (demo-grid-source)))
-                                     (as-str (broken-spec-error monospace)))))))
+                                     (as-str (broken-spec-error)))))))
 
 (defn copy-page-files (index)
   (if (>= index (len page-files))
@@ -44,14 +43,17 @@
       (recur (+ index 1)))))
 
 (type checked-demo-grid
-  (fn (font-family) (result checked-grid string)))
+  (fn (bool) (result checked-grid string)))
 
-(defn checked-demo-grid (family)
-  (map-err (demo-grid family) error-text))
+(defn checked-demo-grid (proportional?)
+  (map-err (demo-grid proportional?) error-text))
 
 (defgrid seven-column-grid
-         (family)
-         (body family :size 18 :line-height 1.5)
+         ()
+         (fonts :from "demo/fonts"
+                :at "."
+                (iosevka "Iosevka" (regular "iosevka-regular.woff2")))
+         (body iosevka :size 18 :line-height 1.5)
          (type-areas (narrow :width 19 :column-count 1)
                      (wide :width 39 :column-count 7 :margin 2)))
 
@@ -63,7 +65,7 @@
   (rust "{0}[{0}.find(\"(defgrid\").unwrap_or(0)..].trim_end().to_string()"
     (fn ((ref str)) string)))
 
-(defn broken-spec-error (family)
-  (match (seven-column-grid family)
+(defn broken-spec-error ()
+  (match (seven-column-grid)
     ((ok _) (str "no error"))
     ((err error) (str error))))

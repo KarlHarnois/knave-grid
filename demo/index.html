@@ -28,7 +28,7 @@
 
 <section>
   <h2>The spec</h2>
-  <p>The page's grid is one <code>defgrid</code> form. It defines <code>demo-grid</code>, a function of the body font family that builds the spec and checks it. The demo task reads the font from its file, calls <code>demo-grid</code>, and writes the CSS. This is the form, from <code>tasks/demo/grid.knv</code>:</p>
+  <p>The page's grid is one <code>defgrid</code> form. It defines <code>demo-grid</code>, a function that reads both fonts, builds the spec and checks it. Its parameter picks the body font, so the demo task calls it once for Iosevka and once for Noto Sans and writes a stylesheet for each. This is the form, from <code>tasks/demo/grid.knv</code>:</p>
   <pre><code>{{spec}}</code></pre>
 </section>
 

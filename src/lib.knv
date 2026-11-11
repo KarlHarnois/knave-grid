@@ -1,22 +1,7 @@
-(use check/grid check-grid checked-grid grid-error
-                grid-warning)
-
+(use check/grid checked-grid grid-error grid-warning)
 (use css/grid grid-css)
 (use defgrid defgrid)
-
-(use font/family ->font-file font-family font-file
-                 read-font-family)
-
-(use font/tables font-error)
 (use overlay overlay-css overlay-javascript)
-(use spec/body-type ->body-type body-type)
-(use spec/grid-spec ->grid-spec grid-spec)
-(use spec/type-area ->type-area type-area)
-(use spec/type-style ->type-style type-style)
 
-(export ->body-type ->font-file ->grid-spec ->type-area
-        ->type-style body-type check-grid checked-grid
-        defgrid font-error font-family font-file grid-css
-        grid-error grid-spec grid-warning overlay-css
-        overlay-javascript read-font-family type-area
-        type-style)
+(export checked-grid defgrid grid-css grid-error
+        grid-warning overlay-css overlay-javascript)

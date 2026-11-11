@@ -1,4 +1,5 @@
 (use check/measure check-measure measure-warnings)
+(use check/font-weights check-font-weights)
 (use check/page-margins check-page-margins)
 (use check/problems grid-error grid-warning)
 (use check/square check-square)
@@ -22,6 +23,7 @@
   (if (empty? (:type-areas spec))
     (err grid-error/no-type-area)
     (let (all (layouts (ref spec)))
+      (try (check-font-weights (ref spec)))
       (try (check-square (:body-type spec)))
       (try (check-layouts (ref all) 0))
       (try (check-measure (ref spec) (ref all)))

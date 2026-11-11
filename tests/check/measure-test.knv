@@ -1,6 +1,8 @@
 (use spec/fake-type body-type-at)
 (use spec/measure measure-columns)
-(use lib ->grid-spec ->type-area check-grid)
+(use check/grid check-grid)
+(use spec/grid-spec ->grid-spec)
+(use spec/type-area ->type-area)
 
 (defn four-columns (measure-columns)
   (->type-area :name (str "page")

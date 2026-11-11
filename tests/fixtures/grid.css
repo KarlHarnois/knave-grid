@@ -21,6 +21,7 @@
 :root {
   font-size: 125%;
   font-family: "Fake Sans";
+  font-weight: 400;
   line-height: 1.4;
   --leading: 1rlh;
   --_grid-baseline-offset: calc(20rem / 20);

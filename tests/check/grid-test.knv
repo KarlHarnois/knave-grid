@@ -1,6 +1,8 @@
 (use spec/fake-type body-type-at body-type-with)
 (use font/metrics ->font-metrics)
-(use lib ->grid-spec ->type-area check-grid)
+(use check/grid check-grid)
+(use spec/grid-spec ->grid-spec)
+(use spec/type-area ->type-area)
 
 (defn checked-spec (column-count)
   (check-grid (->grid-spec :body-type (body-type-at 18.0 1.5)

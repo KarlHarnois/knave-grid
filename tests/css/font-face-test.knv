@@ -1,7 +1,9 @@
 (use css/font-face font-face-css)
 (use font/family ->font-face ->font-family)
 (use font/metrics ->font-metrics)
-(use lib ->body-type ->grid-spec ->type-area)
+(use spec/body-type ->body-type)
+(use spec/grid-spec ->grid-spec)
+(use spec/type-area ->type-area)
 
 (defn fake-sans-family ()
   (->font-family (str "Fake Sans")
@@ -14,7 +16,9 @@
                         (->font-metrics 2000 1850 570 500 700 false)))))
 
 (deftest overrides-each-face-with-its-metrics
-  (let (spec (->grid-spec :body-type (->body-type 18.0 1.5 (fake-sans-family))
+  (let (spec (->grid-spec :body-type (->body-type :size 18.0
+                                                  :line-height 1.5
+                                                  :font-family (fake-sans-family))
                           :type-areas (vec (->type-area :name (str "page")
                                                         :width 19
                                                         :column-count 1))))
