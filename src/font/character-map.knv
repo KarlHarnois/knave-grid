@@ -11,7 +11,7 @@
 
 (type glyph-for
   (fn ((ref font-tables) i64)
-    (result i64 font-error)))
+    (result (option i64) font-error)))
 
 (defn glyph-for (tables code-point)
   (let (data (:data tables)
@@ -21,9 +21,7 @@
         glyph (if (= format 4)
                 (try (format-4-glyph data subtable code-point))
                 (try (format-12-glyph data subtable code-point))))
-    (if (= glyph 0)
-      (malformed "the font has no glyph for 0, so its ch is unknown")
-      (ok glyph))))
+    (ok (if (= glyph 0) none (some glyph)))))
 
 (defn unicode-subtable (data cmap index)
   (let (record-count (try (present (u16-at data (+ cmap 2))))

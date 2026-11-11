@@ -2,25 +2,24 @@
 
 (export demo-grid)
 
-(defgrid demo-grid
-         (proportional?)
-         (fonts :from "demo/fonts"
-                (iosevka "Iosevka"
-                         (regular "iosevka-regular.woff2")
-                         (bold "iosevka-bold.woff2"))
-                (noto-sans "Noto Sans"
-                           (regular "noto-sans-regular.woff2")
-                           (bold "noto-sans-bold.woff2")))
-         (body (if proportional? noto-sans iosevka)
-               :size 18
-               :line-height 1.5)
-         (type-areas (narrow :width 19 :column-count 1 :head 1)
-                     (medium :width 19 :column-count 2)
-                     (wide :width 39
-                           :column-count 4
-                           :margin 2
-                           :foot 3
-                           :field-lines 4))
-         (type-styles (display :lines 2)
-                      (headline :lines 3)
-                      (title :lines 4)))
+(defgrid demo-grid (proportional?)
+  (fonts :from "demo/fonts"
+         (iosevka "Iosevka"
+                  (regular "iosevka-regular.woff2")
+                  (bold "iosevka-bold.woff2"))
+         (noto-sans "Noto Sans"
+                    (regular "noto-sans-regular.woff2")
+                    (bold "noto-sans-bold.woff2")))
+  (body (if proportional? noto-sans iosevka)
+        :size 18
+        :line-height 1.5)
+  (type-areas (narrow :width 19 :column-count 1 :head 1)
+              (medium :width 19 :column-count 2)
+              (wide :width 39
+                    :column-count 4
+                    :margin 2
+                    :foot 3
+                    :field-lines 4))
+  (type-styles (display :lines 2)
+               (headline :lines 3)
+               (title :lines 4)))

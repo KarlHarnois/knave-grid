@@ -1,0 +1,20 @@
+(use check/problems column-count-text)
+
+(export grid-warning narrowest-measure-ch widest-measure-ch)
+
+(def narrowest-measure-ch 45)
+
+(def widest-measure-ch 75)
+
+(defenum grid-warning
+  (measure-out-of-range :layout string
+                        :columns i64
+                        :characters f64))
+
+(display grid-warning (warning)
+  (match warning
+    ((measure-out-of-range layout columns characters)
+     (str "in " layout ", the measure spans "
+          (column-count-text (deref columns))
+          ", " characters " characters, outside "
+          narrowest-measure-ch " to " widest-measure-ch))))

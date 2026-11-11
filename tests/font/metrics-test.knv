@@ -22,11 +22,11 @@
 
 (deftest reads-hhea-metrics-even-when-the-font-asks-for-typo-metrics
   (assert (= (unwrap-ok (parse-font-metrics (ref (woff2-bytes (font-asking-for-typo-metrics)))))
-             (->font-metrics 2000 1700 500 500 1400 true))))
+             (->font-metrics 2000 1700 500 (some 500) 1400 true))))
 
 (deftest reads-hhea-metrics-from-a-truetype-font
   (assert (= (unwrap-ok (parse-font-metrics (ref (truetype-bytes (font-without-the-typo-flag)))))
-             (->font-metrics 1000 900 300 500 700 true))))
+             (->font-metrics 1000 900 300 (some 500) 700 true))))
 
 (deftest reads-the-same-metrics-from-woff2-and-truetype
   (assert (= (parse-font-metrics (ref (woff2-bytes (font-without-the-typo-flag))))
@@ -47,11 +47,21 @@
 
 (deftest reads-the-width-of-the-zero-glyph-from-a-truetype-font
   (assert (= (zero-width-of (truetype-bytes (font-with-a-narrow-zero false)))
-             450)))
+             (some 450))))
 
 (deftest reads-the-width-of-the-zero-glyph-from-a-transformed-woff2-width-table
   (assert (= (zero-width-of (woff2-bytes (font-with-a-narrow-zero true)))
-             450)))
+             (some 450))))
+
+(deftest reads-a-subset-font-without-a-zero
+  (let (font (->fake-font :units-per-em 1000
+                          :hhea-ascender 900
+                          :hhea-descender -300
+                          :typo-ascender 800
+                          :typo-descender -200
+                          :uses-typo-metrics? false
+                          :mapped-code-point 107))
+    (assert (= (zero-width-of (truetype-bytes font)) none))))
 
 (deftest rejects-a-file-that-is-not-a-font
   (assert (= (str (unwrap-err (read-font-metrics "tests/fixtures/grid.css")))

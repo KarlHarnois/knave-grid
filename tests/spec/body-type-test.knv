@@ -15,6 +15,7 @@
              20.0)))
 
 (deftest rounds-the-ascent-and-descent-then-the-half-leading-down
-  (let (type (body-type-with 18.0 1.5
-                             (->font-metrics 1000 950 300 500 700 false)))
+  (let (type (body-type-with
+               18.0 1.5
+               (->font-metrics 1000 950 300 (some 500) 700 false)))
     (assert (= (baseline-offset-px (ref type)) 19.0))))

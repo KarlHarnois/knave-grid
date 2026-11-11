@@ -6,16 +6,16 @@
 (use spec/type-area ->type-area)
 
 (defn fake-sans-family ()
-  (->font-family (str "Fake Sans")
-                 (vec
-                   (->font-face 400
-                                (str "fake-sans-regular.woff2")
-                                (str "tests/fixtures/fake-sans-regular.woff2")
-                                (->font-metrics 1000 800 200 500 700 false))
-                   (->font-face 700
-                                (str "fake-sans-bold.woff2")
-                                (str "tests/fixtures/fake-sans-bold.woff2")
-                                (->font-metrics 2000 1850 570 500 700 false)))))
+  (->font-family
+    (str "Fake Sans")
+    (vec (->font-face 400
+                      (str "fake-sans-regular.woff2")
+                      (str "tests/fixtures/fake-sans-regular.woff2")
+                      (->font-metrics 1000 800 200 (some 500) 700 false))
+         (->font-face 700
+                      (str "fake-sans-bold.woff2")
+                      (str "tests/fixtures/fake-sans-bold.woff2")
+                      (->font-metrics 2000 1850 570 (some 500) 700 false)))))
 
 (deftest overrides-each-face-with-its-metrics
   (let (spec (->grid-spec :body-type (->body-type :size 18.0

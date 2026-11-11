@@ -18,7 +18,9 @@
   :cap-height i64
   :os2-version i64
   :fixed-pitch? bool
+  :mapped-code-point i64
   (defaults :zero-width 500
+            :mapped-code-point 48
             :transformed-hmtx? false
             :cap-height 700
             :os2-version 4
@@ -55,7 +57,9 @@
     (vec fake-table)))
 
 (defn tables-with-hmtx (font hmtx)
-  (vec (->fake-table (str "cmap") 0 (cmap-table))
+  (vec (->fake-table (str "cmap")
+                     0
+                     (cmap-table (:mapped-code-point font)))
        (->fake-table (str "head") 1 (head-table font))
        (->fake-table (str "hhea") 2 (hhea-table font))
        (->fake-table (str "hmtx") 3 hmtx)

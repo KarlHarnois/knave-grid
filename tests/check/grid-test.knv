@@ -1,4 +1,5 @@
-(use spec/fake-type body-type-at body-type-with)
+(use spec/fake-type body-type-at body-type-with fake-family)
+(use spec/type-style ->type-style)
 (use font/metrics ->font-metrics)
 (use check/grid check-grid)
 (use spec/grid-spec ->grid-spec)
@@ -20,7 +21,7 @@
 
 (deftest accepts-a-monospace-font-whose-square-is-whole-characters
   (let (body (body-type-with 18.0 1.5
-                             (->font-metrics 1000 800 200 500 700 true)))
+                             (->font-metrics 1000 800 200 (some 500) 700 true)))
     (assert (ok? (check-grid (->grid-spec
                                :body-type body
                                :type-areas (vec (->type-area
@@ -30,7 +31,7 @@
 
 (deftest rejects-a-monospace-font-whose-square-splits-a-character
   (let (body (body-type-with 20.0 1.4
-                             (->font-metrics 1000 800 200 500 700 true)))
+                             (->font-metrics 1000 800 200 (some 500) 700 true)))
     (assert (= (str (unwrap-err (check-grid
                                   (->grid-spec
                                     :body-type body
@@ -39,3 +40,29 @@
                                                        :width 39
                                                        :column-count 4))))))
                "the body font is monospace, but a square of 28px is 2.8 characters of 10px; choose a line-height that makes it a whole number"))))
+
+(deftest rejects-a-body-font-without-a-zero
+  (let (body (body-type-with 18.0 1.5
+                             (->font-metrics 1000 800 200 none 700 false)))
+    (assert (= (str (unwrap-err (check-grid
+                                  (->grid-spec
+                                    :body-type body
+                                    :type-areas (vec (->type-area
+                                                       :name (str "page")
+                                                       :width 19
+                                                       :column-count 1))))))
+               "the body font Fake Sans has no glyph for 0, so the grid cannot measure its characters; give the body a full font file"))))
+
+(deftest accepts-a-subset-font-for-a-type-style
+  (let (subset (fake-family "Fake Light" "fake-light.woff2"
+                            (->font-metrics 1000 800 200 none 700 false)))
+    (assert (ok? (check-grid (->grid-spec
+                               :body-type (body-type-at 18.0 1.5)
+                               :type-areas (vec (->type-area :name (str "page")
+                                                             :width 19
+                                                             :column-count 1))
+                               :type-styles (vec (->type-style :name (str "wordmark")
+                                                               :lines 4
+                                                               :size (some 72.0)
+                                                               :font-family (some
+                                                                              subset)))))))))

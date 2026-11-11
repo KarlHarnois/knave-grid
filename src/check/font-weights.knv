@@ -1,6 +1,7 @@
 (use check/problems grid-error)
 (use font/family font-family has-weight?)
 (use font/weight weight-number)
+(use spec/body-type body-metrics body-type)
 (use spec/grid-spec grid-spec)
 (use spec/type-style type-style)
 
@@ -15,7 +16,18 @@
     (try (check-weight (str "the body")
                        (:font-family body)
                        (as-str (:weight body))))
+    (try (check-body-zero body))
     (check-styles spec 0)))
+
+(type check-body-zero
+  (fn ((ref body-type))
+    (result unit grid-error)))
+
+(defn check-body-zero (body)
+  (match (:zero-width (body-metrics body))
+    ((some _) (ok (do)))
+    (none (err (grid-error/body-font-without-zero (clone (:name (:font-family
+                                                                  body))))))))
 
 (type check-styles
   (fn ((ref grid-spec) usize)
