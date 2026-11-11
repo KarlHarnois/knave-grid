@@ -51,13 +51,12 @@
 (defn checked-demo-grid (proportional?)
   (map-err (demo-grid proportional?) error-text))
 
-(defgrid seven-column-grid
-         ()
-         (fonts :from "demo/fonts"
-                (iosevka "Iosevka" (regular "iosevka-regular.woff2")))
-         (body iosevka :size 18 :line-height 1.5)
-         (type-areas (narrow :width 19 :column-count 1)
-                     (wide :width 39 :column-count 7 :margin 2)))
+(defgrid seven-column-grid ()
+  (fonts :from "demo/fonts"
+         (iosevka "Iosevka" (regular "iosevka-regular.woff2")))
+  (body iosevka :size 18 :line-height 1.5)
+  (type-areas (narrow :width 19 :column-count 1)
+              (wide :width 39 :column-count 7 :margin 2)))
 
 (defn demo-grid-source ()
   (let (source (try (map-err (slurp grid-source-path) error-text)))
