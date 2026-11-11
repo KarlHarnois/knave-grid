@@ -1,0 +1,18 @@
+(use css/declaration declaration)
+(use spec/type-area type-area)
+
+(export field-row-declarations)
+
+(type field-row-declarations
+  (fn ((ref type-area)) string))
+
+(defn field-row-declarations (type-area)
+  (match (:field-lines type-area)
+    ((some lines)
+     (let (gap (:field-gap type-area))
+       (str (declaration "--field" (lines-css lines))
+            (declaration "--field-gap" (lines-css gap))
+            (declaration "--field-pitch" (lines-css (+ lines gap))))))
+    (none (str))))
+
+(defn lines-css (count) (str count "rlh"))

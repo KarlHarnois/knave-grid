@@ -1,27 +1,34 @@
 (use spec/fake-type body-type-with)
 (use font/metrics ->font-metrics)
 (use spec/type-style ->type-style)
-(use spec/type-style style-shift-px)
+(use spec/type-style style-baseline-line style-shift-px)
 
 (defn body-with-tall-ascent ()
   (body-type-with 18.0 1.5
                   (->font-metrics 1000 965 215 500 700 false)))
 
-(defn shift-for (lines)
-  (style-shift-px (ref (->type-style :name (str "style") :lines lines))
-                  (ref (body-with-tall-ascent))))
+(defn hanging-line-for (lines size)
+  (style-baseline-line
+    (ref (->type-style :name (str "style") :lines lines :size size))
+    (ref (body-with-tall-ascent))))
 
 (deftest leaves-a-one-line-style-on-the-body-baseline
-  (assert (= (shift-for 1) 0.0)))
+  (assert (= (style-shift-px (ref (->type-style :name (str "style") :lines 1))
+                             (ref (body-with-tall-ascent)))
+             0.0)))
 
-(deftest moves-a-two-line-style-down-to-the-second-baseline
-  (assert (= (shift-for 2) 7.0)))
+(deftest hangs-capitals-as-tall-as-the-body-s-on-the-first-baseline
+  (assert (= (hanging-line-for 2 (some 18.0)) 1)))
 
-(deftest moves-a-three-line-style-down-to-its-last-baseline
-  (assert (= (shift-for 3) 14.0)))
+(deftest hangs-capitals-that-pass-the-first-baseline-on-the-next
+  (assert (= (hanging-line-for 2 (some 30.0)) 2)))
 
-(deftest moves-a-four-line-style-down-to-its-last-baseline
-  (assert (= (shift-for 4) 20.0)))
+(deftest hangs-a-style-on-the-first-baseline-below-its-capitals
+  (assert (= (vec (hanging-line-for 3 none) (hanging-line-for 4 none))
+             (vec 2 3))))
+
+(deftest leaves-the-lines-below-a-hanging-style-empty
+  (assert (= (hanging-line-for 4 (some 54.0)) 2)))
 
 (deftest puts-the-baseline-on-the-line-a-style-names
   (assert (= (style-shift-px (ref (->type-style :name (str "title")

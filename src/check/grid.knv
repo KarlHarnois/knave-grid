@@ -1,5 +1,6 @@
 (use check/measure check-measure measure-warnings)
 (use check/font-weights check-font-weights)
+(use check/fields check-fields)
 (use check/page-margins check-page-margins)
 (use check/problems grid-error grid-warning)
 (use check/square check-square)
@@ -64,7 +65,9 @@
                                                   (clone (:name (:type-area
                                                                   previous)))
                                                   (:min-width-em previous)))))
-      (else (check-page-margins type-area)))))
+      (else (do
+              (try (check-page-margins type-area))
+              (check-fields layout))))))
 
 (type name-taken?
   (fn ((ref (vec layout)) usize) bool))

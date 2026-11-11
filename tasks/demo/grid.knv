@@ -16,7 +16,11 @@
                :line-height 1.5)
          (type-areas (narrow :width 19 :column-count 1 :head 1)
                      (medium :width 19 :column-count 2)
-                     (wide :width 39 :column-count 4 :margin 2 :foot 3))
+                     (wide :width 39
+                           :column-count 4
+                           :margin 2
+                           :foot 3
+                           :field-lines 4))
          (type-styles (display :lines 2)
                       (headline :lines 3)
                       (title :lines 4)))

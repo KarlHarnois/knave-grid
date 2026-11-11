@@ -1,0 +1,27 @@
+(use font/metrics font-metrics)
+(use spec/body-type body-metrics body-type leading-px)
+
+(export hanging-line)
+
+(def float-of
+  (rust "{0} as f64" (fn (i64) f64)))
+
+(def whole-lines-up
+  (rust "{0}.ceil().max(0.0) as i64" (fn (f64) i64)))
+
+(type hanging-line
+  (fn ((ref font-metrics) f64 (ref body-type))
+    i64))
+
+(defn hanging-line (metrics size body)
+  (let (cap-below-body-cap (- (cap-height-px metrics size)
+                              (cap-height-px (body-metrics body) (:size body))))
+    (+ 1
+       (whole-lines-up (/ cap-below-body-cap (leading-px body))))))
+
+(type cap-height-px
+  (fn ((ref font-metrics) f64) f64))
+
+(defn cap-height-px (metrics size)
+  (/ (* size (float-of (:cap-height metrics)))
+     (float-of (:units-per-em metrics))))

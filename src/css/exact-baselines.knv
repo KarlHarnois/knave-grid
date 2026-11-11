@@ -42,7 +42,7 @@
          " {\n"
          (declaration "top"
                       (str "calc("
-                           (- (style-baseline-line style) 1)
+                           (- (style-baseline-line style body) 1)
                            "rlh + var(--_grid-baseline-offset) - "
                            offset ")"))
          "}\n")))

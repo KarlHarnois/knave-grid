@@ -6,6 +6,7 @@
 (use css/declaration declaration indented)
 (use css/exact-baselines exact-baseline-rules)
 (use css/font-face font-face-css)
+(use css/field-rows field-row-declarations)
 (use css/fields field-declarations field-rule)
 (use css/type-styles type-style-rules)
 (use spec/measure measure-columns)
@@ -111,7 +112,8 @@
                     (squares-css (:margin type-area)))
        (declaration "--_grid-head" (str (:head type-area)))
        (declaration "--_grid-foot" (str (:foot type-area)))
-       (declaration "--measure" (measure-css type-area spec))))
+       (declaration "--measure" (measure-css type-area spec))
+       (field-row-declarations type-area)))
 
 (type measure-css
   (fn ((ref type-area) (ref grid-spec))

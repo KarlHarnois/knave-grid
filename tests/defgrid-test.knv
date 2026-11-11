@@ -11,7 +11,11 @@
                            (bold "fake-sans-bold.ttf")))
          (body fake-sans :size 18 :line-height 1.5)
          (type-areas (narrow :width 19 :column-count 1 :head 1)
-                     (wide :width 39 :column-count 4 :margin 2))
+                     (wide :width 39
+                           :column-count 4
+                           :margin 2
+                           :measure-columns 2
+                           :field-lines 4))
          (type-styles (headline :lines 3 :weight bold)))
 
 (defgrid plain-grid
@@ -50,7 +54,7 @@
   (write-fake-font-files)
   (let (checked (unwrap-ok (site-grid)))
     (assert (= (pr-str (:spec checked))
-               "(->grid-spec :body-type (->body-type :size 18.0 :line-height 1.5 :font-family (font-family \"Fake Sans\") :weight \"regular\") :type-areas (vec (->type-area :name \"narrow\" :width 19 :gutter 1 :column-count 1 :margin 1 :head 1 :foot 2 :measure-columns none) (->type-area :name \"wide\" :width 39 :gutter 1 :column-count 4 :margin 2 :head 2 :foot 2 :measure-columns none)) :type-styles (vec (->type-style :name \"headline\" :lines 3 :size none :font-family none :weight (some \"bold\") :baseline-line none)))"))))
+               "(->grid-spec :body-type (->body-type :size 18.0 :line-height 1.5 :font-family (font-family \"Fake Sans\") :weight \"regular\") :type-areas (vec (->type-area :name \"narrow\" :width 19 :gutter 1 :column-count 1 :margin 1 :head 1 :foot 2 :measure-columns none :field-lines none :field-gap 1) (->type-area :name \"wide\" :width 39 :gutter 1 :column-count 4 :margin 2 :head 2 :foot 2 :measure-columns (some 2) :field-lines (some 4) :field-gap 1)) :type-styles (vec (->type-style :name \"headline\" :lines 3 :size none :font-family none :weight (some \"bold\") :baseline-line none)))"))))
 
 (deftest leaves-out-the-type-styles
   (write-fake-font-files)
@@ -89,3 +93,9 @@
   (assert (file-exists? "target/written-grid/grid.css"))
   (assert (file-exists? "target/written-grid/fake-sans-regular.ttf"))
   (assert (file-exists? "target/written-grid/fake-sans-bold.ttf")))
+
+(deftest writes-the-fields-of-a-type-area
+  (write-fake-font-files)
+  (let (css (grid-css (ref (unwrap-ok (site-grid)))))
+    (assert (contains? (as-str css)
+                       "--field: 4rlh;\n    --field-gap: 1rlh;\n    --field-pitch: 5rlh;"))))
