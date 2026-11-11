@@ -1,6 +1,9 @@
-(use font/face font-face)
+(use font/family family-metrics font-family)
 (use font/metrics font-metrics)
-(use spec/body-type baseline-offset-px body-type leading-px)
+
+(use spec/body-type baseline-offset-px body-metrics
+                    body-type leading-px)
+
 (use spec/line-box baseline-in-line-px)
 
 (export ->type-style style-baseline-line style-font-size-px
@@ -11,9 +14,11 @@
   :name string
   :lines i64
   :font-size-px (option f64)
-  :face (option font-face)
+  :font-family (option font-family)
   :baseline-line (option i64)
-  (defaults :font-size-px none :face none :baseline-line none))
+  (defaults :font-size-px none
+            :font-family none
+            :baseline-line none))
 
 (def float-of
   (rust "{0} as f64" (fn (i64) f64)))
@@ -67,6 +72,6 @@
     font-metrics))
 
 (defn style-metrics (style body)
-  (match (:face style)
-    ((some face) (deref (:metrics face)))
-    (none (deref (:metrics body)))))
+  (match (:font-family style)
+    ((some family) (deref (family-metrics family)))
+    (none (deref (body-metrics body)))))

@@ -1,32 +1,21 @@
-(use spec/body-type ->body-type baseline-offset-px
-                    leading-px)
-
 (use check/grid check-grid checked-grid grid-error
                 grid-warning)
 
 (use css/grid grid-css)
-(use css/font-face font-face-css)
-(use font/face ->font-face font-face)
 
-(use font/metrics ->font-metrics font-error font-metrics
-                  parse-font-metrics read-font-metrics)
+(use font/family ->font-file font-family font-file
+                 read-font-family)
 
-(use spec/length length length-css)
-(use spec/measure measure-columns)
+(use font/tables font-error)
 (use overlay overlay-css overlay-javascript)
-(use spec/grid-spec ->breakpoint ->grid-spec breakpoint)
+(use spec/body-type ->body-type body-type)
+(use spec/grid-spec ->grid-spec grid-spec)
+(use spec/type-area ->type-area type-area)
+(use spec/type-style ->type-style type-style)
 
-(use spec/type-style ->type-style style-font-size-px
-                     style-shift-px type-style)
-
-(use spec/type-area ->type-area)
-
-(export ->body-type ->breakpoint ->font-face ->font-metrics
-        ->grid-spec ->type-area ->type-style
-        baseline-offset-px check-grid checked-grid
-        font-error font-face font-face-css font-metrics
-        grid-css grid-error grid-warning leading-px length
-        length-css measure-columns overlay-css
-        overlay-javascript parse-font-metrics
-        read-font-metrics style-font-size-px style-shift-px
+(export ->body-type ->font-file ->grid-spec ->type-area
+        ->type-style body-type check-grid checked-grid
+        font-error font-family font-file grid-css grid-error
+        grid-spec grid-warning overlay-css
+        overlay-javascript read-font-family type-area
         type-style)

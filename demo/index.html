@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>knave-grid demo</title>
-<link rel="stylesheet" href="fonts.css">
 <link rel="stylesheet" href="grid-monospace.css" id="grid-monospace">
 <link rel="stylesheet" href="grid-proportional.css" id="grid-proportional" media="not all">
 <link rel="preload" href="noto-sans-regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -29,13 +28,13 @@
 
 <section>
   <h2>The spec</h2>
-  <p>The page's grid is plain Knave data. The demo task reads the font metrics from the font file, checks the spec, and writes the CSS. This is the spec it built, as Knave prints it:</p>
+  <p>The page's grid is plain Knave data. The demo task reads the font metrics from the font file, checks the spec, and writes the CSS. This is the spec it built, as Knave prints it, one field per line, without the fields left at <code>none</code>:</p>
   <pre><code>{{spec}}</code></pre>
 </section>
 
 <section>
   <h2>The type area</h2>
-  <p>Every measure here is in squares: one square is one leading, 27px, in both directions, which is exactly 3ch of Iosevka. The type area follows the width of the screen, and each breakpoint sets its own width, columns, gutter and margins. The check makes sure each type area fits its columns and its breakpoint. Head and foot margins count squares from the page edge to the nearest baseline, so the page starts and ends on a baseline.</p>
+  <p>Every measure here is in squares: one square is one leading, 27px, in both directions, which is exactly 3ch of Iosevka. The spec lists type areas from narrowest to widest, each with its own width, columns, gutter and margins, and each one takes over once the screen is wide enough for it and its margins. The check makes sure each type area fits its columns. Head and foot margins count squares from the page edge to the nearest baseline, so the page starts and ends on a baseline.</p>
   <table>
     <thead><tr><th>Screen</th><th>Width</th><th>Columns</th><th>Side margins</th><th>Head / foot</th></tr></thead>
     <tbody>
@@ -90,17 +89,6 @@
 </section>
 
 <section>
-  <h2>Lengths</h2>
-  <p>A length in the spec is one of five units. <code>lines</code> and <code>columns</code> resolve against the grid:</p>
-  <table>
-    <thead><tr><th>Knave</th><th>CSS</th></tr></thead>
-    <tbody>
-{{lengths}}
-    </tbody>
-  </table>
-</section>
-
-<section>
   <h2>What the check says</h2>
   <p>This spec passes. {{warnings}}</p>
   <p>A spec whose type area does not fit its columns is an error. The same spec with the widest type area split into seven columns gives:</p>
@@ -109,10 +97,8 @@
 
 <section>
   <h2>Generated CSS</h2>
-  <p><code>grid-css</code> wrote this from the spec:</p>
+  <p><code>grid-css</code> wrote this from the spec. Its <code>@font-face</code> overrides make Chromium and Firefox use the same metrics that Safari reads:</p>
   <pre><code>{{grid-css}}</code></pre>
-  <p><code>font-face-css</code> wrote these rules. The overrides make Chromium and Firefox use the same metrics that Safari reads:</p>
-  <pre><code>{{fonts-css}}</code></pre>
 </section>
 </main>
 </body>

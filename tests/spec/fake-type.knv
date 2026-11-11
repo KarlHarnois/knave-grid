@@ -1,7 +1,17 @@
-(use lib ->body-type ->font-metrics)
+(use font/family ->font-face ->font-family)
+(use font/metrics ->font-metrics)
+(use lib ->body-type)
 
-(export body-type-at)
+(export body-type-at body-type-with fake-family)
+
+(defn fake-family (name url metrics)
+  (->font-family (str name)
+                 (vec (->font-face 400 (str url) metrics))))
+
+(defn body-type-with (font-size-px line-height metrics)
+  (->body-type font-size-px line-height
+               (fake-family "Fake Sans" "/fake-sans.woff2" metrics)))
 
 (defn body-type-at (font-size-px line-height)
-  (->body-type font-size-px line-height
-               (->font-metrics 1000 800 200 500 700 false)))
+  (body-type-with font-size-px line-height
+                  (->font-metrics 1000 800 200 500 700 false)))

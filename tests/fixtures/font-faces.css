@@ -12,7 +12,7 @@
   font-family: "Fake Sans";
   src: url("/fake-sans-bold.woff2");
   font-weight: 700;
-  font-display: block;
+  font-display: swap;
   ascent-override: 92.5%;
   descent-override: 28.5%;
   line-gap-override: 0%;

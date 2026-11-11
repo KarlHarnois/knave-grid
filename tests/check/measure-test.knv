@@ -1,51 +1,49 @@
 (use spec/fake-type body-type-at)
-(use lib ->grid-spec ->type-area check-grid measure-columns)
+(use spec/measure measure-columns)
+(use lib ->grid-spec ->type-area check-grid)
 
 (defn four-columns (measure-columns)
   (->type-area :width 39
                :column-count 4
                :measure-columns measure-columns))
 
-(defn warning-texts (type-area measure-ch)
-  (collect (map (iter (:warnings (unwrap-ok (check-grid
-                                              (->grid-spec
-                                                :body-type (body-type-at 18.0
-                                                                         1.5)
-                                                :type-area type-area
-                                                :measure-ch measure-ch)))))
+(defn two-columns-of-42-characters ()
+  (->type-area :width 29 :column-count 2))
+
+(defn spec-with (type-area)
+  (->grid-spec :body-type (body-type-at 18.0 1.5)
+               :type-areas (vec type-area)))
+
+(defn warning-texts (type-area)
+  (collect (map (iter (:warnings (unwrap-ok (check-grid (spec-with
+                                                          type-area)))))
                 (fn (warning) (str warning)))))
 
-(deftest spans-the-widest-whole-columns-within-the-target
-  (assert (= (measure-columns (ref (four-columns none))
-                              (ref (body-type-at 18.0 1.5))
-                              66)
-             2)))
+(defn columns-of (type-area)
+  (measure-columns (ref type-area)
+                   (ref (body-type-at 18.0 1.5))))
+
+(deftest spans-the-widest-whole-columns-within-66-characters
+  (assert (= (columns-of (four-columns none)) 2)))
 
 (deftest spans-at-least-one-column
-  (assert (= (measure-columns (ref (four-columns none))
-                              (ref (body-type-at 18.0 1.5))
-                              10)
-             1)))
+  (assert (= (columns-of (->type-area :width 39 :column-count 1)) 1)))
 
 (deftest uses-the-span-a-type-area-names
-  (assert (= (measure-columns (ref (four-columns (some 3)))
-                              (ref (body-type-at 18.0 1.5))
-                              66)
+  (assert (= (columns-of (four-columns (some 3)))
              3)))
 
 (deftest accepts-a-span-within-45-to-75-characters
-  (assert (empty? (warning-texts (four-columns none) 66))))
+  (assert (empty? (warning-texts (four-columns none)))))
 
 (deftest warns-about-a-span-wider-than-75-characters
-  (assert (= (warning-texts (four-columns (some 4)) 66)
+  (assert (= (warning-texts (four-columns (some 4)))
              (vec (str "on narrow screens, the measure spans 4 columns, 117 characters, outside 45 to 75")))))
 
 (deftest warns-about-a-span-narrower-than-45-characters
-  (assert (= (warning-texts (four-columns none) 30)
-             (vec (str "on narrow screens, the measure spans 1 columns, 27 characters, outside 45 to 75")))))
+  (assert (= (warning-texts (two-columns-of-42-characters))
+             (vec (str "on narrow screens, the measure spans 1 column, 42 characters, outside 45 to 75")))))
 
 (deftest rejects-a-span-wider-than-the-type-area
-  (let (spec (->grid-spec :body-type (body-type-at 18.0 1.5)
-                          :type-area (four-columns (some 5))))
-    (assert (= (str (unwrap-err (check-grid spec)))
-               "on narrow screens, the measure spans 5 columns, but the type area has columns 1 to 4"))))
+  (assert (= (str (unwrap-err (check-grid (spec-with (four-columns (some 5))))))
+             "on narrow screens, the measure spans 5 columns, but the type area has columns 1 to 4")))

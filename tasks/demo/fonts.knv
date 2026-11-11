@@ -1,44 +1,35 @@
 (use demo/files copy-file error-text output-path
                 source-path)
 
-(use lib ->font-face font-face read-font-metrics)
+(use lib ->font-file font-family font-file read-font-family)
 
-(export demo-family-faces)
+(export demo-font-family)
 
-(defstruct demo-family
-  :family string
-  :file-prefix string)
-
-(type demo-family-faces
+(type demo-font-family
   (fn ((ref str) (ref str))
-    (result (vec font-face) string)))
+    (result font-family string)))
 
-(defn demo-family-faces (family file-prefix)
-  (let (demo-family (->demo-family (str family) (str file-prefix)))
-    (try (copy-license (ref demo-family)))
-    (ok (vec (try (demo-face (ref demo-family) 400 "regular"))
-             (try (demo-face (ref demo-family) 700 "bold"))))))
+(defn demo-font-family (family file-prefix)
+  (try (copy-demo-file (as-str (str file-prefix "-license.txt"))))
+  (let (regular (try (demo-file 400 file-prefix "regular"))
+        bold (try (demo-file 700 file-prefix "bold")))
+    (map-err (read-font-family family (vec regular bold))
+             error-text)))
 
-(type copy-license
-  (fn ((ref demo-family))
-    (result unit string)))
+(type demo-file
+  (fn (i64 (ref str) (ref str))
+    (result font-file string)))
 
-(defn copy-license (demo-family)
-  (let (file-name (str (:file-prefix demo-family) "-license.txt"))
-    (copy-file (as-str (source-path (as-str (str "fonts/" file-name))))
-               (as-str (output-path (as-str file-name))))))
+(defn demo-file (weight file-prefix style-name)
+  (let (file-name (str file-prefix "-" style-name ".woff2"))
+    (try (copy-demo-file (as-str file-name)))
+    (ok (->font-file :weight weight
+                     :path (source-path (as-str (str "fonts/" file-name)))
+                     :url file-name))))
 
-(type demo-face
-  (fn ((ref demo-family) i64 (ref str))
-    (result font-face string)))
+(type copy-demo-file
+  (fn ((ref str)) (result unit string)))
 
-(defn demo-face (demo-family weight style-name)
-  (let (file-name (str (:file-prefix demo-family) "-" style-name ".woff2")
-        source (source-path (as-str (str "fonts/" file-name))))
-    (try (copy-file (as-str source)
-                    (as-str (output-path (as-str file-name)))))
-    (ok (->font-face :family (clone (:family demo-family))
-                     :url file-name
-                     :weight weight
-                     :metrics (try (map-err (read-font-metrics (as-str source))
-                                            error-text))))))
+(defn copy-demo-file (file-name)
+  (copy-file (as-str (source-path (as-str (str "fonts/" file-name))))
+             (as-str (output-path file-name))))

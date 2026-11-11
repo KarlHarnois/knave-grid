@@ -1,0 +1,136 @@
+(use demo/forms form read-text)
+
+(export pretty-printed)
+
+(def line-width 72)
+
+(def indent-width 2)
+
+(type pretty-printed
+  (fn ((ref str)) string))
+
+(defn pretty-printed (text)
+  (laid-out (ref (without-absent-fields (read-text text)))
+            0))
+
+(type without-absent-fields (fn (form) form))
+
+(defn without-absent-fields (form)
+  (match form
+    ((group items) (form/group (present-items items 0 (vec))))
+    ((atom text) (form/atom text))))
+
+(type present-items
+  (fn ((vec form) usize (vec form))
+    (vec form)))
+
+(defn present-items (items index kept)
+  (cond
+    ((>= index (len items)) kept)
+    ((absent-field? (ref items) index)
+     (recur items (+ index 2) kept))
+    (else (do
+            (push! kept
+                   (without-absent-fields (clone (at items index))))
+            (recur items (+ index 1) kept)))))
+
+(type absent-field?
+  (fn ((ref (vec form)) usize) bool))
+
+(defn absent-field? (items index)
+  (and (< (+ index 1) (len items))
+       (keyword? (at items index))
+       (= (flat-text (at items (+ index 1)))
+          "none")))
+
+(type keyword? (fn ((ref form)) bool))
+
+(defn keyword? (form)
+  (match form
+    ((atom text) (starts-with? (as-str text) ":"))
+    ((group _) false)))
+
+(type laid-out
+  (fn ((ref form) usize) string))
+
+(defn laid-out (form column)
+  (let (flat (flat-text form))
+    (match form
+      ((group items)
+       (if (fits? (as-str flat) column)
+         flat
+         (broken-group items column)))
+      ((atom _) flat))))
+
+(defn fits? (flat column)
+  (<= (+ column (len flat)) line-width))
+
+(type flat-text
+  (fn ((ref form)) string))
+
+(defn flat-text (form)
+  (match form
+    ((atom text) (clone text))
+    ((group items)
+     (str "("
+          (joined (collect (map (iter items) flat-text))
+                  " ")
+          ")"))))
+
+(def joined
+  (rust "{0}.join({1})"
+    (fn ((vec string) (ref str)) string)))
+
+(type broken-group
+  (fn ((ref (vec form)) usize) string))
+
+(defn broken-group (items column)
+  (let (head (flat-text (at items 0)))
+    (if (struct-fields? items)
+      (str "(" head (fields-text items column 1) ")")
+      (str "(" head " "
+           (elements-text items (+ column (len head) indent-width) 1)
+           ")"))))
+
+(type struct-fields?
+  (fn ((ref (vec form))) bool))
+
+(defn struct-fields? (items)
+  (and (> (len items) 1)
+       (keyword? (at items 1))))
+
+(def starts-with?
+  (rust "{0}.starts_with({1})"
+    (fn ((ref str) (ref str)) bool)))
+
+(type fields-text
+  (fn ((ref (vec form)) usize usize)
+    string))
+
+(defn fields-text (items column index)
+  (if (>= (+ index 1) (len items))
+    (str)
+    (let (key (flat-text (at items index))
+          field-column (+ column indent-width)
+          value-column (+ field-column (len key) 1))
+      (str "\n"
+           (spaces field-column)
+           key " "
+           (laid-out (at items (+ index 1)) value-column)
+           (fields-text items column (+ index 2))))))
+
+(type elements-text
+  (fn ((ref (vec form)) usize usize)
+    string))
+
+(defn elements-text (items column index)
+  (if (>= index (len items))
+    (str)
+    (str (if (> index 1)
+           (str "\n" (spaces column))
+           (str))
+         (laid-out (at items index) column)
+         (elements-text items column (+ index 1)))))
+
+(def spaces
+  (rust "\" \".repeat({0})" (fn (usize) string)))
