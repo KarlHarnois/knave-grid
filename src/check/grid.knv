@@ -3,82 +3,71 @@
 (use check/problems grid-error grid-warning)
 (use check/square check-square)
 (use check/type-styles check-type-styles)
-(use browser default-font-size-px)
-(use spec/body-type body-type leading-px)
-(use spec/grid-spec breakpoint grid-spec)
-(use spec/type-area fits? fitting-column-counts type-area)
+(use spec/grid-spec grid-spec)
+(use spec/layout layout layout-label layouts)
+(use spec/type-area fits? fitting-column-counts)
 
 (export ->checked-grid check-grid checked-grid grid-error
         grid-warning)
 
-(def margin-count 2)
-
-(def float-of
-  (rust "{0} as f64" (fn (i64) f64)))
-
 (defstruct checked-grid
   :spec grid-spec
+  :layouts (vec layout)
   :warnings (vec grid-warning))
 
 (type check-grid
   (fn (grid-spec) (result checked-grid grid-error)))
 
 (defn check-grid (spec)
-  (let (type-area (:type-area spec))
-    (if (fits? type-area)
-      (do
-        (try (check-square (:body-type spec)))
-        (try (check-page-margins type-area))
-        (try (check-breakpoints (ref spec) 0 0.0))
-        (try (check-measure (ref spec)))
-        (try (check-type-styles (ref spec) 0))
-        (let (warnings (measure-warnings (ref spec)))
-          (ok (->checked-grid spec warnings))))
-      (err (grid-error/type-area-does-not-fit type-area
-                                              (fitting-column-counts
-                                                type-area))))))
+  (if (empty? (:type-areas spec))
+    (err grid-error/no-type-area)
+    (let (all (layouts (ref spec)))
+      (try (check-square (:body-type spec)))
+      (try (check-layouts (ref all) 0 0.0))
+      (try (check-measure (ref spec) (ref all)))
+      (try (check-type-styles (ref spec) 0))
+      (let (warnings (measure-warnings (ref spec) (ref all)))
+        (ok (->checked-grid spec all warnings))))))
 
-(type check-breakpoints
-  (fn ((ref grid-spec) usize f64)
+(type check-layouts
+  (fn ((ref (vec layout)) usize f64)
     (result unit grid-error)))
 
-(defn check-breakpoints (spec index previous-em)
-  (if (>= index (len (:breakpoints spec)))
+(defn check-layouts (all index previous-em)
+  (if (>= index (len all))
     (ok (do))
-    (let (breakpoint (at (:breakpoints spec) index))
-      (try (check-breakpoint (ref (:body-type spec))
-                             breakpoint previous-em))
-      (recur spec (+ index 1) (:min-width-em breakpoint)))))
+    (let (layout (at all index))
+      (try (check-layout layout previous-em))
+      (recur all (+ index 1) (start-of-next layout previous-em)))))
 
-(type check-breakpoint
-  (fn ((ref body-type) (ref breakpoint) f64)
+(type start-of-next
+  (fn ((ref layout) f64) f64))
+
+(defn start-of-next (layout previous-em)
+  (if (:narrowest? layout) previous-em (:min-width-em layout)))
+
+(type check-layout
+  (fn ((ref layout) f64)
     (result unit grid-error)))
 
-(defn check-breakpoint (type breakpoint previous-em)
-  (let (min-width-em (:min-width-em breakpoint)
-        type-area (:type-area breakpoint)
-        needed-em (needed-em type type-area))
+(defn check-layout (layout previous-em)
+  (let (type-area (:type-area layout))
     (cond
-      ((<= min-width-em previous-em)
-       (err (grid-error/breakpoint-out-of-order min-width-em
-                                                previous-em)))
       ((not (fits? type-area))
-       (err (grid-error/breakpoint-does-not-fit
-              min-width-em type-area
-              (fitting-column-counts type-area))))
-      ((> needed-em min-width-em)
-       (err (grid-error/breakpoint-too-narrow min-width-em
-                                              (:width type-area)
-                                              (:margin type-area)
-                                              needed-em)))
+       (err (grid-error/type-area-does-not-fit (layout-label layout)
+                                               (clone type-area)
+                                               (fitting-column-counts
+                                                 type-area))))
+      ((out-of-order? layout previous-em)
+       (err (grid-error/type-areas-out-of-order (:width type-area)
+                                                (:margin type-area)
+                                                (:min-width-em layout)
+                                                previous-em)))
       (else (check-page-margins type-area)))))
 
-(type needed-em
-  (fn ((ref body-type) (ref type-area))
-    f64))
+(type out-of-order?
+  (fn ((ref layout) f64) bool))
 
-(defn needed-em (type type-area)
-  (let (width-with-margins (+ (:width type-area)
-                              (* margin-count (:margin type-area))))
-    (/ (* (float-of width-with-margins) (leading-px type))
-       default-font-size-px)))
+(defn out-of-order? (layout previous-em)
+  (and (not (:narrowest? layout))
+       (<= (:min-width-em layout) previous-em)))

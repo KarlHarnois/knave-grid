@@ -14,18 +14,19 @@
 (use spec/length length length-css)
 (use spec/measure measure-columns)
 (use overlay overlay-css overlay-javascript)
-(use spec/grid-spec ->breakpoint ->grid-spec breakpoint)
+(use spec/grid-spec ->grid-spec)
+(use spec/layout layout-label)
 
 (use spec/type-style ->type-style style-font-size-px
                      style-shift-px type-style)
 
 (use spec/type-area ->type-area)
 
-(export ->body-type ->breakpoint ->font-face ->font-metrics
-        ->grid-spec ->type-area ->type-style
-        baseline-offset-px check-grid checked-grid
-        font-error font-face font-face-css font-metrics
-        grid-css grid-error grid-warning leading-px length
+(export ->body-type ->font-face ->font-metrics ->grid-spec
+        ->type-area ->type-style baseline-offset-px
+        check-grid checked-grid font-error font-face
+        font-face-css font-metrics grid-css grid-error
+        grid-warning layout-label leading-px length
         length-css measure-columns overlay-css
         overlay-javascript parse-font-metrics
         read-font-metrics style-font-size-px style-shift-px

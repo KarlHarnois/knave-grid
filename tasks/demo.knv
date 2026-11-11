@@ -5,10 +5,9 @@
 (use demo/fonts demo-family-faces)
 (use demo/page demo-page)
 
-(use lib ->body-type ->breakpoint ->grid-spec ->type-area
-         ->type-style check-grid checked-grid font-face-css
-         font-metrics grid-css overlay-css
-         overlay-javascript)
+(use lib ->body-type ->grid-spec ->type-area ->type-style
+         check-grid checked-grid font-face-css font-metrics
+         grid-css overlay-css overlay-javascript)
 
 (def body-font-size-px 18.0)
 
@@ -16,11 +15,7 @@
 
 (def narrow-width 19)
 
-(def medium-min-width-em 36.0)
-
 (def medium-column-count 2)
-
-(def wide-min-width-em 73.0)
 
 (def wide-width 39)
 
@@ -84,17 +79,14 @@
 (defn demo-spec (wide-columns metrics)
   (->grid-spec
     :body-type (->body-type body-font-size-px body-line-height metrics)
-    :type-area (->type-area :width narrow-width :column-count 1 :head 1)
+    :type-areas (vec (->type-area :width narrow-width :column-count 1 :head 1)
+                     (->type-area :width narrow-width
+                                  :column-count medium-column-count)
+                     (->type-area :width wide-width
+                                  :column-count wide-columns
+                                  :margin 2
+                                  :foot 3))
     :measure-ch measure-ch
-    :breakpoints (vec (->breakpoint medium-min-width-em
-                                    (->type-area
-                                      :width narrow-width
-                                      :column-count medium-column-count))
-                      (->breakpoint wide-min-width-em
-                                    (->type-area :width wide-width
-                                                 :column-count wide-columns
-                                                 :margin 2
-                                                 :foot 3)))
     :type-styles (vec (->type-style :name (str "display") :lines 2)
                       (->type-style :name (str "headline") :lines 3)
                       (->type-style :name (str "title") :lines 4))))

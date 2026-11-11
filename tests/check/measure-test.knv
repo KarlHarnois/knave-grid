@@ -11,7 +11,7 @@
                                               (->grid-spec
                                                 :body-type (body-type-at 18.0
                                                                          1.5)
-                                                :type-area type-area
+                                                :type-areas (vec type-area)
                                                 :measure-ch measure-ch)))))
                 (fn (warning) (str warning)))))
 
@@ -46,6 +46,6 @@
 
 (deftest rejects-a-span-wider-than-the-type-area
   (let (spec (->grid-spec :body-type (body-type-at 18.0 1.5)
-                          :type-area (four-columns (some 5))))
+                          :type-areas (vec (four-columns (some 5)))))
     (assert (= (str (unwrap-err (check-grid spec)))
                "on narrow screens, the measure spans 5 columns, but the type area has columns 1 to 4"))))

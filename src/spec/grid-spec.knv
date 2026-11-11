@@ -2,18 +2,11 @@
 (use spec/type-area type-area)
 (use spec/type-style type-style)
 
-(export ->breakpoint ->grid-spec breakpoint grid-spec)
-
-(defstruct breakpoint
-  :min-width-em f64
-  :type-area type-area)
+(export ->grid-spec grid-spec)
 
 (defstruct grid-spec
   :body-type body-type
-  :type-area type-area
+  :type-areas (vec type-area)
   :measure-ch i64
-  :breakpoints (vec breakpoint)
   :type-styles (vec type-style)
-  (defaults :measure-ch 66
-            :breakpoints (vec)
-            :type-styles (vec)))
+  (defaults :measure-ch 66 :type-styles (vec)))

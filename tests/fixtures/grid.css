@@ -15,7 +15,7 @@
   --measure: 17rlh;
 }
 
-@media (min-width: 100em) {
+@media (min-width: 71.75em) {
   :root {
     --gutter: 1rlh;
     --columns: 4;

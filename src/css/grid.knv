@@ -7,7 +7,8 @@
 (use css/type-styles type-style-rules)
 (use spec/length length length-css)
 (use spec/measure measure-columns)
-(use spec/grid-spec breakpoint grid-spec)
+(use spec/grid-spec grid-spec)
+(use spec/layout layout)
 (use spec/type-area span-width type-area)
 
 (export grid-css)
@@ -32,17 +33,19 @@
   (fn ((ref checked-grid)) string))
 
 (defn grid-css (checked)
-  (let (spec (:spec checked))
-    (str (root-rule spec)
-         (breakpoint-rules spec)
+  (let (spec (:spec checked)
+        all (:layouts checked))
+    (str (root-rule spec (at all 0))
+         (media-rules spec all)
          "\n" type-area-rule "\n" grid-rule "\n" field-rule
          (type-style-rules spec)
          (exact-baseline-rules spec))))
 
 (type root-rule
-  (fn ((ref grid-spec)) string))
+  (fn ((ref grid-spec) (ref layout))
+    string))
 
-(defn root-rule (spec)
+(defn root-rule (spec narrowest)
   (let (type (:body-type spec))
     (str ":root {\n"
          (declaration "font-size"
@@ -52,28 +55,30 @@
                       (length-css (ref (length/lines 1))))
          (declaration "--baseline-offset" (baseline-offset-rem type))
          (field-declarations type)
-         (type-area-declarations (:type-area spec) spec)
+         (type-area-declarations (:type-area narrowest) spec)
          "}\n")))
 
-(type breakpoint-rules
-  (fn ((ref grid-spec)) string))
+(type media-rules
+  (fn ((ref grid-spec) (ref (vec layout)))
+    string))
 
-(defn breakpoint-rules (spec)
-  (reduce (map (iter (:breakpoints spec))
-            (fn (breakpoint) (breakpoint-rule breakpoint spec)))
+(defn media-rules (spec all)
+  (reduce (map (filter (iter all)
+                 (fn (layout) (not (:narrowest? layout))))
+               (fn (layout) (media-rule layout spec)))
           (str)
           (fn (rules rule) (str rules "\n" rule))))
 
-(type breakpoint-rule
-  (fn ((ref breakpoint) (ref grid-spec))
+(type media-rule
+  (fn ((ref layout) (ref grid-spec))
     string))
 
-(defn breakpoint-rule (breakpoint spec)
+(defn media-rule (layout spec)
   (let (root (str ":root {\n"
-                  (type-area-declarations (:type-area breakpoint) spec)
+                  (type-area-declarations (:type-area layout) spec)
                   "}\n"))
     (str "@media (min-width: "
-         (:min-width-em breakpoint)
+         (:min-width-em layout)
          "em) {\n"
          (indented (as-str root))
          "}\n")))

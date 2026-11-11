@@ -2,59 +2,40 @@
                     narrowest-measure-ch widest-measure-ch)
 
 (use spec/grid-spec grid-spec)
+(use spec/layout layout layout-label)
 (use spec/measure measure-characters measure-columns)
-(use spec/type-area type-area)
 
 (export check-measure measure-warnings)
 
-(defstruct layout
-  :label string
-  :type-area type-area)
-
-(type layouts
-  (fn ((ref grid-spec)) (vec layout)))
-
-(defn layouts (spec)
-  (let (all (vec (->layout (str "on narrow screens") (:type-area spec))))
-    (for-each (iter (:breakpoints spec))
-      (fn (breakpoint)
-        (push! all
-               (->layout (str "from " (:min-width-em breakpoint) "em")
-                         (:type-area breakpoint)))))
-    all))
-
 (type check-measure
-  (fn ((ref grid-spec))
+  (fn ((ref grid-spec) (ref (vec layout)))
     (result unit grid-error)))
 
-(defn check-measure (spec)
-  (check-layout-measures spec (layouts spec) 0))
+(defn check-measure (spec all)
+  (match (find (iter all)
+           (fn (layout)
+             (not (columns-within? spec layout))))
+    ((some layout)
+     (err (grid-error/measure-columns-outside (layout-label layout)
+                                              (layout-columns spec layout)
+                                              (:column-count (:type-area
+                                                               layout)))))
+    (none (ok (do)))))
 
-(type check-layout-measures
-  (fn ((ref grid-spec) (vec layout) usize)
-    (result unit grid-error)))
+(type columns-within?
+  (fn ((ref grid-spec) (ref layout)) bool))
 
-(defn check-layout-measures (spec all index)
-  (if (>= index (len all))
-    (ok (do))
-    (let (layout (at all index)
-          type-area (:type-area layout)
-          columns (measure-columns type-area
-                                   (:body-type spec)
-                                   (:measure-ch spec)))
-      (if (or (< columns 1)
-              (> columns (:column-count type-area)))
-        (err (grid-error/measure-columns-outside (clone (:label layout))
-                                                 columns
-                                                 (:column-count type-area)))
-        (recur spec all (+ index 1))))))
+(defn columns-within? (spec layout)
+  (let (columns (layout-columns spec layout))
+    (and (>= columns 1)
+         (<= columns (:column-count (:type-area layout))))))
 
 (type measure-warnings
-  (fn ((ref grid-spec))
+  (fn ((ref grid-spec) (ref (vec layout)))
     (vec grid-warning)))
 
-(defn measure-warnings (spec)
-  (collect (map (filter (iter (layouts spec))
+(defn measure-warnings (spec all)
+  (collect (map (filter (iter all)
                   (fn (layout)
                     (not (readable-layout? spec layout))))
                 (fn (layout) (measure-warning spec layout)))))
@@ -72,11 +53,17 @@
     grid-warning))
 
 (defn measure-warning (spec layout)
-  (grid-warning/measure-out-of-range (clone (:label layout))
-                                     (measure-columns (:type-area layout)
-                                                      (:body-type spec)
-                                                      (:measure-ch spec))
+  (grid-warning/measure-out-of-range (layout-label layout)
+                                     (layout-columns spec layout)
                                      (layout-characters spec layout)))
+
+(type layout-columns
+  (fn ((ref grid-spec) (ref layout)) i64))
+
+(defn layout-columns (spec layout)
+  (measure-columns (:type-area layout)
+                   (:body-type spec)
+                   (:measure-ch spec)))
 
 (type layout-characters
   (fn ((ref grid-spec) (ref layout)) f64))

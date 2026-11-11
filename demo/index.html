@@ -29,7 +29,7 @@
 
 <section>
   <h2>The type area</h2>
-  <p>Every measure here is in squares: one square is one leading, 27px, in both directions, which is exactly 3ch of Iosevka. The type area follows the width of the screen, and each breakpoint sets its own width, columns, gutter and margins. The check makes sure each type area fits its columns and its breakpoint. Head and foot margins count squares from the page edge to the nearest baseline, so the page starts and ends on a baseline.</p>
+  <p>Every measure here is in squares: one square is one leading, 27px, in both directions, which is exactly 3ch of Iosevka. The spec lists type areas from narrowest to widest, each with its own width, columns, gutter and margins, and each one takes over once the screen is wide enough for it and its margins. The check makes sure each type area fits its columns. Head and foot margins count squares from the page edge to the nearest baseline, so the page starts and ends on a baseline.</p>
   <table>
     <thead><tr><th>Screen</th><th>Width</th><th>Columns</th><th>Side margins</th><th>Head / foot</th></tr></thead>
     <tbody>

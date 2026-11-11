@@ -1,5 +1,6 @@
-(use lib baseline-offset-px font-face-css grid-css length
-         length-css style-font-size-px style-shift-px)
+(use lib baseline-offset-px font-face-css grid-css
+         layout-label length length-css style-font-size-px
+         style-shift-px)
 
 (export demo-page)
 
@@ -13,7 +14,7 @@
     (-> (replaced template "{{spec}}"
                   (as-str (escaped (as-str (pr-str spec)))))
         (as-str)
-        (replaced "{{layouts}}" (as-str (layout-rows spec)))
+        (replaced "{{layouts}}" (as-str (layout-rows checked)))
         (as-str)
         (replaced "{{type-styles}}" (as-str (type-style-rows spec)))
         (as-str)
@@ -53,12 +54,12 @@
        (style-shift-px style body)
        "px</td></tr>\n"))
 
-(defn layout-rows (spec)
-  (reduce (map (iter (:breakpoints spec))
-            (fn (breakpoint)
-              (layout-row (as-str (str "from " (:min-width-em breakpoint) "em"))
-                          (:type-area breakpoint))))
-          (layout-row "narrower screens" (:type-area spec))
+(defn layout-rows (checked)
+  (reduce (map (iter (:layouts checked))
+            (fn (layout)
+              (layout-row (as-str (layout-label layout))
+                          (:type-area layout))))
+          (str)
           (fn (rows row) (str rows row))))
 
 (defn layout-row (screen type-area)
