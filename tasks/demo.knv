@@ -4,6 +4,7 @@
 
 (use demo/fonts demo-font-family)
 (use demo/page demo-page)
+(use demo/pretty pretty-printed)
 
 (use lib ->body-type ->grid-spec ->type-area ->type-style
          check-grid checked-grid font-family grid-css
@@ -44,6 +45,8 @@
     (write-output "index.html"
                   (as-str (demo-page (as-str template)
                                      (ref monospace-grid)
+                                     (as-str (try (pretty-printed
+                                                    (as-str (pr-str (:spec monospace-grid))))))
                                      (as-str (broken-spec-error monospace)))))))
 
 (defn copy-page-files (index)

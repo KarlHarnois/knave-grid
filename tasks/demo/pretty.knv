@@ -2,16 +2,32 @@
 
 (export pretty-printed)
 
-(def line-width 72)
-
-(def indent-width 2)
+(def knave-formatted
+  (rust "(|| -> Result<String, String> {{
+    use std::io::Write;
+    let mut child = std::process::Command::new(\"knave\")
+        .args([\"fmt\", \"-\"])
+        .stdin(std::process::Stdio::piped())
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::piped())
+        .spawn()
+        .map_err(|error| format!(\"cannot run knave fmt: {{error}}\"))?;
+    child.stdin.take().unwrap().write_all({0}.as_bytes()).map_err(|error| error.to_string())?;
+    let output = child.wait_with_output().map_err(|error| error.to_string())?;
+    if output.status.success() {{
+        Ok(String::from_utf8_lossy(&output.stdout).trim_end().to_string())
+    }} else {{
+        Err(String::from_utf8_lossy(&output.stderr).to_string())
+    }}
+}})()"
+    (fn ((ref str)) (result string string))))
 
 (type pretty-printed
-  (fn ((ref str)) string))
+  (fn ((ref str)) (result string string)))
 
 (defn pretty-printed (text)
-  (laid-out (ref (without-absent-fields (read-text text)))
-            0))
+  (let (fields (flat-text (ref (without-absent-fields (read-text text)))))
+    (knave-formatted (as-str fields))))
 
 (type without-absent-fields (fn (form) form))
 
@@ -50,20 +66,9 @@
     ((atom text) (starts-with? (as-str text) ":"))
     ((group _) false)))
 
-(type laid-out
-  (fn ((ref form) usize) string))
-
-(defn laid-out (form column)
-  (let (flat (flat-text form))
-    (match form
-      ((group items)
-       (if (fits? (as-str flat) column)
-         flat
-         (broken-group items column)))
-      ((atom _) flat))))
-
-(defn fits? (flat column)
-  (<= (+ column (len flat)) line-width))
+(def starts-with?
+  (rust "{0}.starts_with({1})"
+    (fn ((ref str) (ref str)) bool)))
 
 (type flat-text
   (fn ((ref form)) string))
@@ -80,57 +85,3 @@
 (def joined
   (rust "{0}.join({1})"
     (fn ((vec string) (ref str)) string)))
-
-(type broken-group
-  (fn ((ref (vec form)) usize) string))
-
-(defn broken-group (items column)
-  (let (head (flat-text (at items 0)))
-    (if (struct-fields? items)
-      (str "(" head (fields-text items column 1) ")")
-      (str "(" head " "
-           (elements-text items (+ column (len head) indent-width) 1)
-           ")"))))
-
-(type struct-fields?
-  (fn ((ref (vec form))) bool))
-
-(defn struct-fields? (items)
-  (and (> (len items) 1)
-       (keyword? (at items 1))))
-
-(def starts-with?
-  (rust "{0}.starts_with({1})"
-    (fn ((ref str) (ref str)) bool)))
-
-(type fields-text
-  (fn ((ref (vec form)) usize usize)
-    string))
-
-(defn fields-text (items column index)
-  (if (>= (+ index 1) (len items))
-    (str)
-    (let (key (flat-text (at items index))
-          field-column (+ column indent-width)
-          value-column (+ field-column (len key) 1))
-      (str "\n"
-           (spaces field-column)
-           key " "
-           (laid-out (at items (+ index 1)) value-column)
-           (fields-text items column (+ index 2))))))
-
-(type elements-text
-  (fn ((ref (vec form)) usize usize)
-    string))
-
-(defn elements-text (items column index)
-  (if (>= index (len items))
-    (str)
-    (str (if (> index 1)
-           (str "\n" (spaces column))
-           (str))
-         (laid-out (at items index) column)
-         (elements-text items column (+ index 1)))))
-
-(def spaces
-  (rust "\" \".repeat({0})" (fn (usize) string)))
