@@ -87,7 +87,7 @@ A spec lists its type areas from narrowest to widest. Each type area has a name,
 
 The check fails when a spec has no type area, when two type areas share a name, when a type area does not fit its columns, and when a later type area needs no more width than the one before it. It converts squares to em with the leading and the 16px default font size that media queries use, and counts a span's characters through the width of the font's "0" glyph, which is what `1ch` measures.
 
-The `.grid` columns are `minmax(0, var(--column))`, so on a screen narrower than the first type area the columns shrink instead of overflowing.
+On a screen narrower than the first type area and its margins, the type area narrows to the whole squares that fit, so a 375px phone gets 11 squares rather than a fraction of 19. The `.grid` columns divide the type area evenly and the overlay draws its columns from the same width, so the overlay always matches the page. `--column` keeps the full column width of the spec.
 
 A span wider than the column count of any type area is a build error.
 

@@ -21,12 +21,18 @@
   margin-inline: auto;
   padding-block: calc(var(--_grid-head) * var(--leading) - var(--_grid-baseline-offset)) calc((var(--_grid-foot) - 1) * var(--leading) + var(--_grid-baseline-offset));
 }
+
+@supports (width: round(down, 1px, 1px)) {
+  .type-area {
+    width: min(round(down, 100% - 2 * var(--_grid-margin), var(--leading)), var(--_grid-grid-width));
+  }
+}
 ")
 
 (def grid-rule
   ".grid {
   display: grid;
-  grid-template-columns: repeat(var(--columns), minmax(0, var(--column)));
+  grid-template-columns: repeat(var(--columns), minmax(0, 1fr));
   column-gap: var(--gutter);
 }
 ")
