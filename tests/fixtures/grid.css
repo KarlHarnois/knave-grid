@@ -3,6 +3,8 @@
   line-height: 1.4;
   --leading: 1rlh;
   --baseline-offset: calc(20rem / 20);
+  --cap-top: calc(var(--baseline-offset) - 0.7 * 1rem);
+  --descender-bottom: calc(var(--baseline-offset) + 0.2 * 1rem);
   --measure: 60ch;
   --gutter: 4ch;
   --columns: 4;
@@ -30,6 +32,14 @@
   display: grid;
   grid-template-columns: repeat(var(--columns), minmax(0, var(--column)));
   column-gap: var(--gutter);
+}
+
+.field {
+  box-sizing: border-box;
+  height: calc(var(--field-lines, 1) * var(--leading));
+  padding-block: var(--cap-top) calc(var(--leading) - var(--descender-bottom));
+  background-clip: content-box;
+  object-fit: cover;
 }
 
 .type-title {

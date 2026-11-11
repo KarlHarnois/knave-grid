@@ -9,6 +9,7 @@
                :hhea-descender -500
                :typo-ascender 1600
                :typo-descender -400
+               :cap-height 1400
                :uses-typo-metrics? true))
 
 (defn font-without-the-typo-flag ()
@@ -21,11 +22,11 @@
 
 (deftest reads-hhea-metrics-even-when-the-font-asks-for-typo-metrics
   (assert (= (unwrap-ok (parse-font-metrics (ref (woff2-bytes (font-asking-for-typo-metrics)))))
-             (->font-metrics 2000 1700 500 500))))
+             (->font-metrics 2000 1700 500 500 1400))))
 
 (deftest reads-hhea-metrics-from-a-truetype-font
   (assert (= (unwrap-ok (parse-font-metrics (ref (truetype-bytes (font-without-the-typo-flag)))))
-             (->font-metrics 1000 900 300 500))))
+             (->font-metrics 1000 900 300 500 700))))
 
 (deftest reads-the-same-metrics-from-woff2-and-truetype
   (assert (= (parse-font-metrics (ref (woff2-bytes (font-without-the-typo-flag))))
@@ -60,3 +61,15 @@
   (assert (= (str (unwrap-err (read-font-metrics
                                 "tests/fixtures/missing.woff2")))
              "cannot read tests/fixtures/missing.woff2: No such file or directory (os error 2)")))
+
+(deftest refuses-a-font-without-a-cap-height
+  (let (font (->fake-font :units-per-em 1000
+                          :hhea-ascender 900
+                          :hhea-descender -300
+                          :typo-ascender 800
+                          :typo-descender -200
+                          :uses-typo-metrics? false
+                          :os2-version 1))
+    (assert (= (str (unwrap-err (parse-font-metrics (ref (truetype-bytes
+                                                           font)))))
+               "not a usable font: the font's OS/2 table is older than version 2, so it has no cap height"))))

@@ -14,7 +14,8 @@
   :units-per-em i64
   :ascent i64
   :descent i64
-  :zero-width i64)
+  :zero-width i64
+  :cap-height i64)
 
 (def zero-code-point 48)
 
@@ -25,6 +26,10 @@
 (def hhea-descender-offset 6)
 
 (def hhea-metric-count-offset 34)
+
+(def os2-cap-height-offset 88)
+
+(def first-os2-version-with-cap-height 2)
 
 (type read-font-metrics
   (fn ((ref str))
@@ -69,7 +74,8 @@
           (try (present (i16-at data (+ hhea hhea-ascender-offset))))
           (- 0
              (try (present (i16-at data (+ hhea hhea-descender-offset)))))
-          (try (advance-width tables zero-glyph))))))
+          (try (advance-width tables zero-glyph))
+          (try (cap-height tables))))))
 
 (type advance-width
   (fn ((ref font-tables) i64)
@@ -88,3 +94,15 @@
   (if (:transformed? hmtx)
     (+ (:offset hmtx) 1 (* 2 metric))
     (+ (:offset hmtx) (* 4 metric))))
+
+(type cap-height
+  (fn ((ref font-tables))
+    (result i64 font-error)))
+
+(defn cap-height (tables)
+  (let (data (:data tables)
+        os2 (try (table-offset tables "OS/2"))
+        version (try (present (u16-at data os2))))
+    (if (< version first-os2-version-with-cap-height)
+      (malformed "the font's OS/2 table is older than version 2, so it has no cap height")
+      (present (i16-at data (+ os2 os2-cap-height-offset))))))

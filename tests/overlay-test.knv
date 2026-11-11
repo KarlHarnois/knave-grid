@@ -23,3 +23,12 @@
 
 (deftest toggles-the-grid-overlay-class
   (assert (contains? overlay-javascript "\"grid-overlay\"")))
+
+(deftest toggles-the-guides-with-their-own-class-and-buttons
+  (assert (and (contains? overlay-javascript "\"grid-guides\"")
+               (contains? overlay-javascript "\"guides\"")
+               (contains? overlay-javascript
+                          "\"[data-grid-guides-toggle]\""))))
+
+(deftest draws-the-guides-on-their-own-layer
+  (assert (contains? overlay-css ":root.grid-guides body::before {")))
