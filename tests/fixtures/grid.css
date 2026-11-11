@@ -70,7 +70,7 @@
 
 .field {
   box-sizing: border-box;
-  height: calc(var(--field-lines, 1) * var(--leading));
+  height: max(calc(var(--field-lines, 1) * var(--leading)), calc(var(--fields, 0) * var(--field-pitch, 0px) - min(var(--fields, 0), 1) * var(--field-gap, 0px)));
   padding-block: var(--_grid-cap-top) calc(var(--leading) - var(--_grid-descender-bottom));
   background-clip: content-box;
   object-fit: cover;

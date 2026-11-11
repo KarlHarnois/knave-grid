@@ -38,7 +38,7 @@
 }
 
 :root.grid-overlay .type-area {
-  background: linear-gradient(to bottom, transparent 0 var(--field), rgb(255 255 255 / 0.08) var(--field) var(--field-pitch)) 0 0 / 100% var(--field-pitch) repeat-y content-box;
+  background: linear-gradient(to bottom, transparent 0 var(--_grid-cap-top), rgb(255 255 255 / 0.08) var(--_grid-cap-top) calc(var(--field) - var(--leading) + var(--_grid-descender-bottom)), transparent calc(var(--field) - var(--leading) + var(--_grid-descender-bottom))) 0 0 / 100% var(--field-pitch) repeat-y content-box;
 }
 ")
 
