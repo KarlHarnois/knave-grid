@@ -20,10 +20,12 @@
   :font-family (option font-family)
   :weight (option string)
   :baseline-line (option i64)
+  :selector (option string)
   (defaults :size none
             :font-family none
             :weight none
-            :baseline-line none))
+            :baseline-line none
+            :selector none))
 
 (type style-weight
   (fn ((ref type-style) (ref body-type))

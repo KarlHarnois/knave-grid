@@ -23,12 +23,15 @@ Define a grid with `defgrid` and write its stylesheet and fonts with `write-grid
          (iosevka "Iosevka" (regular "iosevka-regular.woff2")))
   (body iosevka :size 18 :line-height 1.5)
   (type-areas (narrow :width 19 :column-count 1)
-              (wide :width 39 :column-count 4 :margin 2)))
+              (wide :width 39 :column-count 4 :margin 2))
+  (type-styles (title :lines 2 :selector ".prose h1")))
 
 (deftask grid ()
   "Writes the grid's stylesheet and fonts into public/."
   (write-grid (try (site-grid)) "public/grid.css"))
 ```
+
+Each type style writes a `.type-<name>` class. Give it a `:selector` to apply the same style to markup that has no class, such as rendered markdown.
 
 ## Develop
 

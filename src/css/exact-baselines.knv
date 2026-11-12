@@ -1,5 +1,6 @@
 (use css/baseline baseline-offset-css)
 (use css/declaration declaration indented)
+(use css/type-styles style-selector)
 (use spec/body-type body-metrics body-type)
 (use spec/grid-spec grid-spec)
 
@@ -37,8 +38,7 @@
         offset (baseline-offset-css (ref (style-metrics style body))
                                     "1em"
                                     (as-str (str lines "rlh"))))
-    (str ".type-"
-         (:name style)
+    (str (style-selector style)
          " {\n"
          (declaration "top"
                       (str "calc("

@@ -60,6 +60,9 @@
   (((field ...) (quote :baseline-line) value rest ...)
    (type-style-of (field ... :baseline-line (some value))
                   rest ...))
+  (((field ...) (quote :selector) value rest ...)
+   (type-style-of (field ... :selector (some (str value)))
+                  rest ...))
   (((field ...) key value rest ...)
    (type-style-of (field ... key value) rest ...)))
 
