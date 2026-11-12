@@ -12,7 +12,9 @@
                (->font-metrics 1000 700 300 (some 500) 700 false)))
 
 (defn type-styles ()
-  (vec (->type-style :name (str "title") :lines 3)
+  (vec (->type-style :name (str "title")
+                     :lines 3
+                     :selector (some (str ".prose h1")))
        (->type-style :name (str "lead") :lines 2 :size (some 30.0))
        (->type-style :name (str "quote")
                      :lines 2

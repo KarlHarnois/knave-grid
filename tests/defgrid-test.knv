@@ -15,7 +15,7 @@
                     :margin 2
                     :measure-columns 2
                     :field-lines 4))
-  (type-styles (headline :lines 3 :weight bold)))
+  (type-styles (headline :lines 3 :weight bold :selector "h1")))
 
 (defgrid plain-grid ()
   (fonts :from "target/fake-fonts"
@@ -49,7 +49,7 @@
   (write-fake-font-files)
   (let (checked (unwrap-ok (site-grid)))
     (assert (= (pr-str (:spec checked))
-               "(->grid-spec :body-type (->body-type :size 18.0 :line-height 1.5 :font-family (font-family \"Fake Sans\") :weight \"regular\") :type-areas (vec (->type-area :name \"narrow\" :width 19 :gutter 1 :column-count 1 :margin 1 :head 1 :foot 2 :measure-columns none :field-lines none :field-gap 1) (->type-area :name \"wide\" :width 39 :gutter 1 :column-count 4 :margin 2 :head 2 :foot 2 :measure-columns (some 2) :field-lines (some 4) :field-gap 1)) :type-styles (vec (->type-style :name \"headline\" :lines 3 :size none :font-family none :weight (some \"bold\") :baseline-line none)))"))))
+               "(->grid-spec :body-type (->body-type :size 18.0 :line-height 1.5 :font-family (font-family \"Fake Sans\") :weight \"regular\") :type-areas (vec (->type-area :name \"narrow\" :width 19 :gutter 1 :column-count 1 :margin 1 :head 1 :foot 2 :measure-columns none :field-lines none :field-gap 1) (->type-area :name \"wide\" :width 39 :gutter 1 :column-count 4 :margin 2 :head 2 :foot 2 :measure-columns (some 2) :field-lines (some 4) :field-gap 1)) :type-styles (vec (->type-style :name \"headline\" :lines 3 :size none :font-family none :weight (some \"bold\") :baseline-line none :selector (some \"h1\"))))"))))
 
 (deftest leaves-out-the-type-styles
   (write-fake-font-files)
@@ -75,7 +75,7 @@
     (assert (contains? (as-str css)
                        "url(\"fake-sans-bold.ttf\");\n  font-weight: 700;"))
     (assert (contains? (as-str css)
-                       ".type-headline {\n  font-weight: 700;"))))
+                       ".type-headline, h1 {\n  font-weight: 700;"))))
 
 (def file-exists?
   (rust "std::path::Path::new({0}).is_file()"

@@ -76,7 +76,7 @@
   object-fit: cover;
 }
 
-.type-title {
+.type-title, .prose h1 {
   font-size: calc(60rem / 20);
   line-height: 3rlh;
   position: relative;
@@ -103,7 +103,7 @@
     --_grid-baseline-offset: calc(round(down, (1rlh - round(0.8 * 1rem, 1px) - round(0.2 * 1rem, 1px)) / 2, 1px) + round(0.8 * 1rem, 1px));
   }
 
-  .type-title {
+  .type-title, .prose h1 {
     top: calc(1rlh + var(--_grid-baseline-offset) - calc(round(down, (3rlh - round(0.8 * 1em, 1px) - round(0.2 * 1em, 1px)) / 2, 1px) + round(0.8 * 1em, 1px)));
   }
 

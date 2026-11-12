@@ -5,7 +5,7 @@
 (use spec/type-style style-font-size-px style-shift-px
                      style-weight type-style)
 
-(export type-style-rules)
+(export style-selector type-style-rules)
 
 (type type-style-rules
   (fn ((ref grid-spec)) string))
@@ -22,8 +22,7 @@
     string))
 
 (defn type-style-rule (style body)
-  (str "."
-       (class-name (as-str (:name style)))
+  (str (style-selector style)
        " {\n"
        (family-declaration style)
        (weight-declaration style body)
@@ -54,7 +53,14 @@
      (declaration "font-weight" (str (style-weight style body))))
     (none (str))))
 
-(defn class-name (style-name) (str "type-" style-name))
+(type style-selector
+  (fn ((ref type-style)) string))
+
+(defn style-selector (style)
+  (let (class-selector (str ".type-" (:name style)))
+    (match (:selector style)
+      ((some extra) (str class-selector ", " extra))
+      (none class-selector))))
 
 (type relative-to-body
   (fn (f64 (ref body-type)) string))
