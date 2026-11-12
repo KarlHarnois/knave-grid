@@ -25,12 +25,9 @@ Define a grid with `defgrid` and write its stylesheet and fonts with `write-grid
   (type-areas (narrow :width 19 :column-count 1)
               (wide :width 39 :column-count 4 :margin 2)))
 
-(defn error-text (error) (str error))
-
 (deftask grid ()
   "Writes the grid's stylesheet and fonts into public/."
-  (let (grid (try (map-err (site-grid) error-text)))
-    (map-err (write-grid grid "public/grid.css") error-text)))
+  (write-grid (try (site-grid)) "public/grid.css"))
 ```
 
 ## Develop

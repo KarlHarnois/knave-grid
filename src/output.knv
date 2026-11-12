@@ -1,17 +1,9 @@
-(use check/grid checked-grid)
+(use check/grid checked-grid grid-error)
 (use css/font-face spec-families)
 (use css/grid grid-css)
 (use font/family font-face font-family)
 
-(export write-error write-grid)
-
-(defenum write-error
-  (unwritable :path string :reason string))
-
-(display write-error (error)
-  (match error
-    ((unwritable path reason)
-     (str "cannot write " path ": " reason))))
+(export write-grid)
 
 (def create-directories
   (rust "std::fs::create_dir_all({0}).map_err(|error| error.to_string())"
@@ -37,7 +29,7 @@
 
 (type write-grid
   (fn ((ref checked-grid) (ref str))
-    (result unit write-error)))
+    (result unit grid-error)))
 
 (defn write-grid (checked stylesheet-path)
   (let (directory (parent-directory stylesheet-path))
@@ -50,7 +42,7 @@
 
 (type copy-faces
   (fn ((vec font-family) (ref str) usize)
-    (result unit write-error)))
+    (result unit grid-error)))
 
 (defn copy-faces (families stylesheet-path index)
   (if (>= index (len families))
@@ -61,7 +53,7 @@
 
 (type copy-family-faces
   (fn ((ref font-family) (ref str) usize)
-    (result unit write-error)))
+    (result unit grid-error)))
 
 (defn copy-family-faces (family stylesheet-path index)
   (if (>= index (len (:faces family)))
@@ -75,9 +67,9 @@
 
 (type written
   (fn ((ref str) (result unit string))
-    (result unit write-error)))
+    (result unit grid-error)))
 
 (defn written (path outcome)
   (map-err outcome
     (fn (reason)
-      (write-error/unwritable (str path) reason))))
+      (grid-error/unwritable (str path) reason))))
