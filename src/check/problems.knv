@@ -36,7 +36,8 @@
   (type-style-too-big :name string
                       :font-size-px f64
                       :glyph-height-px f64
-                      :line-height-px f64))
+                      :line-height-px f64)
+  (unwritable :path string :reason string))
 
 (display grid-error (error)
   (match error
@@ -100,7 +101,9 @@
                          line-height-px)
      (str "the type style " name " sets " font-size-px
           "px type, whose glyphs are " glyph-height-px
-          "px tall, in " line-height-px "px of lines"))))
+          "px tall, in " line-height-px "px of lines"))
+    ((unwritable path reason)
+     (str "cannot write " path ": " reason))))
 
 (defn line-count-text (count)
   (if (= count 1)
