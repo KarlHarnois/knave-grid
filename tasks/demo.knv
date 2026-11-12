@@ -5,6 +5,7 @@
 (use demo/fonts copy-font-licenses)
 (use demo/page demo-page)
 (use demo/grid demo-grid)
+(use knave-preview ->preview serve)
 
 (use lib checked-grid defgrid overlay-css overlay-javascript
          write-grid)
@@ -15,6 +16,17 @@
 
 (deftask demo ()
   "Builds a page that shows the grid into target/demo/."
+  (build-demo))
+
+(deftask serve-demo ()
+  "Serves the demo at http://127.0.0.1:8001 and rebuilds it on change."
+  (serve
+    (->preview :directory (str output-directory)
+               :port 8001
+               :watched (vec (str "demo") (str "tasks/demo")))
+    build-demo))
+
+(defn build-demo ()
   (try (create-directories output-directory))
   (try (copy-font-licenses))
   (let (monospace-grid (try (checked-demo-grid false))
