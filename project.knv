@@ -3,4 +3,4 @@
   (dev-dependencies (brotli "9.1.1"))
   (libraries
     (knave-preview :git "https://github.com/KarlHarnois/knave-preview"
-                   :rev "f5828042e4ad7c9f17c946b616a1ae90131b9e7c")))
+                   :rev "3d759e7f9d2c48ed2119b53839c30a228cebd975")))
