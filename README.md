@@ -1,6 +1,6 @@
 # knave-grid
 
-A [Knave](https://github.com/knave-lang/knave) library that generates the CSS, a debug overlay, and a fit checker for a Swiss grid from one spec.
+A [Knave](https://github.com/knave-lang/knave) library for Swiss grids. From one spec, it generates the grid's CSS, a debug overlay, and a fit checker.
 
 ## Use
 
