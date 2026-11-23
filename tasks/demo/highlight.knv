@@ -13,9 +13,7 @@
     (highlight-from text (ref characters) 0 (str))))
 
 (type highlight-from
-  (fn ((ref str)
-       (ref (vec char))
-       usize string)
+  (fn ((ref str) (ref (vec char)) int string)
     string))
 
 (defn highlight-from (text characters index html)
@@ -26,7 +24,7 @@
       (recur text characters end (str html piece)))))
 
 (type piece-end
-  (fn ((ref (vec char)) usize) usize))
+  (fn ((ref (vec char)) int) int))
 
 (defn piece-end (characters index)
   (if (punctuation? (at characters index))

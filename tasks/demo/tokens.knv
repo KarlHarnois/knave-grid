@@ -1,7 +1,7 @@
 (export paren? token-end whitespace?)
 
 (type token-end
-  (fn ((ref (vec char)) usize) usize))
+  (fn ((ref (vec char)) int) int))
 
 (defn token-end (characters start)
   (let (first (at characters start))
@@ -11,7 +11,7 @@
       (else (atom-end characters start)))))
 
 (type string-end
-  (fn ((ref (vec char)) usize) usize))
+  (fn ((ref (vec char)) int) int))
 
 (defn string-end (characters index)
   (cond
@@ -21,7 +21,7 @@
     (else (recur characters (+ index 1)))))
 
 (type atom-end
-  (fn ((ref (vec char)) usize) usize))
+  (fn ((ref (vec char)) int) int))
 
 (defn atom-end (characters index)
   (if (or (>= index (len characters))

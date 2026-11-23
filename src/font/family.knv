@@ -35,7 +35,7 @@
   (fn ((ref str)
        (ref str)
        (ref (vec declared-file))
-       usize
+       int
        (vec font-face))
     (result (vec font-face) font-error)))
 
@@ -78,7 +78,7 @@
   (ref (:metrics (at (:faces family) (face-index family weight 0)))))
 
 (type face-index
-  (fn ((ref font-family) i64 usize) usize))
+  (fn ((ref font-family) i64 int) int))
 
 (defn face-index (family weight index)
   (cond

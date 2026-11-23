@@ -46,7 +46,7 @@
 (defn table-records (tables index offset records)
   (if (= index (byte-count-of tables))
     records
-    (let (table (at tables (table-position index))
+    (let (table (at tables index)
           length (byte-count (ref (:bytes table)))
           record (joined-bytes (ref (vec (tag-bytes (as-str (:tag table)))
                                          (zeros 4)
@@ -54,9 +54,6 @@
                                          (u32-bytes length)))))
       (push! records record)
       (recur tables (+ index 1) (+ offset length) records))))
-
-(def table-position
-  (rust "{0} as usize" (fn (i64) usize)))
 
 (type woff2-bytes
   (fn (fake-font) (vec u8)))

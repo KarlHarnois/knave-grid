@@ -41,7 +41,7 @@
              (write-file stylesheet-path (as-str (grid-css checked))))))
 
 (type copy-faces
-  (fn ((vec font-family) (ref str) usize)
+  (fn ((vec font-family) (ref str) int)
     (result unit grid-error)))
 
 (defn copy-faces (families stylesheet-path index)
@@ -52,7 +52,7 @@
       (recur families stylesheet-path (+ index 1)))))
 
 (type copy-family-faces
-  (fn ((ref font-family) (ref str) usize)
+  (fn ((ref font-family) (ref str) int)
     (result unit grid-error)))
 
 (defn copy-family-faces (family stylesheet-path index)
