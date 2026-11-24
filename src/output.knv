@@ -1,7 +1,7 @@
 (use check/grid checked-grid grid-error)
 (use css/font-face spec-families)
 (use css/grid grid-css)
-(use font/family font-face font-family)
+(use font/family font-family)
 
 (export write-grid)
 
