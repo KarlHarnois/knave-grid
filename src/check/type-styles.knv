@@ -10,7 +10,7 @@
 (export check-type-styles)
 
 (type check-type-styles
-  (fn ((ref grid-spec) usize)
+  (fn ((ref grid-spec) int)
     (result unit grid-error)))
 
 (defn check-type-styles (spec index)

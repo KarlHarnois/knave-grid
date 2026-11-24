@@ -11,7 +11,7 @@
 (defn copy-font-licenses () (copy-license-files 0))
 
 (type copy-license-files
-  (fn (usize) (result unit string)))
+  (fn (int) (result unit string)))
 
 (defn copy-license-files (index)
   (if (>= index (len license-files))

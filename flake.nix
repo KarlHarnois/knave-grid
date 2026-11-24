@@ -2,7 +2,7 @@
   description = "knave-grid, a Swiss grid library for static sites";
 
   inputs = {
-    knave.url = "github:knave-lang/knave/v0.14.1";
+    knave.url = "github:knave-lang/knave/v0.21.2";
     nixpkgs.follows = "knave/nixpkgs";
   };
 

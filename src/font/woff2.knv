@@ -77,11 +77,8 @@
        (malformed "a WOFF2 length is longer than five bytes"))
       (else (recur bytes next-position next-value (+ byte-count 1))))))
 
-(def table-index
-  (rust "{0} as usize" (fn (i64) usize)))
-
 (defn known-table-tag (index)
-  (str (at (known-table-tags) (table-index index))))
+  (str (at (known-table-tags) index)))
 
 (defn known-table-tags ()
   (vec "cmap" "head" "hhea" "hmtx" "maxp" "name" "OS/2"

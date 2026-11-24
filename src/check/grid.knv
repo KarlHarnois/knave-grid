@@ -34,7 +34,7 @@
         (ok (->checked-grid spec all warnings))))))
 
 (type check-layouts
-  (fn ((ref (vec layout)) usize)
+  (fn ((ref (vec layout)) int)
     (result unit grid-error)))
 
 (defn check-layouts (all index)
@@ -45,7 +45,7 @@
       (recur all (+ index 1)))))
 
 (type check-layout
-  (fn ((ref (vec layout)) usize)
+  (fn ((ref (vec layout)) int)
     (result unit grid-error)))
 
 (defn check-layout (all index)
@@ -71,7 +71,7 @@
               (check-fields layout))))))
 
 (type name-taken?
-  (fn ((ref (vec layout)) usize) bool))
+  (fn ((ref (vec layout)) int) bool))
 
 (defn name-taken? (all index)
   (let (name (:name (:type-area (at all index))))
@@ -80,7 +80,7 @@
         (= (:name (:type-area earlier)) name)))))
 
 (type out-of-order?
-  (fn ((ref (vec layout)) usize) bool))
+  (fn ((ref (vec layout)) int) bool))
 
 (defn out-of-order? (all index)
   (and (>= index 2)

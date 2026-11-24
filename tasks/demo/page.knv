@@ -4,7 +4,6 @@
 (use demo/html escaped)
 (use css/grid grid-css)
 (use spec/body-type baseline-offset-px)
-(use spec/layout layout)
 (use spec/type-style style-font-size-px style-shift-px)
 
 (export demo-page)

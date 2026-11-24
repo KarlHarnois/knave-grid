@@ -2,8 +2,8 @@
 (use font/weight weight-number)
 (use font/metrics font-metrics)
 
-(use spec/body-type baseline-offset-px body-metrics
-                    body-type body-weight leading-px)
+(use spec/body-type baseline-offset-px body-type body-weight
+                    leading-px)
 
 (use spec/hanging hanging-line)
 (use spec/line-box baseline-in-line-px)

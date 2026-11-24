@@ -1,6 +1,7 @@
 (defproject knave-grid
+  :knave "0.21.2"
   (dependencies (brotli-decompressor "6.3.1"))
   (dev-dependencies (brotli "9.1.1"))
   (libraries
     (knave-preview :git "https://github.com/KarlHarnois/knave-preview"
-                   :rev "3d759e7f9d2c48ed2119b53839c30a228cebd975")))
+                   :rev "42cecfb139d116832aabcb8ba36d812593e7caaa")))
